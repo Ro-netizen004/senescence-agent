@@ -1,0 +1,40 @@
+# Python virtual environment
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment variables (never commit API keys)
+.env
+*.env
+
+# Data files (too large for git)
+backend/data/*.h5ad
+backend/data/*.h5
+backend/data/*.csv
+
+# Generated outputs
+backend/outputs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Node modules (for React frontend later)
+node_modules/
+frontend/build/
