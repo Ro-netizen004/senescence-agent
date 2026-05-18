@@ -1,36 +1,95 @@
-import scanpy as sc
-from tools.scanpy_tools import (
-    quality_control,
-    normalize,
-    cluster_cells,
-    generate_umap,
-    find_senescence_markers
+from fastapi import FastAPI, UploadFile, Form, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
+import tempfile
+import os
+import uuid
+import shutil
+
+from agent.agent import run_agent
+
+app = FastAPI()
+
+# CORS configuration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # React Vite frontend
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-def main():
-    print("Loading dataset...")
+# Static files route for plots
+OUTPUTS_DIR = os.path.join(os.path.dirname(__file__), "outputs")
+os.makedirs(OUTPUTS_DIR, exist_ok=True)
+app.mount("/plots", StaticFiles(directory=OUTPUTS_DIR), name="plots")
 
-    adata = sc.datasets.pbmc3k()
+# Session management
+sessions = {}
 
-    print("Initial shape:", adata.shape)
+# Utility function
+def capitalize_if_mouse(gene: str, species: str) -> str:
+    """Utility to map gene names based on species."""
+    if species.lower() == 'mouse':
+        return gene.capitalize()
+    return gene.upper()
 
-    adata = quality_control(adata)
-    print("After QC:", adata.shape)
+class ChatRequest(BaseModel):
+    session_id: str
+    message: str
+    file_id: str
+    species: str
 
-    adata = normalize(adata)
+@app.post("/upload")
+async def upload_file(
+    file: UploadFile,
+    species: str = Form(...)
+):
+    if not file.filename.endswith(".h5ad"):
+        raise HTTPException(status_code=400, detail="Only .h5ad files are allowed")
 
-    adata = cluster_cells(adata)
+    file_id = str(uuid.uuid4())
+    temp_dir = tempfile.gettempdir()
+    file_path = os.path.join(temp_dir, f"{file_id}.h5ad")
 
-    print("Clusters:")
-    print(adata.obs["leiden"].value_counts())
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
 
-    umap_path = generate_umap(adata)
-    print("UMAP saved at:", umap_path)
+    return {"file_id": file_id}
 
-    result = find_senescence_markers(adata)
+@app.post("/chat")
+async def chat(request: ChatRequest):
+    if not request.file_id or not request.message:
+        raise HTTPException(status_code=400, detail="Missing required fields")
+    
+    file_path = os.path.join(tempfile.gettempdir(), f"{request.file_id}.h5ad")
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="File ID not found")
 
-    print("Found:", result["found_markers"])
-    print("Missing:", result["missing_markers"])
+    if request.session_id not in sessions:
+        sessions[request.session_id] = []
+    
+    session_history = sessions[request.session_id]
+    session_history.append({"role": "user", "content": request.message})
+
+    # This is where we might extract genes and format them, 
+    # but for simplicity, the agent will handle that logic using the species info
+    # Example usage just to show it exists:
+    # formatted_gene = capitalize_if_mouse("CDKN1A", request.species)
+
+    # Call Rodela's Agent
+    response = run_agent(
+        session_history=session_history,
+        message=request.message,
+        file_id=request.file_id,
+        species=request.species
+    )
+
+    session_history.append({"role": "agent", "content": response.get("reply", "")})
+    
+    return response
 
 if __name__ == "__main__":
-    main()
+    import uvicorn
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
