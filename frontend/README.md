@@ -70,4 +70,11 @@ export default defineConfig([
     },
   },
 ])
+
+## Project Ownership
+
+This project is co-developed by two contributors with shared ownership (50/50 unless otherwise agreed).
+
+- Contributor A (Rodela Ghosh): Single-cell analysis pipeline (Scanpy, SenMayo scoring, biological logic)
+- Contributor B (Aviral Gupta): Backend API, LLM agent, and system integration (FastAPI, orchestration)
 ```
