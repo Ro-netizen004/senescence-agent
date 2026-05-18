@@ -1,22 +1,32 @@
 # senescence-agent
 LLM-powered AI agent for single-cell RNA sequencing analysis — identifies senescent cell populations in aging datasets using natural language, no coding required.
 
-## Local setup
+## API Contract (Agreed upon with Agent Team)
+To ensure seamless integration between the React frontend and the LLM Agent, the backend FastAPI server exposes the following interface:
 
-### Backend
-1. Open a terminal in `backend/`
-2. Install Python dependencies:
-   - `pip install -r requirements.txt`
-3. Start the server:
-   - `uvicorn main:app --host 0.0.0.0 --port 8000 --reload`
+### 1. `/upload` (POST)
+Accepts a multipart form dataset upload.
+- **Request (FormData)**:
+  - `file`: The `.h5ad` single-cell dataset.
+  - `species`: String (e.g., `"mouse"` or `"human"`).
+- **Response**:
+  - `{"file_id": "uuid-string"}`
 
-The backend listens on `http://localhost:8000`.
-
-### Frontend
-1. Open a terminal in `frontend/`
-2. Install Node dependencies:
-   - `npm install`
-3. Start the Vite dev server:
-   - `npm run dev`
-
-The frontend runs on `http://localhost:5173` and is configured to talk to the backend via CORS.
+### 2. `/chat` (POST)
+The primary interaction endpoint for natural language analysis.
+- **Request (JSON)**:
+  ```json
+  {
+    "session_id": "string",
+    "message": "string (e.g. 'Can you score senescence?')",
+    "file_id": "uuid-string",
+    "species": "string (e.g. 'mouse')"
+  }
+  ```
+- **Response (JSON)**:
+  ```json
+  {
+    "reply": "string (Agent's text response)",
+    "plots_generated": ["list of plot filenames (e.g. 'umap.png')"]
+  }
+  ```
