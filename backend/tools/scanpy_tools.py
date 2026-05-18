@@ -48,7 +48,7 @@ def find_senescence_markers(adata):
     }
 
 if __name__ == "__main__":
-    adata = sc.datasets.pbmc68k_reduced()
+    adata = sc.datasets.pbmc3k()
     adata = quality_control(adata)
     adata = normalize(adata)
     result = find_senescence_markers(adata)
