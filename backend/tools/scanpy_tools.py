@@ -25,7 +25,7 @@ def cluster_cells(adata):
     sc.pp.highly_variable_genes(adata, min_mean=0.0125, max_mean=3, min_disp=0.5)
     sc.pp.pca(adata)
     sc.pp.neighbors(adata)
-    sc.tl.leiden(adata)
+    sc.tl.leiden(adata, flavor="igraph", n_iterations=2)
     return adata
 
 def generate_umap(adata, filename="umap.png"):

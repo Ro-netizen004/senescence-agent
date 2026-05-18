@@ -12,10 +12,16 @@ def main():
 
     adata = sc.datasets.pbmc3k()
 
+    print("Initial shape:", adata.shape)
+
     adata = quality_control(adata)
+    print("After QC:", adata.shape)
+
     adata = normalize(adata)
+
     adata = cluster_cells(adata)
 
+    print("Clusters:")
     print(adata.obs["leiden"].value_counts())
 
     umap_path = generate_umap(adata)
@@ -25,7 +31,6 @@ def main():
 
     print("Found:", result["found_markers"])
     print("Missing:", result["missing_markers"])
-
 
 if __name__ == "__main__":
     main()
