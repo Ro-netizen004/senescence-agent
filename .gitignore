@@ -17,6 +17,9 @@ backend/data/*.h5ad
 backend/data/*.h5
 backend/data/*.csv
 
+# Gene sets and reference data (small, keep in repo)
+!backend/data/*.json
+
 # Generated outputs
 backend/outputs/
 

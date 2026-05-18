@@ -8,10 +8,15 @@ OUTPUT_DIR = "outputs"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Senescence marker genes — human names
-SENESCENCE_GENES = [
-    'CDKN1A', 'CDKN2A', 'IL6', 'IL8', 'LMNB1',
-    'TP53', 'MKI67', 'SERPINE1', 'GLB1', 'HMGA1'
-]
+import json
+
+def load_senmayo_genes():
+    path = os.path.join(os.path.dirname(__file__), "../data/senmayo.json")
+    with open(path) as f:
+        data = json.load(f)
+    return data["SAUL_SEN_MAYO"]["geneSymbols"]
+
+SENESCENCE_GENES = load_senmayo_genes()
 
 def normalize_gene_names(genes: list, species: str = 'mouse') -> list:
     """Convert human gene names to mouse orthologs if needed"""
