@@ -7,6 +7,9 @@ import os
 OUTPUT_DIR = "outputs"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
+def normalize_genes(genes: list, species: str) -> list:
+    return [g.capitalize() if species == 'mouse' else g for g in genes]
+
 def quality_control(adata):
     """Filter low quality cells and genes"""
     sc.pp.filter_cells(adata, min_genes=200)
