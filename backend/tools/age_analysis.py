@@ -1,6 +1,8 @@
 # =========================
 # Age comparison
 # =========================
+import matplotlib.pyplot as plt
+import os
 
 def compare_across_age(
     adata,
@@ -62,5 +64,30 @@ def compare_across_age(
         print(f"Most senescent age group: {top_age}")
 
     print(f"Age groups found: {ages}")
+
+        # =========================
+    # Plot: age distribution
+    # =========================
+    plot_path = None
+
+    try:
+        plt.figure()
+
+        adata.obs[age_column].astype(str).value_counts().sort_index().plot(kind="bar")
+
+        plt.title("Cell Distribution Across Age Groups")
+        plt.xlabel("Age group")
+        plt.ylabel("Number of cells")
+        plt.tight_layout()
+
+        os.makedirs("plots", exist_ok=True)
+        plot_path = f"plots/age_distribution.png"
+        plt.savefig(plot_path)
+        plt.close()
+
+        result["plot_path"] = plot_path
+
+    except Exception as e:
+        print(f"Plot error: {e}")
 
     return result
