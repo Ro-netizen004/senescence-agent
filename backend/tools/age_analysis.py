@@ -2,16 +2,26 @@
 # Age comparison
 # =========================
 import matplotlib.pyplot as plt
+from tools.senescence import senescence_score as _senescence_score
 import os
+
 
 def compare_across_age(
     adata,
     age_column: str = "age",
-    cell_type_column: str = "cell_ontology_class"
+    cell_type_column: str = "cell_ontology_class",
+    species: str = "mouse",
 ):
+    # Auto-score if not already done
+    if "senescence_score" not in adata.obs.columns:
+        print("Senescence score not found — running scoring first...")
+        _senescence_score(adata, species)
+
     if age_column not in adata.obs.columns:
-        return {"error": f"Column '{age_column}' not found. "
-                         f"Available: {adata.obs.columns.tolist()}"}
+        return {
+            "error": f"Column '{age_column}' not found. "
+                     f"Available: {adata.obs.columns.tolist()}"
+        }
 
     ages = sorted(adata.obs[age_column].astype(str).unique().tolist())
 
@@ -44,7 +54,6 @@ def compare_across_age(
         )
 
     # Senescence score trend across age
-    # Only available if senescence_score was called first
     if "senescence_score" in adata.obs.columns:
         age_senescence = (
             adata.obs
@@ -56,7 +65,6 @@ def compare_across_age(
         )
         result["senescence_by_age"] = age_senescence
 
-        # Find age group with highest senescence
         top_age = max(age_senescence, key=age_senescence.get)
         result["most_senescent_age"] = top_age
 
@@ -65,7 +73,7 @@ def compare_across_age(
 
     print(f"Age groups found: {ages}")
 
-        # =========================
+    # =========================
     # Plot: age distribution
     # =========================
     plot_path = None
@@ -81,7 +89,7 @@ def compare_across_age(
         plt.tight_layout()
 
         os.makedirs("plots", exist_ok=True)
-        plot_path = f"plots/age_distribution.png"
+        plot_path = "plots/age_distribution.png"
         plt.savefig(plot_path)
         plt.close()
 

@@ -96,7 +96,6 @@ def senescence_score(adata, species: str = "mouse"):
     # Summary statistics
     score_summary = adata.obs["senescence_score"].describe()
 
-    # Per-cluster mean scores — sorted highest first
     cluster_scores = (
         adata.obs
         .groupby("leiden", observed=True)["senescence_score"]
@@ -106,21 +105,24 @@ def senescence_score(adata, species: str = "mouse"):
 
     top_cluster = cluster_scores.index[0]
 
-    # Map cluster → most common cell type (if column exists)
-    top_celltype = None
+    # Map ALL clusters → most common cell type
+    cluster_to_celltype = {}
     if "cell_ontology_class" in adata.obs.columns:
         cluster_to_celltype = (
             adata.obs
             .groupby("leiden", observed=True)["cell_ontology_class"]
             .agg(lambda x: x.value_counts().index[0])
+            .to_dict()
         )
-        top_celltype = cluster_to_celltype[top_cluster]
 
-    print(f"Highest senescence cluster: {top_cluster} "
-          f"(mean score: {cluster_scores.iloc[0]:.4f})")
+    
+    top_celltype = cluster_to_celltype.get(top_cluster)
 
-    if top_celltype:
-        print(f"Most common cell type in that cluster: {top_celltype}")
+    # Build labeled scores dict: {"12 (mesangial cell)": 0.2357, ...}
+    labeled_scores = {
+        f"{cluster} ({cluster_to_celltype[cluster]})" if cluster in cluster_to_celltype else str(cluster): round(float(score), 4)
+        for cluster, score in cluster_scores.items()
+    }
 
     return {
         "top_senescent_cluster": top_cluster,
@@ -129,6 +131,42 @@ def senescence_score(adata, species: str = "mouse"):
         "total_senmayo_genes": len(genes),
         "mean_score": round(float(score_summary["mean"]), 4),
         "max_score": round(float(score_summary["max"]), 4),
-        "cluster_scores": cluster_scores.round(4).to_dict(),
+        "cluster_scores": labeled_scores,  # ← now all clusters have cell type names
         "plot_path": filepath
+    }
+
+def get_cluster_annotations(adata) -> dict:
+    """
+    Return a mapping of every cluster → most common cell type,
+    plus cell type distribution per cluster.
+    """
+    if "leiden" not in adata.obs.columns:
+        return {"error": "No leiden clustering found. Run pipeline first."}
+
+    if "cell_ontology_class" not in adata.obs.columns:
+        return {"error": "No cell type annotations found in dataset."}
+
+    # Most common cell type per cluster
+    dominant = (
+        adata.obs
+        .groupby("leiden", observed=True)["cell_ontology_class"]
+        .agg(lambda x: x.value_counts().index[0])
+        .to_dict()
+    )
+
+    # Full distribution per cluster (useful for mixed clusters)
+    distribution = (
+        adata.obs
+        .groupby("leiden", observed=True)["cell_ontology_class"]
+        .value_counts(normalize=True)
+        .round(3)
+        .groupby(level=0)
+        .apply(lambda x: x.droplevel(0).to_dict())
+        .to_dict()
+    )
+
+    return {
+        "cluster_annotations": dominant,
+        "cluster_distributions": distribution,
+        "total_clusters": len(dominant)
     }

@@ -1,83 +1,155 @@
-import { useState } from "react";
+import { useState, type ChangeEvent, type KeyboardEvent } from "react";
+import UploadPanel from "./components/UploadPanel";
+import ChatPanel from "./components/ChatPanel";
+import Plots from "./components/Plots";
 
-function App() {
+interface Message {
+  role: "user" | "assistant";
+  content: string;
+}
+
+interface Plot {
+  url: string;
+  caption: string;
+}
+
+export default function App() {
   const [fileId, setFileId] = useState("");
+  const [fileName, setFileName] = useState("");
+  const [species] = useState("mouse");
   const [message, setMessage] = useState("");
-  const [sessionId] = useState("test-session");
-  const [response, setResponse] = useState<any>(null);
+  const [history, setHistory] = useState<Message[]>([]);
+  const [plots, setPlots] = useState<Plot[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [sessionId] = useState(() => crypto.randomUUID());
 
-  async function uploadFile(e: any) {
-    const file = e.target.files[0];
+  async function uploadFile(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("species", "mouse");
+    formData.append("species", species);
 
-    const res = await fetch("http://127.0.0.1:8000/upload", {
-      method: "POST",
-      body: formData,
-    });
+    try {
+      const res = await fetch("http://127.0.0.1:8000/upload", {
+        method: "POST",
+        body: formData,
+      });
 
-    const data = await res.json();
-    setFileId(data.file_id);
+      if (!res.ok) {
+        throw new Error("Upload failed. Please try again.");
+      }
+
+      const data = await res.json();
+      setFileId(data.file_id);
+      setFileName(file.name);
+      setHistory([]);
+      setPlots([]);
+      setError("");
+    } catch (err: any) {
+      setError(err?.message || "Upload failed. Is the server running?");
+    }
   }
 
-  async function sendPrompt() {
-    const res = await fetch("http://127.0.0.1:8000/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        session_id: sessionId,
-        message: message,
-        file_id: fileId,
-        species: "mouse",
-      }),
-    });
+  async function sendMessage() {
+    if (!message.trim() || !fileId || loading) return;
 
-    const data = await res.json();
-    setResponse(data);
+    const userMsg: Message = { role: "user", content: message };
+    const updated = [...history, userMsg];
+
+    setHistory(updated);
+    setMessage("");
+    setLoading(true);
+
+    try {
+      const res = await fetch("http://127.0.0.1:8000/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          session_id: sessionId,
+          message: userMsg.content,
+          file_id: fileId,
+          species,
+          session_history: updated,
+        }),
+      });
+
+      const data = await res.json();
+
+      setHistory([
+        ...updated,
+        { role: "assistant", content: data.reply || "Done." },
+      ]);
+
+      if (data.plots?.length) {
+        setPlots((p) => [...p, ...data.plots]);
+      }
+    } catch (err: any) {
+      setError(err.message || "Error occurred");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  }
+
+  function resetSession() {
+    setHistory([]);
+    setPlots([]);
+    setFileId("");
+    setFileName("");
+    setError("");
   }
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>Senescence Agent</h1>
-
-      {/* Upload */}
-      <input type="file" onChange={uploadFile} />
-
-      {fileId && <p>File uploaded ✅ {fileId}</p>}
-
-      {/* Prompt input */}
-      <input
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder="Ask something..."
-        style={{ width: "300px", marginTop: 10 }}
-      />
-
-      <button onClick={sendPrompt} disabled={!fileId}>
-        Send
-      </button>
-
-      {/* Output */}
-      {response && (
-        <div style={{ marginTop: 20 }}>
-          <h3>Reply:</h3>
-          <p>{response.reply}</p>
-
-          <h4>Tools:</h4>
-          <pre>{JSON.stringify(response.tool_calls, null, 2)}</pre>
-
-          <h4>Plots:</h4>
-          {response.plots?.map((p: any, i: number) => (
-            <img key={i} src={`http://127.0.0.1:8000${p.url}`} width="400" />
-          ))}
+    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-emerald-50 py-6 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-6 rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur-xl sm:p-8">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm uppercase tracking-[0.24em] text-emerald-700">Senescence Agent</p>
+              <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-900">
+                Single-cell analysis assistant
+              </h1>
+            </div>
+            <p className="max-w-xl text-sm leading-6 text-slate-600">
+              Upload a dataset, ask questions, and browse generated plots in a polished, responsive chat experience.
+            </p>
+          </div>
         </div>
-      )}
+
+        <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+          <UploadPanel
+            fileId={fileId}
+            fileName={fileName}
+            species={species}
+            onUpload={uploadFile}
+          />
+
+          <ChatPanel
+            history={history}
+            message={message}
+            loading={loading}
+            fileId={fileId}
+            fileName={fileName}
+            plots={plots}
+            error={error}
+            setMessage={setMessage}
+            onSend={sendMessage}
+            onKeyDown={handleKeyDown}
+            onReset={resetSession}
+          />
+
+          <Plots plots={plots} />
+        </div>
+      </div>
     </div>
   );
 }
-
-export default App;

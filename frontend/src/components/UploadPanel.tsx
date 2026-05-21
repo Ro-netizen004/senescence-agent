@@ -1,0 +1,82 @@
+import type { ChangeEvent } from "react";
+
+interface Props {
+  fileId: string;
+  fileName: string;
+  species: string;
+  onUpload: (e: ChangeEvent<HTMLInputElement>) => void;
+}
+
+export default function UploadPanel({ fileId, fileName, species, onUpload }: Props) {
+  return (
+    <div className="flex flex-col gap-5 rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+
+      {/* Header */}
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h2 className="text-sm font-semibold text-slate-900">Dataset</h2>
+          <p className="mt-0.5 text-xs leading-5 text-slate-400">
+            Upload a .h5ad file to begin analysis.
+          </p>
+        </div>
+        {species && (
+          <span className="shrink-0 rounded-full border border-violet-100 bg-violet-50 px-2.5 py-1 text-[11px] font-semibold tracking-wide text-violet-600">
+            {species}
+          </span>
+        )}
+      </div>
+
+      {/* Drop zone */}
+      <label
+        className={`group relative flex cursor-pointer flex-col items-center gap-3 rounded-xl border-2 border-dashed px-4 py-8 text-center transition-colors ${
+          fileId
+            ? "border-emerald-200 bg-emerald-50 hover:bg-emerald-50"
+            : "border-slate-200 bg-slate-50 hover:border-violet-300 hover:bg-violet-50/40"
+        }`}
+      >
+        {/* Icon */}
+        <div
+          className={`flex h-10 w-10 items-center justify-center rounded-xl transition-colors ${
+            fileId ? "bg-emerald-100 text-emerald-600" : "bg-slate-100 text-slate-400 group-hover:bg-violet-100 group-hover:text-violet-500"
+          }`}
+        >
+          {fileId ? (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          ) : (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+          )}
+        </div>
+
+        {fileId ? (
+          <div className="space-y-0.5">
+            <p className="text-sm font-semibold text-emerald-700">Dataset loaded</p>
+            <p className="max-w-[180px] truncate text-xs text-emerald-600">{fileName || fileId}</p>
+            <p className="text-[11px] text-emerald-500/80">Click to replace</p>
+          </div>
+        ) : (
+          <div className="space-y-0.5">
+            <p className="text-sm font-semibold text-slate-700 group-hover:text-violet-700 transition-colors">
+              Choose a file
+            </p>
+            <p className="text-xs text-slate-400">
+              .h5ad format · single-cell data
+            </p>
+          </div>
+        )}
+
+        <input
+          type="file"
+          accept=".h5ad"
+          onChange={onUpload}
+          className="hidden"
+        />
+      </label>
+    </div>
+  );
+}

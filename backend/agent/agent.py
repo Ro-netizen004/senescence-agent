@@ -7,8 +7,8 @@ from groq import Groq
 from dotenv import load_dotenv
 
 from tools.visualization import generate_umap
-from tools.senescence import find_senescence_markers, senescence_score
 from tools.age_analysis import compare_across_age
+from tools.senescence import find_senescence_markers, senescence_score, get_cluster_annotations
 
 from agent.cache import get_adata, cache_adata
 from agent.pipeline import ensure_pipeline
@@ -60,6 +60,7 @@ def run_agent(
             "generate_umap": generate_umap,
             "find_senescence_markers": find_senescence_markers,
             "senescence_score": senescence_score,
+            "get_cluster_annotations": get_cluster_annotations,
             "compare_across_age": compare_across_age
         }
     )
@@ -83,6 +84,7 @@ def run_agent(
             messages=messages,
             tools=TOOLS,
             tool_choice="auto",
+            temperature = 0,
             max_tokens=1024
         )
 
