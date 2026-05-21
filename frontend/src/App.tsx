@@ -21,6 +21,7 @@ export default function App() {
   const [history, setHistory] = useState<Message[]>([]);
   const [plots, setPlots] = useState<Plot[]>([]);
   const [loading, setLoading] = useState(false);
+  const [reportLoading, setReportLoading] = useState(false);
   const [error, setError] = useState("");
   const [sessionId] = useState(() => crypto.randomUUID());
 
@@ -93,6 +94,52 @@ export default function App() {
     }
   }
 
+  async function generateReport() {
+    if (!fileId || loading || reportLoading || history.length === 0) return;
+
+    setReportLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch("http://127.0.0.1:8000/report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          session_id: sessionId,
+          file_id: fileId,
+          species,
+          session_history: history,
+          plots,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.detail || "Report generation failed.");
+      }
+
+      const reportLinks = [
+        data.pdf_url ? `[Download PDF](http://127.0.0.1:8000${data.pdf_url})` : "",
+        data.report_url ? `[Open Markdown](http://127.0.0.1:8000${data.report_url})` : "",
+      ].filter(Boolean);
+
+      const reportContent = [
+        data.report || "Report generated.",
+        reportLinks.length ? `\n\n---\n\n${reportLinks.join(" · ")}` : "",
+      ].join("");
+
+      setHistory((current) => [
+        ...current,
+        { role: "assistant", content: reportContent },
+      ]);
+    } catch (err: any) {
+      setError(err.message || "Report generation failed");
+    } finally {
+      setReportLoading(false);
+    }
+  }
+
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -137,12 +184,13 @@ export default function App() {
             history={history}
             message={message}
             loading={loading}
+            reportLoading={reportLoading}
             fileId={fileId}
             fileName={fileName}
-            plots={plots}
             error={error}
             setMessage={setMessage}
             onSend={sendMessage}
+            onGenerateReport={generateReport}
             onKeyDown={handleKeyDown}
             onReset={resetSession}
           />

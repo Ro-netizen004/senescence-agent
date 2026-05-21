@@ -7,25 +7,34 @@ from tools.preprocessing import quality_control, normalize
 from tools.clustering import cluster_cells
 
 def ensure_pipeline(adata, species: str) -> None:
-    """
-    Guarantee preprocessing runs in correct order exactly once.
-    Called automatically before any LLM tool execution.
-
-    Uses adata.uns["pipeline_state"] for safe persistence —
-    this survives cache lookups unlike Python object attributes.
-    """
     state = adata.uns.get("pipeline_state", {})
 
+    # =========================
+    # 0. LOCK RAW COUNTS (CRITICAL)
+    # =========================
+    if "counts" not in adata.layers:
+        adata.layers["counts"] = adata.X.copy()
+        print("✔ Raw counts locked")
+
+    # =========================
+    # 1. QC
+    # =========================
     if not state.get("qc"):
         print("Auto-running: quality_control")
         quality_control(adata, species)
         state["qc"] = True
 
+    # =========================
+    # 2. NORMALIZATION (VISUAL ONLY)
+    # =========================
     if not state.get("norm"):
         print("Auto-running: normalize")
         normalize(adata)
         state["norm"] = True
 
+    # =========================
+    # 3. CLUSTERING
+    # =========================
     if not state.get("cluster"):
         print("Auto-running: cluster_cells")
         cluster_cells(adata)

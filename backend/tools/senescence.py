@@ -137,33 +137,41 @@ def senescence_score(adata, species: str = "mouse"):
 
 def get_cluster_annotations(adata) -> dict:
     """
-    Return a mapping of every cluster → most common cell type,
-    plus cell type distribution per cluster.
+    Return:
+    - dominant cell type per cluster
+    - full distribution per cluster (safe serialization)
     """
+
     if "leiden" not in adata.obs.columns:
         return {"error": "No leiden clustering found. Run pipeline first."}
 
     if "cell_ontology_class" not in adata.obs.columns:
         return {"error": "No cell type annotations found in dataset."}
 
-    # Most common cell type per cluster
-    dominant = (
-        adata.obs
-        .groupby("leiden", observed=True)["cell_ontology_class"]
-        .agg(lambda x: x.value_counts().index[0])
-        .to_dict()
-    )
+    dominant = {}
+    distribution = {}
 
-    # Full distribution per cluster (useful for mixed clusters)
-    distribution = (
-        adata.obs
-        .groupby("leiden", observed=True)["cell_ontology_class"]
-        .value_counts(normalize=True)
-        .round(3)
-        .groupby(level=0)
-        .apply(lambda x: x.droplevel(0).to_dict())
-        .to_dict()
-    )
+    # iterate cluster by cluster (SAFE, NO PANDAS TO_DICT TRICKS)
+    for cluster in adata.obs["leiden"].astype(str).unique():
+
+        subset = adata.obs[adata.obs["leiden"].astype(str) == cluster]
+
+        # ---- dominant cell type ----
+        vc = subset["cell_ontology_class"].astype(str).value_counts()
+
+        if len(vc) == 0:
+            continue
+
+        dominant[str(cluster)] = str(vc.index[0])
+
+        # ---- distribution (explicit loop = SAFE FOR GEMINI) ----
+        total = float(vc.sum())
+
+        dist = {}
+        for cell_type, count in vc.items():
+            dist[str(cell_type)] = round(float(count) / total, 3)
+
+        distribution[str(cluster)] = dist
 
     return {
         "cluster_annotations": dominant,

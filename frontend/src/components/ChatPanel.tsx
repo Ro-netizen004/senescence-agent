@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import ReactMarkdown from "react-markdown"
 
 interface Message {
   role: "user" | "assistant";
@@ -9,11 +10,13 @@ interface Props {
   history: Message[];
   message: string;
   loading: boolean;
+  reportLoading: boolean;
   fileId: string;
   fileName: string;
   error: string;
   setMessage: (v: string) => void;
   onSend: () => void;
+  onGenerateReport: () => void;
   onKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
   onReset: () => void;
 }
@@ -22,11 +25,13 @@ export default function ChatPanel({
   history,
   message,
   loading,
+  reportLoading,
   fileId,
   fileName,
   error,
   setMessage,
   onSend,
+  onGenerateReport,
   onKeyDown,
   onReset,
 }: Props) {
@@ -65,6 +70,21 @@ export default function ChatPanel({
             />
             {fileId ? (fileName || fileId) : "No dataset"}
           </div>
+
+          <button
+            onClick={onGenerateReport}
+            disabled={!fileId || loading || reportLoading || history.length === 0}
+            title="Generate report"
+            className="flex h-7 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 text-xs font-medium text-slate-500 transition hover:border-emerald-200 hover:text-emerald-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 1.5h5l3 3v10H4z" />
+              <path d="M9 1.5v3h3" />
+              <path d="M6 8h4" />
+              <path d="M6 10.5h4" />
+            </svg>
+            {reportLoading ? "Writing" : "Report"}
+          </button>
 
           <button
             onClick={onReset}
@@ -123,7 +143,13 @@ export default function ChatPanel({
                       : "rounded-bl-sm border border-slate-100 bg-slate-50 text-slate-800"
                   }`}
                 >
-                  {msg.content}
+                  {msg.role === "user" ? (
+                    msg.content
+                  ) : (
+                    <div className="prose prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-li:my-0.5 prose-strong:text-slate-900 prose-li:text-slate-800">
+                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
