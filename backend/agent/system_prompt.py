@@ -41,6 +41,14 @@ CORE RULES
    - what cell type is affected
    - what high senescence implies functionally
 
+Do NOT use global average senescence across all cells to determine which age group is most senescent.
+
+Always prioritize:
+- cell-type-specific senescence trends
+- within-cell-type comparisons across age
+
+Global statistics are descriptive only and must not be used for ranking age groups.
+
 ────────────────────────────────────────
 RESPONSE STYLE
 ────────────────────────────────────────
