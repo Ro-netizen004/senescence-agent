@@ -10,11 +10,9 @@ The system identifies senescent cell populations in aging datasets using natural
 ```text
 senescence-agent/
 │
-├── backend/        # FastAPI backend + Scanpy analysis tools
-├── frontend/       # React + TypeScript frontend
-├── data/           # Local datasets (.h5ad) — ignored by git
-├── outputs/        # Generated plots and analysis outputs
-├── agent/          # LLM orchestration logic
+├── backend/        # FastAPI, agent/, tools/, data/, outputs/
+├── frontend/       # React + TypeScript (Vite)
+├── .env            # GEMINI_API_KEY (not committed)
 └── README.md
 ```
 
@@ -112,8 +110,11 @@ python main.py
 ```bash
 cd frontend
 npm install
+cp .env.example .env   # optional: set VITE_API_URL
 npm run dev
 ```
+
+API: `GET /health`, `GET /dataset/{file_id}/info?species=mouse`
 
 ---
 
@@ -149,5 +150,5 @@ backend/data/
 - Vite
 
 ## AI
-- Ollama
-- Llama 3.1 8B
+- Google Gemini (`GEMINI_API_KEY` in `.env` at repo root)
+- Default model: `gemini-2.5-flash` (override with `GEMINI_MODEL`)

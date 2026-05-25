@@ -1,9 +1,10 @@
+import json
 import os
 import re
 import textwrap
 import uuid
 from datetime import datetime
-from typing import Iterable
+from typing import Any, Iterable, Optional
 
 import google.generativeai as genai
 from matplotlib.backends.backend_pdf import PdfPages
@@ -13,50 +14,111 @@ import matplotlib.pyplot as plt
 REPORT_MODEL = os.getenv("REPORT_MODEL", os.getenv("GEMINI_MODEL", "gemini-2.5-flash"))
 REPORT_API_KEY = os.getenv("REPORT_GEMINI_API_KEY", os.getenv("GEMINI_API_KEY"))
 
+MAX_DESEQ2_GENES_IN_REPORT = 15
+
 
 REPORT_SYSTEM_PROMPT = """
 You are a careful scientific report writer for single-cell RNA-seq aging analysis.
 Write a structured Markdown report using only the supplied source material.
 
+The primary source is the TOOL EXECUTION LOG: each entry is a tool name, its arguments, and the structured result returned by the pipeline.
+Optional USER QUESTIONS list what the researcher asked; do not treat assistant chat prose as authoritative data.
+
 Rules:
 - Do not invent datasets, genes, p-values, plots, methods, or conclusions.
-- If a requested detail is absent, say it was not available in the supplied analysis.
+- If a requested detail is absent from the tool log, say it was not available in the supplied analysis.
 - Distinguish descriptive SenMayo score trends from statistical differential expression.
 - Treat global senescence scores as descriptive and potentially confounded by cell-type composition.
 - For DESeq2, report the contrast direction and explain that positive log2FC means higher expression in the comparison group.
-- Keep biological interpretation cautious and directly tied to the supplied results.
+- Keep biological interpretation cautious and directly tied to the tool results.
 - Do not claim absence of biological change. Say "not detected at the chosen threshold" or "not statistically significant".
-- If no genes pass FDR < 0.05, include at most 5 exploratory ranked genes.
+- If no genes pass FDR < 0.05, include at most 5 exploratory ranked genes from the DESeq2 tool result.
 - Markdown tables must be valid GitHub-flavored Markdown: header row, separator row, and every data row must be on its own line.
 - Avoid wide tables when prose or a short bullet list would be clearer.
 """
 
 
-def _compact_history(session_history: Iterable[dict], max_messages: int = 18) -> str:
-    messages = list(session_history)[-max_messages:]
+def _sanitize_result_for_report(result: Any) -> Any:
+    if isinstance(result, dict):
+        out = {}
+        for key, value in result.items():
+            if key in ("age_distribution_plot", "senescence_violin_plot", "plot_path"):
+                out[key] = os.path.basename(str(value)) if value else value
+                continue
+            if key == "results" and isinstance(value, list) and len(value) > MAX_DESEQ2_GENES_IN_REPORT:
+                out["results"] = value[:MAX_DESEQ2_GENES_IN_REPORT]
+                out["results_note"] = (
+                    f"Gene table truncated to top {MAX_DESEQ2_GENES_IN_REPORT} rows "
+                    f"of {len(value)} returned by DESeq2."
+                )
+                continue
+            if key == "cell_type_proportions" and isinstance(value, dict):
+                out[key] = value
+                continue
+            out[key] = _sanitize_result_for_report(value)
+        return out
+    if isinstance(result, list):
+        return [_sanitize_result_for_report(item) for item in result[:50]]
+    return result
+
+
+def _format_tool_runs(tool_runs: Iterable[dict]) -> str:
+    runs = list(tool_runs)
+    if not runs:
+        return ""
+
+    blocks = []
+    for i, run in enumerate(runs, start=1):
+        name = run.get("name", "unknown_tool")
+        args = run.get("args") or {}
+        result = _sanitize_result_for_report(run.get("result"))
+
+        blocks.append(f"### Tool run {i}: {name}")
+        if args:
+            blocks.append(
+                "Arguments:\n```json\n"
+                + json.dumps(args, indent=2, default=str)
+                + "\n```"
+            )
+        blocks.append(
+            "Result:\n```json\n"
+            + json.dumps(result, indent=2, default=str)
+            + "\n```"
+        )
+
+    return "\n\n".join(blocks)
+
+
+def _compact_user_questions(session_history: Optional[Iterable[dict]], max_messages: int = 12) -> str:
+    if not session_history:
+        return ""
+
     lines = []
-
-    for msg in messages:
-        role = msg.get("role", "unknown")
-        content = str(msg.get("content", "")).strip()
-        if not content:
+    for msg in list(session_history)[-max_messages:]:
+        if msg.get("role") != "user":
             continue
-        lines.append(f"{role.upper()}:\n{content}")
+        content = str(msg.get("content", "")).strip()
+        if content:
+            lines.append(f"- {content}")
 
-    return "\n\n---\n\n".join(lines)
+    return "\n".join(lines)
 
 
 def generate_report(
-    session_history: list,
     file_id: str,
     species: str,
+    tool_runs: Optional[list] = None,
+    session_history: Optional[list] = None,
 ) -> str:
-    source_material = _compact_history(session_history)
+    tool_runs = tool_runs or []
+    tool_log = _format_tool_runs(tool_runs)
+    user_questions = _compact_user_questions(session_history)
 
-    if not source_material:
+    if not tool_log:
         return (
             "# Single-cell Aging Analysis Report\n\n"
-            "No completed analysis messages were available yet. Run one or more analyses first, then generate a report."
+            "No tool results were available yet. Run one or more analyses in chat "
+            "(e.g. senescence score, age comparison, DESeq2) before generating a report."
         )
 
     if not REPORT_API_KEY:
@@ -70,25 +132,34 @@ def generate_report(
         generation_config=genai.GenerationConfig(temperature=0.1),
     )
 
+    user_section = (
+        f"## User questions (context only)\n{user_questions}"
+        if user_questions
+        else "## User questions\n(none recorded)"
+    )
+
     prompt = f"""
-Create a concise but informative Markdown report from the supplied analysis transcript.
+Create a concise but informative Markdown report from the tool execution log below.
 
 Dataset metadata:
 - file_id: {file_id}
 - species: {species}
+- tools executed: {len(tool_runs)}
 
 Required sections:
 1. Title
 2. Executive Summary
-3. Analyses Performed
-4. Key Results
-5. Differential Expression Findings
-6. Senescence and Age Trends
+3. Analyses Performed (list each tool run and its purpose)
+4. Key Results (quantitative facts from tool results only)
+5. Differential Expression Findings (from run_deseq2 if present)
+6. Senescence and Age Trends (from senescence_score / compare_across_age if present)
 7. Caveats and Interpretation Limits
-8. Reproducibility Notes
+8. Reproducibility Notes (tools run, contrasts used, cell types filtered)
 
-Source material:
-{source_material}
+{user_section}
+
+## Tool execution log (authoritative)
+{tool_log}
 """
 
     response = model.generate_content(prompt)

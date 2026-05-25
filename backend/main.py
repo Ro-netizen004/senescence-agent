@@ -2,14 +2,17 @@ from fastapi import FastAPI, UploadFile, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-from typing import List, Optional
-import tempfile
+from typing import Any, List, Optional
 import os
 import uuid
 import shutil
+import scanpy as sc
 
 from agent.agent import run_agent
 from agent.report import generate_report, save_report_files
+from agent.cache import cache_adata
+from dataset_paths import persist_upload, resolve_dataset_path, ensure_uploads_dir
+from tools.dataset_info import build_dataset_summary
 
 app = FastAPI()
 
@@ -38,6 +41,9 @@ app.mount("/reports", StaticFiles(directory=REPORTS_DIR), name="reports")
 
 # Server-side session store
 sessions: dict = {}
+session_tool_runs: dict[str, list] = {}
+
+ensure_uploads_dir()
 
 # ── Models ─────────────────────────────────────────────────────────────────
 class HistoryMessage(BaseModel):
@@ -51,11 +57,18 @@ class ChatRequest(BaseModel):
     species: str
     session_history: Optional[List[HistoryMessage]] = []  # from frontend
 
+class ToolRunRecord(BaseModel):
+    name: str
+    args: Optional[dict] = None
+    result: Optional[Any] = None
+
+
 class ReportRequest(BaseModel):
     session_id: str
     file_id: str
     species: str
     session_history: Optional[List[HistoryMessage]] = []
+    tool_runs: Optional[List[ToolRunRecord]] = []
     plots: Optional[list[dict]] = []
 
 # ── Upload ──────────────────────────────────────────────────────────────────
@@ -70,14 +83,17 @@ async def upload_file(
             detail="Only .h5ad files are allowed"
         )
 
-    file_id   = str(uuid.uuid4())
-    file_path = os.path.join(tempfile.gettempdir(), f"{file_id}.h5ad")
+    file_id = str(uuid.uuid4())
+    temp_path = os.path.join(ensure_uploads_dir(), f"{file_id}.uploading")
 
-    with open(file_path, "wb") as buffer:
+    with open(temp_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    print(f"Uploaded file: {file_id} ({file.filename})")
-    return {"file_id": file_id}
+    file_path = persist_upload(file_id, temp_path)
+    os.remove(temp_path)
+
+    print(f"Uploaded file: {file_id} ({file.filename}) -> {file_path}")
+    return {"file_id": file_id, "species": species}
 
 # ── Chat ────────────────────────────────────────────────────────────────────
 @app.post("/chat")
@@ -85,8 +101,8 @@ async def chat(request: ChatRequest):
     if not request.file_id or not request.message:
         raise HTTPException(status_code=400, detail="Missing required fields")
 
-    file_path = os.path.join(tempfile.gettempdir(), f"{request.file_id}.h5ad")
-    if not os.path.exists(file_path):
+    file_path = resolve_dataset_path(request.file_id)
+    if not file_path:
         raise HTTPException(status_code=404, detail="Dataset not found. Please upload again.")
 
     # Use frontend history if provided, otherwise fall back to server sessions
@@ -131,6 +147,9 @@ async def chat(request: ChatRequest):
         "content": response.get("reply", "")
     })
 
+    for tool_call in response.get("tool_calls") or []:
+        session_tool_runs.setdefault(request.session_id, []).append(tool_call)
+
     return response
 
 @app.post("/report")
@@ -138,18 +157,20 @@ async def report(request: ReportRequest):
     if not request.file_id:
         raise HTTPException(status_code=400, detail="Missing dataset")
 
-    file_path = os.path.join(tempfile.gettempdir(), f"{request.file_id}.h5ad")
-    if not os.path.exists(file_path):
+    file_path = resolve_dataset_path(request.file_id)
+    if not file_path:
         raise HTTPException(status_code=404, detail="Dataset not found. Please upload again.")
 
-    if request.session_history:
-        session_history = [
-            {"role": msg.role, "content": msg.content}
-            for msg in request.session_history
-            if msg.role in ("user", "assistant")
-        ]
+    session_history = [
+        {"role": msg.role, "content": msg.content}
+        for msg in (request.session_history or [])
+        if msg.role == "user"
+    ]
+
+    if request.tool_runs:
+        tool_runs = [run.model_dump() for run in request.tool_runs]
     else:
-        session_history = sessions.get(request.session_id, [])
+        tool_runs = session_tool_runs.get(request.session_id, [])
 
     try:
         plot_urls = [
@@ -163,9 +184,10 @@ async def report(request: ReportRequest):
         ]
 
         report_text = generate_report(
-            session_history=session_history,
             file_id=request.file_id,
             species=request.species,
+            tool_runs=tool_runs,
+            session_history=session_history,
         )
         report_files = save_report_files(
             report_text,
@@ -190,6 +212,26 @@ async def report(request: ReportRequest):
         "report_url": f"/reports/{os.path.basename(report_files['markdown_path'])}",
         "pdf_url": f"/reports/{os.path.basename(report_files['pdf_path'])}",
     }
+
+@app.get("/health")
+async def health():
+    return {
+        "status": "ok",
+        "gemini_configured": bool(os.getenv("GEMINI_API_KEY")),
+    }
+
+
+@app.get("/dataset/{file_id}/info")
+async def dataset_info(file_id: str, species: str = "mouse"):
+    file_path = resolve_dataset_path(file_id)
+    if not file_path:
+        raise HTTPException(status_code=404, detail="Dataset not found. Please upload again.")
+
+    adata = sc.read_h5ad(file_path)
+    summary = build_dataset_summary(adata, species)
+    cache_adata(file_id, adata)
+    return summary
+
 
 if __name__ == "__main__":
     import uvicorn

@@ -2,6 +2,7 @@ import { useState, type ChangeEvent, type KeyboardEvent } from "react";
 import UploadPanel from "./components/UploadPanel";
 import ChatPanel from "./components/ChatPanel";
 import Plots from "./components/Plots";
+import { API_BASE } from "./config";
 
 interface Message {
   role: "user" | "assistant";
@@ -13,17 +14,25 @@ interface Plot {
   caption: string;
 }
 
+export interface ToolCallLog {
+  name: string;
+  args?: Record<string, unknown>;
+  result?: unknown;
+}
+
 export default function App() {
   const [fileId, setFileId] = useState("");
   const [fileName, setFileName] = useState("");
-  const [species] = useState("mouse");
+  const [species, setSpecies] = useState("mouse");
   const [message, setMessage] = useState("");
   const [history, setHistory] = useState<Message[]>([]);
   const [plots, setPlots] = useState<Plot[]>([]);
+  const [lastToolCalls, setLastToolCalls] = useState<ToolCallLog[]>([]);
+  const [sessionToolRuns, setSessionToolRuns] = useState<ToolCallLog[]>([]);
   const [loading, setLoading] = useState(false);
   const [reportLoading, setReportLoading] = useState(false);
   const [error, setError] = useState("");
-  const [sessionId] = useState(() => crypto.randomUUID());
+  const [sessionId, setSessionId] = useState(() => crypto.randomUUID());
 
   async function uploadFile(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -34,7 +43,7 @@ export default function App() {
     formData.append("species", species);
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/upload", {
+      const res = await fetch(`${API_BASE}/upload`, {
         method: "POST",
         body: formData,
       });
@@ -48,9 +57,12 @@ export default function App() {
       setFileName(file.name);
       setHistory([]);
       setPlots([]);
+      setLastToolCalls([]);
+      setSessionToolRuns([]);
       setError("");
-    } catch (err: any) {
-      setError(err?.message || "Upload failed. Is the server running?");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Upload failed. Is the server running?";
+      setError(msg);
     }
   }
 
@@ -63,9 +75,10 @@ export default function App() {
     setHistory(updated);
     setMessage("");
     setLoading(true);
+    setError("");
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/chat", {
+      const res = await fetch(`${API_BASE}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -84,24 +97,41 @@ export default function App() {
         { role: "assistant", content: data.reply || "Done." },
       ]);
 
-      if (data.plots?.length) {
-        setPlots((p) => [...p, ...data.plots]);
+      const toolCalls: ToolCallLog[] = data.tool_calls || [];
+      setLastToolCalls(toolCalls);
+      if (toolCalls.length) {
+        setSessionToolRuns((prev) => [...prev, ...toolCalls]);
       }
-    } catch (err: any) {
-      setError(err.message || "Error occurred");
+
+      if (data.plots?.length) {
+        setPlots((p) => {
+          const seen = new Set(p.map((x) => x.url));
+          const next = [...p];
+          for (const plot of data.plots) {
+            if (!seen.has(plot.url)) {
+              next.push(plot);
+              seen.add(plot.url);
+            }
+          }
+          return next;
+        });
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error occurred";
+      setError(msg);
     } finally {
       setLoading(false);
     }
   }
 
   async function generateReport() {
-    if (!fileId || loading || reportLoading || history.length === 0) return;
+    if (!fileId || loading || reportLoading || sessionToolRuns.length === 0) return;
 
     setReportLoading(true);
     setError("");
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/report", {
+      const res = await fetch(`${API_BASE}/report`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -109,6 +139,7 @@ export default function App() {
           file_id: fileId,
           species,
           session_history: history,
+          tool_runs: sessionToolRuns,
           plots,
         }),
       });
@@ -120,8 +151,8 @@ export default function App() {
       }
 
       const reportLinks = [
-        data.pdf_url ? `[Download PDF](http://127.0.0.1:8000${data.pdf_url})` : "",
-        data.report_url ? `[Open Markdown](http://127.0.0.1:8000${data.report_url})` : "",
+        data.pdf_url ? `[Download PDF](${API_BASE}${data.pdf_url})` : "",
+        data.report_url ? `[Open Markdown](${API_BASE}${data.report_url})` : "",
       ].filter(Boolean);
 
       const reportContent = [
@@ -133,8 +164,9 @@ export default function App() {
         ...current,
         { role: "assistant", content: reportContent },
       ]);
-    } catch (err: any) {
-      setError(err.message || "Report generation failed");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Report generation failed";
+      setError(msg);
     } finally {
       setReportLoading(false);
     }
@@ -150,6 +182,9 @@ export default function App() {
   function resetSession() {
     setHistory([]);
     setPlots([]);
+    setLastToolCalls([]);
+    setSessionToolRuns([]);
+    setSessionId(crypto.randomUUID());
     setFileId("");
     setFileName("");
     setError("");
@@ -177,6 +212,7 @@ export default function App() {
             fileId={fileId}
             fileName={fileName}
             species={species}
+            onSpeciesChange={setSpecies}
             onUpload={uploadFile}
           />
 
@@ -188,6 +224,8 @@ export default function App() {
             fileId={fileId}
             fileName={fileName}
             error={error}
+            lastToolCalls={lastToolCalls}
+            sessionToolRunCount={sessionToolRuns.length}
             setMessage={setMessage}
             onSend={sendMessage}
             onGenerateReport={generateReport}
@@ -195,7 +233,7 @@ export default function App() {
             onReset={resetSession}
           />
 
-          <Plots plots={plots} />
+          <Plots plots={plots} apiBase={API_BASE} />
         </div>
       </div>
     </div>

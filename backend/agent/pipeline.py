@@ -3,11 +3,20 @@
 # State stored in adata.uns so it survives cache retrieval.
 # LLM never controls this — code does.
 
-from tools.preprocessing import quality_control, normalize
+from tools.preprocessing import quality_control, normalize, check_required_metadata
 from tools.clustering import cluster_cells
 
 def ensure_pipeline(adata, species: str) -> None:
+    # Older builds set uns['log1p'] = True, which breaks Scanpy HVG (expects a dict).
+    if adata.uns.get("log1p") is True:
+        del adata.uns["log1p"]
+
     state = adata.uns.get("pipeline_state", {})
+    if not isinstance(state, dict):
+        state = {}
+
+    if "metadata_status" not in adata.uns:
+        adata.uns["metadata_status"] = check_required_metadata(adata)
 
     # =========================
     # 0. LOCK RAW COUNTS (CRITICAL)

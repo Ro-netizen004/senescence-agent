@@ -55,6 +55,12 @@ def run_deseq2_wrapper(
         output["youngest_group"] = results.get("youngest_group")
         output["oldest_group"] = results.get("oldest_group")
 
+    output["n_samples"] = int(count_df.shape[0])
+    if "age" in meta_df.columns:
+        output["samples_per_age"] = (
+            meta_df["age"].astype(str).value_counts().sort_index().to_dict()
+        )
+
     return output
 
 def build_tool_map(adata, species, tools):
@@ -86,6 +92,20 @@ def build_tool_map(adata, species, tools):
             adata,
             args.get("age_column", "age"),
             args.get("cell_type_column", "cell_ontology_class"),
-            species
-        )
+            species,
+            cell_type=args.get("cell_type"),
+            reference_age=args.get("reference_age"),
+            comparison_age=args.get("comparison_age"),
+        ),
+
+        "test_senescence_difference": lambda args: tools["test_senescence_difference"](
+            adata,
+            args.get("cell_type"),
+            args.get("age_column", "age"),
+            args.get("cell_type_column", "cell_ontology_class"),
+            args.get("sample_column", "sample_id"),
+            args.get("reference_age") or "3m",
+            args.get("comparison_age") or "24m",
+            species,
+        ),
     }

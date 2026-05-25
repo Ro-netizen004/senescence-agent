@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
-import ReactMarkdown from "react-markdown"
+import ReactMarkdown from "react-markdown";
+import type { ToolCallLog } from "../App";
 
 interface Message {
   role: "user" | "assistant";
@@ -14,6 +15,8 @@ interface Props {
   fileId: string;
   fileName: string;
   error: string;
+  lastToolCalls: ToolCallLog[];
+  sessionToolRunCount: number;
   setMessage: (v: string) => void;
   onSend: () => void;
   onGenerateReport: () => void;
@@ -33,6 +36,8 @@ export default function ChatPanel({
   onSend,
   onGenerateReport,
   onKeyDown,
+  lastToolCalls,
+  sessionToolRunCount,
   onReset,
 }: Props) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -73,8 +78,12 @@ export default function ChatPanel({
 
           <button
             onClick={onGenerateReport}
-            disabled={!fileId || loading || reportLoading || history.length === 0}
-            title="Generate report"
+            disabled={!fileId || loading || reportLoading || sessionToolRunCount === 0}
+            title={
+              sessionToolRunCount === 0
+                ? "Run at least one analysis tool before generating a report"
+                : "Generate report from tool results"
+            }
             className="flex h-7 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 text-xs font-medium text-slate-500 transition hover:border-emerald-200 hover:text-emerald-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
@@ -83,7 +92,7 @@ export default function ChatPanel({
               <path d="M6 8h4" />
               <path d="M6 10.5h4" />
             </svg>
-            {reportLoading ? "Writing" : "Report"}
+            {reportLoading ? "Writing" : `Report (${sessionToolRunCount})`}
           </button>
 
           <button
@@ -173,6 +182,27 @@ export default function ChatPanel({
           </div>
         )}
       </div>
+
+      {lastToolCalls.length > 0 && !loading && (
+        <div className="mx-6 mb-2 rounded-xl border border-slate-100 bg-slate-50/80 px-4 py-2.5 text-xs text-slate-600">
+          <p className="font-semibold text-slate-700">Tools used (last reply)</p>
+          <ul className="mt-1 space-y-1">
+            {lastToolCalls.map((t, i) => (
+              <li key={`${t.name}-${i}`}>
+                <span className="font-mono text-violet-700">{t.name}</span>
+                {t.args && Object.keys(t.args).length > 0 ? (
+                  <span className="text-slate-500">
+                    {" "}
+                    ({Object.entries(t.args)
+                      .map(([k, v]) => `${k}=${JSON.stringify(v)}`)
+                      .join(", ")})
+                  </span>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* ── ERROR BANNER ────────────────────────────────────────────── */}
       {error && (

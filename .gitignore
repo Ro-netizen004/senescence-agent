@@ -16,6 +16,7 @@ __pycache__/
 backend/data/*.h5ad
 backend/data/*.h5
 backend/data/*.csv
+backend/data/uploads/
 
 # Gene sets and reference data (small, keep in repo)
 !backend/data/*.json

@@ -88,8 +88,14 @@ def normalize(adata):
     NOT for DESeq2 or pseudobulk.
     """
 
+    if adata.uns.get("senescence_agent_viz_normalized"):
+        print("Normalization already applied — skipping.")
+        return adata
+
     sc.pp.normalize_total(adata, target_sum=1e4)
     sc.pp.log1p(adata)
+    # Do not set adata.uns["log1p"] = True — Scanpy stores a dict there and HVG breaks if overwritten.
+    adata.uns["senescence_agent_viz_normalized"] = True
 
     print("Normalization complete (visualization layer only)")
 
@@ -113,20 +119,20 @@ def check_required_metadata(
 
     # fallback mappings for real datasets
     alternatives = {
-        "sample_id": ["mouse_id", "donor_id", "batch"]
+        "sample_id": ["mouse.id", "mouse_id", "donor_id", "batch"]
     }
 
     for col in missing[:]:
         for alt in alternatives.get(col, []):
             if alt in adata.obs.columns:
                 adata.obs[col] = adata.obs[alt]
-                print(f"✅ Using '{alt}' as '{col}'")
+                print(f"Using '{alt}' as '{col}'")
                 missing.remove(col)
                 break
 
     if missing:
-        print(f"⚠ Missing metadata: {missing}")
-        print("⚠ Pseudobulk will be degraded (no true biological replicates)")
+        print(f"WARNING: Missing metadata: {missing}")
+        print("WARNING: Pseudobulk will be degraded (no true biological replicates)")
         return {
             "status": "degraded",
             "missing": missing

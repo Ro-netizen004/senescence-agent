@@ -8,6 +8,7 @@ interface Plot {
 
 interface Props {
   plots: Plot[];
+  apiBase?: string;
 }
 
 function describePlot(plot: Plot) {
@@ -52,7 +53,7 @@ function describePlot(plot: Plot) {
   };
 }
 
-export default function Plots({ plots }: Props) {
+export default function Plots({ plots, apiBase = "http://127.0.0.1:8000" }: Props) {
   const normalizedPlots = useMemo(
     () =>
       plots.map((plot, index) => {
@@ -62,10 +63,10 @@ export default function Plots({ plots }: Props) {
           ...plot,
           ...description,
           id: `${plot.url}-${index}`,
-          src: `http://127.0.0.1:8000${plot.url}`,
+          src: `${apiBase}${plot.url}`,
         };
       }),
-    [plots]
+    [plots, apiBase]
   );
 
   const [selectedId, setSelectedId] = useState(normalizedPlots.at(-1)?.id);
