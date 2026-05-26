@@ -167,8 +167,6 @@ def test_senescence_difference(
         "significant_at_0.05": bool(p_value < 0.05),
         "inference_tier": inference_tier,
         "warnings": warnings,
-        "note": (
-            "Test compares per-mouse (sample) median SenMayo scores, not individual cells. "
-            "Positive effect_size means higher score in the comparison age group."
-        ),
+        "statistical_unit_label": "biological_replicate",
+        "aggregation_method": "median_senescence_score_per_sample",
     }

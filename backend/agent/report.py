@@ -32,6 +32,9 @@ Rules:
 - For DESeq2, report the contrast direction and explain that positive log2FC means higher expression in the comparison group.
 - Keep biological interpretation cautious and directly tied to the tool results.
 - Do not claim absence of biological change. Say "not detected at the chosen threshold" or "not statistically significant".
+- Each tool result may include inference_state (A–E). Use the deterministic strict_output_schema if present.
+- LOW_POWER / NOT_SIGNIFICANT / DESCRIPTIVE_ONLY: numeric facts only; no biological mechanism.
+- SIGNIFICANT_INFERENTIAL: may state statistical significance at sample/gene level only; no causality.
 - If no genes pass FDR < 0.05, include at most 5 exploratory ranked genes from the DESeq2 tool result.
 - Markdown tables must be valid GitHub-flavored Markdown: header row, separator row, and every data row must be on its own line.
 - Avoid wide tables when prose or a short bullet list would be clearer.
@@ -73,7 +76,17 @@ def _format_tool_runs(tool_runs: Iterable[dict]) -> str:
         args = run.get("args") or {}
         result = _sanitize_result_for_report(run.get("result"))
 
+        inf_state = None
+        if isinstance(result, dict):
+            inf_state = result.get("inference_state")
+
         blocks.append(f"### Tool run {i}: {name}")
+        if inf_state:
+            blocks.append(
+                "Inference state:\n```json\n"
+                + json.dumps(inf_state, indent=2, default=str)
+                + "\n```"
+            )
         if args:
             blocks.append(
                 "Arguments:\n```json\n"

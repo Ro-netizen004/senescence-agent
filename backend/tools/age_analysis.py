@@ -159,10 +159,8 @@ def compare_across_age(
         result["age_contrast"] = {
             "reference_age": ref_age,
             "comparison_age": comp_age,
-            "note": (
-                f"Contrast {comp_age} vs {ref_age}: higher senescence scores in "
-                f"{comp_age} indicate stronger signal in the older/comparison group."
-            ),
+            "statistical_unit": "cell",
+            "inference_type": "descriptive_median",
         }
 
     if resolved_cell_type:
@@ -189,10 +187,8 @@ def compare_across_age(
 
     if resolved_cell_type:
         result["senescence_by_age"] = senescence_by_age
-        result["analysis_note"] = (
-            f"Results are for '{resolved_cell_type}' only "
-            f"({analysis.shape[0]} of {adata.shape[0]} cells)."
-        )
+        result["subset_cells"] = int(analysis.shape[0])
+        result["dataset_total_cells"] = int(adata.shape[0])
     else:
         result["global_senescence_by_age"] = (
             analysis.obs
@@ -201,10 +197,8 @@ def compare_across_age(
             .round(4)
             .to_dict()
         )
-        result["global_note"] = (
-            "Global senescence is descriptive only and is confounded by cell-type composition. "
-            "Do NOT use it for ranking biological aging."
-        )
+        result["global_analysis"] = True
+        result["composition_confounding_risk"] = True
 
     cell_types_to_analyze = (
         [resolved_cell_type] if resolved_cell_type else available_types
