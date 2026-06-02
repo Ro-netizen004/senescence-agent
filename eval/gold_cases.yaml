@@ -1,0 +1,172 @@
+# Gold benchmark cases — edit expect_* after first real run on your file_id
+# Categories: pvalue | descriptive | deseq2 | exploratory | panel | error | multistep
+
+dataset: kidney_tms  # see dataset_manifest.yaml
+
+cases:
+  - id: pvalue_tcell_3m_24m
+    category: pvalue
+    message: "What is the exact p-value for senescence increase in T cells between 3m and 24m?"
+    expect_tools: [test_senescence_difference]
+    expect_args:
+      cell_type: T cell
+      reference_age: "3m"
+      comparison_age: "24m"
+    expect_state: LOW_POWER
+    reply_must_contain: ["p-value", "mannwhitneyu"]
+    reply_must_not_contain: ["statistically significant at", "proves", "confirms that senescence"]
+    forbid_significance_claim: true
+
+  - id: pvalue_macrophage_3m_24m
+    category: pvalue
+    message: "Is the SenMayo score significantly different in macrophages at 24m compared to 3m?"
+    expect_tools: [test_senescence_difference]
+    expect_args:
+      cell_type: macrophage
+    expect_state: null  # fill after reference run: LOW_POWER | NOT_SIGNIFICANT | SIGNIFICANT_INFERENTIAL
+    forbid_significance_claim: true
+
+  - id: pvalue_wrong_tool_trap
+    category: pvalue
+    message: "Give me the statistical significance of senescence scores in T cells, young vs old."
+    expect_tools: [test_senescence_difference]
+    must_not_be_only_tools: [compare_across_age]
+    forbid_significance_claim: true
+
+  - id: descriptive_tcell_medians
+    category: descriptive
+    message: "Show median senescence scores by age for T cells only."
+    expect_tools: [compare_across_age]
+    expect_args:
+      cell_type: T cell
+    expect_state: DESCRIPTIVE_ONLY
+    reply_must_contain: ["descriptive"]
+    reply_must_not_contain: ["p-value", "p ="]
+    forbid_p_value_in_reply: true
+
+  - id: descriptive_macrophage_contrast
+    category: descriptive
+    message: "Compare SenMayo scores between 3m and 24m in macrophages."
+    expect_tools: [compare_across_age]
+    expect_args:
+      cell_type: macrophage
+      reference_age: "3m"
+      comparison_age: "24m"
+    expect_state: DESCRIPTIVE_ONLY
+    forbid_p_value_in_reply: true
+
+  - id: descriptive_global_trap
+    category: descriptive
+    message: "Which age group has higher senescence across all kidney cells?"
+    expect_tools: [compare_across_age]
+    expect_state: DESCRIPTIVE_ONLY
+    notes: "Global comparison — reply should not rank 'biological aging' from mixed populations"
+
+  - id: deseq2_mesangial
+    category: deseq2
+    message: "Run DESeq2 on mesangial cells comparing 24m vs 3m."
+    expect_tools: [run_deseq2]
+    expect_args:
+      cell_type: mesangial cell
+    expect_state: null  # NOT_SIGNIFICANT or SIGNIFICANT_INFERENTIAL
+    reply_must_not_contain: ["molecular drivers", "proves senescence"]
+
+  - id: deseq2_tcell
+    category: deseq2
+    message: "What genes change with age in T cells? Use pseudobulk differential expression."
+    expect_tools: [run_deseq2]
+    expect_args:
+      cell_type: T cell
+
+  - id: exploratory_markers
+    category: exploratory
+    message: "How many SenMayo genes are detected in this dataset?"
+    expect_tools: [find_senescence_markers]
+    expect_state: DESCRIPTIVE_ONLY
+
+  - id: exploratory_score
+    category: exploratory
+    message: "Score cells for senescence and show which cluster is highest."
+    expect_tools: [senescence_score]
+    expect_state: DESCRIPTIVE_ONLY
+
+  - id: exploratory_umap
+    category: exploratory
+    message: "Generate a UMAP colored by clusters."
+    expect_tools: [generate_umap]
+    expect_state: DESCRIPTIVE_ONLY
+
+  - id: exploratory_annotations
+    category: exploratory
+    message: "What cell type is each Leiden cluster?"
+    expect_tools: [get_cluster_annotations]
+    expect_state: DESCRIPTIVE_ONLY
+
+  - id: panel_run_everything
+    category: panel
+    message: "Run everything and tell me what's interesting in this kidney dataset."
+    expect_tools:
+      - find_senescence_markers
+      - senescence_score
+      - generate_umap
+      - get_cluster_annotations
+      - compare_across_age
+    notes: "May bypass Gemini — panel path in agent.py"
+
+  - id: error_neuron_kidney
+    category: error
+    message: "Test senescence difference for neurons between 3m and 24m."
+    expect_tools: [test_senescence_difference]
+    expect_error: true
+    notes: "Kidney dataset may lack neurons — error or clear not found"
+
+  - id: error_missing_cell_type
+    category: error
+    message: "Run DESeq2 for xyznotacelltype."
+    expect_tools: [run_deseq2]
+    expect_error: true
+
+  - id: multistep_score_then_test
+    category: multistep
+    message: "First score senescence, then give me the p-value for T cells at 3m vs 24m."
+    expect_tools_min: [senescence_score, test_senescence_difference]
+    notes: "May need multi-step Gemini loop; document tools order"
+
+  - id: pvalue_exact_wording
+    category: pvalue
+    message: "What is the exact p-value?"
+    expect_tools: [test_senescence_difference]
+    notes: "Underspecified — document whether agent asks clarification or assumes T cell; mark behavior"
+
+  - id: descriptive_vs_inferential_education
+    category: descriptive
+    message: "Compare senescence across age for T cells — I want medians only, not a test."
+    expect_tools: [compare_across_age]
+    must_not_call: [test_senescence_difference]
+    expect_state: DESCRIPTIVE_ONLY
+
+  - id: gene_vs_score_trap
+    category: pvalue
+    message: "What is the p-value for aging in T cells?"
+    expect_tools: [test_senescence_difference]
+    must_not_be_only_tools: [run_deseq2]
+    notes: "Score p-value tool, not DESeq2"
+
+  - id: young_old_synonyms
+    category: pvalue
+    message: "Senescence in T cells: young vs old mice — is it significant?"
+    expect_tools: [test_senescence_difference]
+    expect_args:
+      cell_type: T cell
+    notes: "Agent should map young→3m, old→24m for TMS"
+
+  - id: coverage_only
+    category: exploratory
+    message: "What is SenMayo coverage in this dataset?"
+    expect_tools: [find_senescence_markers]
+
+  - id: violin_implicit
+    category: descriptive
+    message: "Plot senescence score distributions by age for all cell types."
+    expect_tools: [compare_across_age]
+    notes: "Should produce age/violin plots; descriptive only"

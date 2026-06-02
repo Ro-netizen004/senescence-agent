@@ -6,9 +6,8 @@ This document provides a slide-by-slide outline for your upcoming presentation.
 - **Project Name:** Senescence Agent
 - **Subtitle:** An LLM-powered autonomous agent for single-cell aging research.
 - **Team Roles:** 
-  - Aviral (Agent Architecture, Frontend, API Integration)
-  - Rodela (Agent Logic, Prompt Engineering)
-  - [Other teammates, if any]
+  - Aviral (Agent Architecture, API Integration)
+  - Rodela (Agent Logic, Prompt Engineering, Frontend)
 
 ## Slide 2: The Problem
 - **Bottleneck:** Analyzing single-cell RNA-seq (scRNA-seq) data requires deep programming expertise (Python/R).

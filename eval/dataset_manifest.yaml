@@ -1,0 +1,10 @@
+# Fill after upload — one row per eval dataset
+
+datasets:
+  kidney_tms:
+    description: Tabula Muris Senis kidney (FACS, official annotations)
+    file_id: ""  # REQUIRED: uuid from POST /upload
+    species: mouse
+    h5ad_filename: tabula-muris-senis-facs-processed-official-annotations-Kidney.h5ad
+    local_path: backend/data/tabula-muris-senis-facs-processed-official-annotations-Kidney.h5ad
+    notes: "Primary benchmark dataset for gold_cases.yaml"
