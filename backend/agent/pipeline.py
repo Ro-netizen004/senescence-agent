@@ -23,7 +23,7 @@ def ensure_pipeline(adata, species: str) -> None:
     # =========================
     if "counts" not in adata.layers:
         adata.layers["counts"] = adata.X.copy()
-        print("✔ Raw counts locked")
+        print("OK Raw counts locked")
 
     # =========================
     # 1. QC

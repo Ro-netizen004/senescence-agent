@@ -78,7 +78,60 @@ Record your `file_id` after upload in `eval/dataset_manifest.yaml`.
 
 ---
 
-## Quick manual run (today)
+## Run the 20 gold cases (recommended)
+
+**1. Prerequisites**
+
+```powershell
+pip install pyyaml
+```
+
+Fill `eval/dataset_manifest.yaml`:
+
+```yaml
+file_id: "your-uuid-from-upload"
+species: mouse
+```
+
+Backend uses repo-root `.env` with `GEMINI_API_KEY`. Start from repo root or `backend/`.
+
+**2. Dry-run (no API — lists cases)**
+
+```powershell
+cd backend
+.\venv\Scripts\python.exe ..\eval\run_gold_cases.py --day1 --dry-run
+```
+
+**3. Run Day 1 batch (20 Gemini calls)**
+
+Skips `panel_run_everything` (0 API) and `multistep_score_then_test` (save for day 2).
+
+```powershell
+.\venv\Scripts\python.exe ..\eval\run_gold_cases.py --day1 --output ..\eval\results\day1\day1.jsonl
+```
+
+**4. Panel without API (optional same session)**
+
+```powershell
+.\venv\Scripts\python.exe ..\eval\run_gold_cases.py --id panel_run_everything --output ..\eval\results\day1\day1.jsonl
+```
+
+**5. Audit replies**
+
+```powershell
+cd ..
+python eval/claim_linter.py eval/results/day1/day1.jsonl
+# also writes eval/results/day1/day1_linter.txt (or use --output path)
+```
+
+**Other options**
+
+```powershell
+.\venv\Scripts\python.exe ..\eval\run_gold_cases.py --all --output ..\eval\results\full_run.jsonl
+.\venv\Scripts\python.exe ..\eval\run_gold_cases.py --id pvalue_tcell_3m_24m
+```
+
+## Quick single-case test
 
 ```powershell
 cd backend
@@ -102,7 +155,7 @@ Replace `YOUR_FILE_ID` after upload.
 | `dataset_manifest.yaml` | file_id(s) for eval datasets |
 | `TASKS.md` | Assignable teammate tickets |
 | `human_rubric.md` | 5-question survey for raters |
-| `claim_linter.py` | Automated reply audit (stub to implement) |
+| `claim_linter.py` | Automated reply audit; writes `<stem>_linter.txt` by default |
 | `fixtures/` | Frozen tool JSON for Layer 1 |
 
 See **TASKS.md** for copy-paste assignments.

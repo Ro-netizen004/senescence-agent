@@ -3,7 +3,7 @@
 datasets:
   kidney_tms:
     description: Tabula Muris Senis kidney (FACS, official annotations)
-    file_id: ""  # REQUIRED: uuid from POST /upload
+    file_id: "8559912c-c0ef-47dc-8372-bde6158b3bc6"
     species: mouse
     h5ad_filename: tabula-muris-senis-facs-processed-official-annotations-Kidney.h5ad
     local_path: backend/data/tabula-muris-senis-facs-processed-official-annotations-Kidney.h5ad

@@ -1,0 +1,22 @@
+pvalue_tcell_3m_24m	OK
+pvalue_macrophage_3m_24m	OK
+pvalue_wrong_tool_trap	OK
+descriptive_tcell_medians	OK
+descriptive_macrophage_contrast	OK
+descriptive_global_trap	OK
+deseq2_mesangial	OK
+deseq2_tcell	OK
+exploratory_markers	OK
+exploratory_score	OK
+exploratory_umap	OK
+exploratory_annotations	OK
+error_neuron_kidney	OK
+error_missing_cell_type	OK
+pvalue_exact_wording	OK
+descriptive_vs_inferential_education	OK
+gene_vs_score_trap	OK
+young_old_synonyms	OK
+coverage_only	OK
+violin_implicit	OK
+
+20/20 cases with zero violations

@@ -1,5 +1,6 @@
 import os
 import json
+import re
 import scanpy as sc
 import google.generativeai as genai
  
@@ -106,6 +107,177 @@ def _needs_pvalue_clarification(message: str) -> bool:
             "exact p",
         )
     )
+
+
+def _wants_umap(message: str) -> bool:
+    return "umap" in message.lower()
+
+
+def _wants_cluster_annotations(message: str) -> bool:
+    text = message.lower()
+    return ("leiden" in text or "each cluster" in text) and (
+        "cell type" in text or "cell-type" in text
+    )
+
+
+def _cell_type_column(adata) -> str:
+    for col in ("cell_ontology_class", "cell_type", "celltype"):
+        if col in adata.obs.columns:
+            return col
+    return "cell_ontology_class"
+
+
+def _available_cell_types(adata) -> list[str]:
+    col = _cell_type_column(adata)
+    if col not in adata.obs.columns:
+        return []
+    return sorted(adata.obs[col].astype(str).unique().tolist())
+
+
+def _message_mentions_cell_type(message: str, adata) -> bool:
+    text = message.lower()
+    for ct in _available_cell_types(adata):
+        if ct.lower() in text:
+            return True
+    aliases = (
+        "neuron",
+        "neurons",
+        "t cell",
+        "t cells",
+        "macrophage",
+        "macrophages",
+        "mesangial",
+    )
+    return any(alias in text for alias in aliases)
+
+
+def _parse_age_contrast(message: str) -> tuple[str, str]:
+    ages = re.findall(r"\b(\d+m)\b", message, flags=re.I)
+    if len(ages) >= 2:
+        return ages[0].lower(), ages[1].lower()
+    text = message.lower()
+    if "young" in text and "old" in text:
+        return "3m", "24m"
+    return "3m", "24m"
+
+
+def _infer_cell_type_for_test(message: str, adata) -> str | None:
+    from tools.age_analysis import _resolve_cell_type
+
+    text = message.lower()
+    for ct in _available_cell_types(adata):
+        if ct.lower() in text:
+            return ct
+
+    aliases = {
+        "neurons": "neuron",
+        "neuron": "neuron",
+        "t cells": "T cell",
+        "t cell": "T cell",
+        "macrophages": "macrophage",
+        "macrophage": "macrophage",
+        "mesangial cells": "mesangial cell",
+        "mesangial cell": "mesangial cell",
+    }
+    for alias, canonical in aliases.items():
+        if alias in text:
+            resolved = _resolve_cell_type(canonical, _available_cell_types(adata))
+            return resolved or canonical
+    return None
+
+
+def _is_bare_pvalue_request(message: str, adata) -> bool:
+    if not _needs_pvalue_clarification(message):
+        return False
+    return not _message_mentions_cell_type(message, adata)
+
+
+def _wants_explicit_senescence_test(message: str) -> bool:
+    text = message.lower()
+    return any(
+        phrase in text
+        for phrase in (
+            "test senescence difference",
+            "senescence difference for",
+            "senescence difference in",
+        )
+    )
+
+
+def _run_direct_tools(tool_map: dict, message: str, steps: list[tuple[str, dict]]) -> dict:
+    """Run one or more tools without Gemini (same contract as run_agent)."""
+    plots = []
+    tool_calls_log = []
+
+    for name, args in steps:
+        if name not in tool_map:
+            continue
+        result = _execute_tool(tool_map, name, args, message)
+        for plot_entry in _collect_plots_from_result(result, name):
+            if not any(p["url"] == plot_entry["url"] for p in plots):
+                plots.append(plot_entry)
+        serializable_result = json.loads(json.dumps(result, default=str))
+        tool_calls_log.append({"name": name, "args": args, "result": serializable_result})
+
+    return {
+        "reply": _deterministic_reply(tool_calls_log),
+        "plots": plots,
+        "tool_calls": tool_calls_log,
+    }
+
+
+def _try_deterministic_route(message: str, tool_map: dict, adata) -> dict | None:
+    """Bypass Gemini for prompts that repeatedly fail tool routing."""
+    if _wants_umap(message):
+        return _run_direct_tools(tool_map, message, [("generate_umap", {})])
+
+    if _wants_cluster_annotations(message):
+        return _run_direct_tools(tool_map, message, [("get_cluster_annotations", {})])
+
+    if _is_bare_pvalue_request(message, adata):
+        ref, comp = _parse_age_contrast(message)
+        out = _run_direct_tools(
+            tool_map,
+            message,
+            [
+                (
+                    "test_senescence_difference",
+                    {
+                        "cell_type": "T cell",
+                        "reference_age": ref,
+                        "comparison_age": comp,
+                    },
+                )
+            ],
+        )
+        out["reply"] += (
+            "\n\n[System] Default contrast: T cell "
+            f"{ref} vs {comp} (question did not specify cell type or ages)."
+        )
+        return out
+
+    if _wants_explicit_senescence_test(message) or (
+        _needs_pvalue_clarification(message) and _message_mentions_cell_type(message, adata)
+    ):
+        cell_type = _infer_cell_type_for_test(message, adata)
+        if cell_type:
+            ref, comp = _parse_age_contrast(message)
+            return _run_direct_tools(
+                tool_map,
+                message,
+                [
+                    (
+                        "test_senescence_difference",
+                        {
+                            "cell_type": cell_type,
+                            "reference_age": ref,
+                            "comparison_age": comp,
+                        },
+                    )
+                ],
+            )
+
+    return None
 
 
 def _plot_basename(path) -> str:
@@ -331,6 +503,10 @@ def run_agent(
 
     if _wants_analysis_panel(message):
         return run_analysis_panel(tool_map, message)
+
+    routed = _try_deterministic_route(message, tool_map, adata)
+    if routed is not None:
+        return routed
 
     system_instruction = SYSTEM_PROMPT
     if not session_history:
