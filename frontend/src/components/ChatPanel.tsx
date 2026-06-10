@@ -1,6 +1,31 @@
 import React, { useEffect, useRef } from "react";
-import ReactMarkdown from "react-markdown";
 import type { ToolCallLog } from "../App";
+
+/** Split main answer from [System] audit lines; preserve backend newlines. */
+function AssistantReply({ content }: { content: string }) {
+  const sections = content.split(/\n\n---\n\n/);
+  return (
+    <div className="space-y-4">
+      {sections.map((section, i) => {
+        const systemIdx = section.search(/\[System\]/);
+        const body = (systemIdx >= 0 ? section.slice(0, systemIdx) : section).trim();
+        const meta = systemIdx >= 0 ? section.slice(systemIdx).trim() : null;
+        return (
+          <div key={i} className={i > 0 ? "border-t border-slate-200 pt-4" : undefined}>
+            <div className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-slate-800">
+              {body}
+            </div>
+            {meta ? (
+              <div className="mt-3 rounded-lg border border-slate-200/80 bg-slate-100/80 px-3 py-2 font-mono text-[11px] leading-relaxed text-slate-500 whitespace-pre-wrap">
+                {meta}
+              </div>
+            ) : null}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 interface Message {
   role: "user" | "assistant";
@@ -153,11 +178,9 @@ export default function ChatPanel({
                   }`}
                 >
                   {msg.role === "user" ? (
-                    msg.content
+                    <span className="whitespace-pre-wrap">{msg.content}</span>
                   ) : (
-                    <div className="prose prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-li:my-0.5 prose-strong:text-slate-900 prose-li:text-slate-800">
-                      <ReactMarkdown>{msg.content}</ReactMarkdown>
-                    </div>
+                    <AssistantReply content={msg.content} />
                   )}
                 </div>
               </div>
