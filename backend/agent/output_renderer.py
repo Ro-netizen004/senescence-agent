@@ -1,12 +1,12 @@
 """
-Deterministic renderer: schema → user text. NO LLM.
+Deterministic renderer: schema -> user text. NO LLM.
 
+Produces clean Markdown for biologist-friendly display.
 Enforces interpretation firewall from inference state machine.
 """
 
 from __future__ import annotations
 
-import json
 import os
 from typing import Any
 
@@ -41,200 +41,351 @@ def _fmt(value, digits=4) -> str:
         return str(value)
 
 
-def _headline_for_test(schema: dict) -> str:
-    state = schema.get("inference_state")
-    stat = schema.get("stat_result") or {}
-    conclusion = stat.get("conclusion")
-    p = stat.get("p_value")
-
-    if state == InferenceState.LOW_POWER.value or conclusion == "no_conclusion":
-        return "Senescence score test: no statistically reliable conclusion (underpowered)."
-    if state == InferenceState.NOT_SIGNIFICANT.value or conclusion == "not_significant":
-        return f"Senescence score test: not statistically significant (p={_fmt(p)})."
-    if state == InferenceState.SIGNIFICANT_INFERENTIAL.value:
-        return f"Senescence score test: statistically significant at alpha=0.05 (p={_fmt(p)})."
-    return "Senescence score test completed."
+def _pct(value) -> str:
+    if value is None:
+        return "NA"
+    try:
+        return f"{float(value):.1f}%"
+    except (TypeError, ValueError):
+        return str(value)
 
 
-def _body_test(schema: dict) -> list[str]:
+# ── Tool-specific renderers ──────────────────────────────────────────────
+
+
+def _render_markers(schema: dict) -> str:
+    metrics = schema.get("metrics") or {}
+    found = metrics.get("found_markers") or []
+    missing = metrics.get("missing_markers") or []
+    obs = schema.get("key_observations") or []
+
+    # Extract coverage from observations
+    coverage = "NA"
+    for o in obs:
+        if "coverage_pct=" in o:
+            coverage = o.split("=")[1]
+
+    total = len(found) + len(missing)
+    lines = [
+        f"### SenMayo Gene Coverage",
+        "",
+        f"**{len(found)}** of **{total}** SenMayo genes detected in this dataset ({_pct(coverage)} coverage).",
+        "",
+    ]
+
+    if found:
+        preview = ", ".join(found[:15])
+        if len(found) > 15:
+            preview += f", ... (+{len(found) - 15} more)"
+        lines.append(f"**Detected:** {preview}")
+        lines.append("")
+
+    if float(coverage) < 30 if coverage != "NA" else True:
+        lines.append("> **Note:** Low gene coverage may reduce the accuracy of senescence scoring.")
+    elif float(coverage) >= 50:
+        lines.append("> Good coverage for reliable senescence scoring.")
+
+    return "\n".join(lines)
+
+
+def _render_score(schema: dict) -> str:
+    metrics = schema.get("metrics") or {}
+    obs = schema.get("key_observations") or []
+
+    top_cluster = None
+    top_celltype = None
+    for o in obs:
+        if "top_cluster=" in o:
+            top_cluster = o.split("=")[1]
+        if "top_cell_type=" in o:
+            top_celltype = o.split("=")[1]
+
+    genes_used = metrics.get("genes_used")
+    mean_score = _fmt(metrics.get("mean_score"))
+    max_score = _fmt(metrics.get("max_score"))
+    cluster_scores = metrics.get("cluster_scores") or {}
+
+    lines = [
+        f"### Senescence Scoring (SenMayo)",
+        "",
+    ]
+
+    if top_celltype and top_celltype != "None":
+        lines.append(f"**Highest senescence signal:** Cluster {top_cluster} ({top_celltype})")
+    elif top_cluster:
+        lines.append(f"**Highest senescence signal:** Cluster {top_cluster}")
+    lines.append("")
+
+    lines.append(f"| Metric | Value |")
+    lines.append(f"|--------|-------|")
+    lines.append(f"| Genes used | {genes_used} |")
+    lines.append(f"| Mean score | {mean_score} |")
+    lines.append(f"| Max score | {max_score} |")
+    lines.append("")
+
+    if cluster_scores:
+        lines.append("**Scores by cluster** (top 8):")
+        lines.append("")
+        lines.append("| Cluster | Score |")
+        lines.append("|---------|-------|")
+        for label, score in list(cluster_scores.items())[:8]:
+            lines.append(f"| {label} | {_fmt(score)} |")
+        lines.append("")
+
+    lines.append("> Scores are descriptive. Higher = stronger senescence-associated transcriptional signal.")
+
+    return "\n".join(lines)
+
+
+def _render_umap(schema: dict) -> str:
+    return "### UMAP Visualization\n\nCluster UMAP plot generated. See the plots panel below."
+
+
+def _render_annotations(schema: dict) -> str:
+    metrics = schema.get("metrics") or {}
+    annotations = metrics.get("cluster_annotations") or {}
+    obs = schema.get("key_observations") or []
+
+    total = None
+    for o in obs:
+        if "total_clusters=" in o:
+            total = o.split("=")[1]
+
+    lines = [
+        f"### Cluster Cell Types",
+        "",
+        f"**{total or len(annotations)}** clusters identified.",
+        "",
+        "| Cluster | Dominant Cell Type |",
+        "|---------|-------------------|",
+    ]
+
+    for cluster_id, cell_type in sorted(annotations.items(), key=lambda x: int(x[0]) if x[0].isdigit() else 999):
+        lines.append(f"| {cluster_id} | {cell_type} |")
+
+    return "\n".join(lines)
+
+
+def _render_compare(schema: dict) -> str:
+    pop = schema.get("population") or {}
+    metrics = schema.get("metrics") or {}
+    obs = schema.get("key_observations") or []
+
+    cell_type = pop.get("cell_type")
+    by_age = metrics.get("senescence_by_age") or {}
+    most_sen = metrics.get("most_senescent_per_celltype") or {}
+    n_cells_by_age = pop.get("n_cells_by_age") or {}
+
+    lines = ["### Age Comparison", ""]
+
+    if cell_type:
+        lines.append(f"**Cell type:** {cell_type}")
+        lines.append("")
+
+    if by_age:
+        lines.append("**Median SenMayo score by age:**")
+        lines.append("")
+        lines.append("| Age | Median Score | Cells |")
+        lines.append("|-----|-------------|-------|")
+        for age in sorted(by_age.keys()):
+            cells = n_cells_by_age.get(age, "")
+            lines.append(f"| {age} | {_fmt(by_age[age])} | {cells} |")
+        lines.append("")
+
+    if obs:
+        for o in obs:
+            lines.append(f"- {o}")
+        lines.append("")
+
+    if most_sen and not cell_type:
+        lines.append("**Most senescent age per cell type** (top 5):")
+        lines.append("")
+        lines.append("| Cell Type | Peak Age | Score |")
+        lines.append("|-----------|----------|-------|")
+        for ct, info in list(sorted(most_sen.items(), key=lambda x: x[1].get("score", 0), reverse=True))[:5]:
+            lines.append(f"| {ct} | {info.get('age')} | {_fmt(info.get('score'))} |")
+        lines.append("")
+
+    lines.append("> **Descriptive only** -- no p-values from this tool. Use `test_senescence_difference` for statistical testing.")
+
+    return "\n".join(lines)
+
+
+def _render_test(schema: dict) -> str:
     stat = schema.get("stat_result") or {}
     pop = schema.get("population") or {}
+    metrics = schema.get("metrics") or {}
+    state = schema.get("inference_state")
+    conclusion = stat.get("conclusion")
+    p = stat.get("p_value")
     ref = pop.get("reference_age", "reference")
     comp = pop.get("comparison_age", "comparison")
-    conclusion = stat.get("conclusion")
-    p = stat.get("p_value")
-    lines = []
+    cell_type = pop.get("cell_type", "NA")
 
-    if conclusion == "no_conclusion":
-        lines.append(
-            "No statistically reliable difference detected. Report numeric results only."
-        )
-    elif conclusion == "not_significant":
-        lines.append(
-            f"Difference observed in sample medians but not statistically significant (p={_fmt(p)})."
-        )
-    elif conclusion == "significant":
-        lines.append(
-            f"Sample-level median scores differ significantly at alpha=0.05 (p={_fmt(p)})."
-        )
+    lines = ["### Senescence Score Test", ""]
 
-    lines.extend([
-        "",
-        f"Test: {stat.get('test', 'mannwhitneyu')} | Unit: {pop.get('statistical_unit')}",
-        f"Cell type: {pop.get('cell_type', 'NA')}",
-        f"Contrast: {comp} vs {ref}",
-        f"n_samples: {pop.get('n_samples')}",
-        f"n_cells: {pop.get('n_cells')}",
-        f"median_score_{ref}: {_fmt(schema.get('metrics', {}).get(f'median_score_{ref}'))}",
-        f"median_score_{comp}: {_fmt(schema.get('metrics', {}).get(f'median_score_{comp}'))}",
-        f"effect_size (median difference): {_fmt(stat.get('effect_size_median_diff'))}",
-        f"p-value: {_fmt(p)}",
-        f"significant_at_0.05: {stat.get('significant_at_0_05')}",
-    ])
+    # Headline based on state
+    if state == InferenceState.LOW_POWER.value or conclusion == "no_conclusion":
+        lines.append(f"**Result: Underpowered** -- no statistically reliable conclusion for {cell_type}.")
+    elif state == InferenceState.NOT_SIGNIFICANT.value or conclusion == "not_significant":
+        lines.append(f"**Result: Not significant** (p = {_fmt(p)}) for {cell_type}.")
+    elif state == InferenceState.SIGNIFICANT_INFERENTIAL.value or conclusion == "significant":
+        lines.append(f"**Result: Significant** (p = {_fmt(p)}) for {cell_type}.")
+    else:
+        lines.append(f"**Result:** Test completed for {cell_type}.")
+    lines.append("")
 
-    medians = pop.get("sample_level_medians")
-    if medians:
-        lines.append(f"per_sample_medians_{ref}: {medians.get('reference')}")
-        lines.append(f"per_sample_medians_{comp}: {medians.get('comparison')}")
+    # Key numbers table
+    ref_med = metrics.get(f"median_score_{ref}")
+    comp_med = metrics.get(f"median_score_{comp}")
+    n_samples = pop.get("n_samples") or {}
+    n_cells = pop.get("n_cells") or {}
 
-    if schema.get("key_observations"):
-        lines.extend(["", "Observations (numeric only):"])
-        for o in schema["key_observations"]:
-            lines.append(f"- {o}")
+    lines.append(f"| | {ref} (young) | {comp} (old) |")
+    lines.append(f"|---|---|---|")
+    lines.append(f"| **Median score** | {_fmt(ref_med)} | {_fmt(comp_med)} |")
+    lines.append(f"| **Samples (mice)** | {n_samples.get(ref, 'NA')} | {n_samples.get(comp, 'NA')} |")
+    lines.append(f"| **Cells** | {n_cells.get(ref, 'NA')} | {n_cells.get(comp, 'NA')} |")
+    lines.append("")
 
+    effect = stat.get("effect_size_median_diff")
+    if effect is not None:
+        lines.append(f"**Effect size** (median difference): {_fmt(effect)}")
+        lines.append("")
+
+    # Warnings
     for w in schema.get("warnings") or []:
-        lines.append(f"Warning: {w}")
+        lines.append(f"> **Warning:** {w}")
 
-    lines.extend(_footer(schema))
-    return lines
+    # Interpretation caution
+    if conclusion == "no_conclusion":
+        lines.append("")
+        lines.append("> Too few biological replicates for a reliable test. Numeric trends reported only.")
+    elif conclusion == "not_significant":
+        lines.append("")
+        lines.append("> Difference not statistically significant at alpha = 0.05. This does not prove absence of change.")
 
+    lines.append("")
+    lines.append(f"*Test: Mann-Whitney U on per-sample medians (not per-cell). Unit: biological replicate.*")
 
-def _body_compare(schema: dict) -> list[str]:
-    lines = [
-        "Age-stratified SenMayo scores (descriptive only; no p-value from this tool).",
-        "",
-    ]
-    pop = schema.get("population") or {}
-    if pop.get("cell_type"):
-        lines.append(f"Cell type: {pop['cell_type']}")
-    if pop.get("n_cells_by_age"):
-        lines.append(f"Cell counts by age: {pop['n_cells_by_age']}")
-    metrics = schema.get("metrics") or {}
-    if metrics.get("senescence_by_age"):
-        lines.append(f"Median scores by age: {metrics['senescence_by_age']}")
-
-    if schema.get("key_observations"):
-        lines.extend(["", "Observations (numeric only):"])
-        for o in schema["key_observations"]:
-            lines.append(f"- {o}")
-
-    plots = schema.get("plots") or []
-    if plots:
-        lines.append("Plots: " + ", ".join(os.path.basename(p) for p in plots))
-
-    lines.extend(_footer(schema))
-    return lines
+    return "\n".join(lines)
 
 
-def _body_deseq2(schema: dict) -> list[str]:
+def _render_deseq2(schema: dict) -> str:
     stat = schema.get("stat_result") or {}
-    n_sig = stat.get("n_significant_fdr_0_05", 0)
+    pop = schema.get("population") or {}
+    metrics = schema.get("metrics") or {}
     state = schema.get("inference_state")
+    n_sig = stat.get("n_significant_fdr_0_05", 0)
+
+    cell_type = pop.get("cell_type", "NA")
+    youngest = pop.get("youngest_group", "young")
+    oldest = pop.get("oldest_group", "old")
+
+    lines = ["### Differential Expression (DESeq2)", ""]
 
     if state == InferenceState.NOT_SIGNIFICANT.value or n_sig == 0:
-        lines = [
-            "DESeq2: no genes met FDR < 0.05 at pseudobulk level.",
-            "Top ranked genes are exploratory only.",
-        ]
+        lines.append(f"**No genes** passed FDR < 0.05 for {cell_type} ({oldest} vs {youngest}).")
+        lines.append("")
+        lines.append("Top ranked genes below are **exploratory only**.")
     elif state == InferenceState.LOW_POWER.value:
-        lines = [
-            f"DESeq2: {n_sig} gene(s) with padj < 0.05 (low sample count — exploratory).",
-        ]
+        lines.append(f"**{n_sig} gene(s)** with padj < 0.05 for {cell_type} -- but low sample count (exploratory).")
     else:
-        lines = [f"DESeq2: {n_sig} gene(s) with padj < 0.05."]
+        lines.append(f"**{n_sig} gene(s)** with padj < 0.05 for {cell_type} ({oldest} vs {youngest}).")
+    lines.append("")
 
-    pop = schema.get("population") or {}
-    lines.extend([
-        "",
-        f"Cell type: {pop.get('cell_type', 'NA')}",
-        f"Contrast: {pop.get('oldest_group')} vs {pop.get('youngest_group')}",
-        f"n_samples: {pop.get('n_samples')}",
-        f"samples_per_age: {pop.get('samples_per_age')}",
-    ])
+    lines.append(f"Samples: {pop.get('n_samples', 'NA')} | Per-age: {pop.get('samples_per_age', 'NA')}")
+    lines.append("")
 
-    for row in (schema.get("metrics") or {}).get("top_genes") or []:
-        lines.append(
-            f"- {row.get('gene')}: log2FC {_fmt(row.get('log2FoldChange'))}, "
-            f"padj {_fmt(row.get('padj'))}"
-        )
+    top_genes = metrics.get("top_genes") or []
+    if top_genes:
+        lines.append("| Gene | log2FC | padj |")
+        lines.append("|------|--------|------|")
+        for row in top_genes[:10]:
+            gene = row.get("gene", "?")
+            lfc = _fmt(row.get("log2FoldChange"))
+            padj = _fmt(row.get("padj"))
+            lines.append(f"| {gene} | {lfc} | {padj} |")
+        lines.append("")
 
-    lines.extend(_footer(schema))
-    return lines
+    lines.append(f"> Positive log2FC = higher expression in {oldest} group. Pseudobulk aggregation across samples.")
 
-
-def _body_generic(schema: dict) -> list[str]:
-    lines = [schema.get("headline") or f"{schema.get('tool')} completed", ""]
-    if schema.get("key_observations"):
-        lines.append("Observations:")
-        for o in schema["key_observations"]:
-            lines.append(f"- {o}")
-    metrics = schema.get("metrics") or {}
-    for k, v in metrics.items():
-        if k == "cluster_scores" and isinstance(v, dict):
-            lines.append("Cluster scores:")
-            for ck, cv in list(v.items())[:10]:
-                lines.append(f"  {ck}: {_fmt(cv)}")
-        elif k not in ("top_genes",):
-            lines.append(f"{k}: {v}")
-    plots = schema.get("plots") or []
-    if plots:
-        lines.append("Plots: " + ", ".join(os.path.basename(str(p)) for p in plots))
-    lines.extend(_footer(schema))
-    return lines
+    return "\n".join(lines)
 
 
-def _footer(schema: dict) -> list[str]:
+# ── Footer (audit info, collapsed in frontend) ──────────────────────────
+
+
+def _footer(schema: dict) -> str:
+    state = schema.get("inference_state", "")
+    level = schema.get("allowed_interpretation_level", "")
     flags = schema.get("forbidden_inference_flags") or []
-    level = schema.get("allowed_interpretation_level")
-    return [
-        "",
-        f"[System] inference_state={schema.get('inference_state')} | "
-        f"interpretation_level={level}",
-        f"[System] interpretation={schema.get('interpretation', 'not permitted')}",
-        "Forbidden: " + ", ".join(flags) if flags else "",
-    ]
+    flag_str = ", ".join(flags) if flags else "none"
+    return (
+        f"\n\n[System] inference_state={state} | "
+        f"interpretation_level={level} | "
+        f"forbidden=[{flag_str}]"
+    )
+
+
+# ── Main render entry point ──────────────────────────────────────────────
 
 
 def render_strict_output(schema: dict) -> str:
-    """Render one tool schema to final user text."""
+    """Render one tool schema to final user-facing Markdown."""
     if schema.get("errors"):
-        return (
-            f"**{schema.get('tool', 'tool')}** failed: "
-            + "; ".join(str(e) for e in schema["errors"])
-        )
+        tool = schema.get("tool", "tool")
+        errors = "; ".join(str(e) for e in schema["errors"])
+        return f"**{tool}** could not run: {errors}"
 
     assert_render_allowed(schema)
 
     tool = schema.get("tool")
-    if tool == "test_senescence_difference":
-        schema = {**schema, "headline": _headline_for_test(schema)}
-        return "\n".join([schema["headline"], ""] + _body_test(schema))
 
-    if tool == "compare_across_age":
-        schema["headline"] = "Age comparison (descriptive only)."
-        return "\n".join([schema["headline"], ""] + _body_compare(schema))
+    if tool == "find_senescence_markers":
+        body = _render_markers(schema)
+    elif tool == "senescence_score":
+        body = _render_score(schema)
+    elif tool == "generate_umap":
+        body = _render_umap(schema)
+    elif tool == "get_cluster_annotations":
+        body = _render_annotations(schema)
+    elif tool == "compare_across_age":
+        body = _render_compare(schema)
+    elif tool == "test_senescence_difference":
+        body = _render_test(schema)
+    elif tool == "run_deseq2":
+        body = _render_deseq2(schema)
+    else:
+        body = _render_generic(schema)
 
-    if tool == "run_deseq2":
-        state = schema.get("inference_state")
-        if state == InferenceState.NOT_SIGNIFICANT.value:
-            schema["headline"] = "Gene expression: no FDR-significant genes."
+    return body + _footer(schema)
+
+
+def _render_generic(schema: dict) -> str:
+    tool = schema.get("tool", "tool")
+    metrics = schema.get("metrics") or {}
+    obs = schema.get("key_observations") or []
+
+    lines = [f"### {tool}", ""]
+    if obs:
+        for o in obs:
+            lines.append(f"- {o}")
+        lines.append("")
+    for k, v in metrics.items():
+        if k == "cluster_scores" and isinstance(v, dict):
+            lines.append("**Cluster scores:**")
+            for ck, cv in list(v.items())[:10]:
+                lines.append(f"- {ck}: {_fmt(cv)}")
+        elif k == "plot_path":
+            continue  # handled by plots panel
         else:
-            schema["headline"] = "Gene expression (pseudobulk DESeq2)."
-        return "\n".join([schema["headline"], ""] + _body_deseq2(schema))
+            lines.append(f"**{k}:** {v}")
 
-    schema.setdefault("headline", f"{tool} completed.")
-    return "\n".join([schema["headline"], ""] + _body_generic(schema))
+    return "\n".join(lines)
 
+
+# ── Public API (unchanged interface) ─────────────────────────────────────
 
 from agent.output_schema import build_output_schema
 
@@ -258,7 +409,7 @@ def render_tool_calls_with_schema(tool_calls: list[dict]) -> tuple[str, list[dic
 
 
 def schema_json_for_llm(schema: dict) -> dict:
-    """Payload for Gemini after tools — schema only, no prose task."""
+    """Payload for Gemini after tools -- schema only, no prose task."""
     return {
         "strict_output_schema": schema,
         "instruction": (

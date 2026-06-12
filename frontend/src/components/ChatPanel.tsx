@@ -1,28 +1,66 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
 import type { ToolCallLog } from "../App";
 
-/** Split main answer from [System] audit lines; preserve backend newlines. */
+/** Split main answer from [System] audit lines; render Markdown for the body. */
 function AssistantReply({ content }: { content: string }) {
   const sections = content.split(/\n\n---\n\n/);
+  const [auditOpen, setAuditOpen] = useState(false);
+
+  // Collect all audit lines across sections
+  const auditLines: string[] = [];
+  const bodySections: string[] = [];
+
+  for (const section of sections) {
+    const systemIdx = section.search(/\[System\]/);
+    const body = (systemIdx >= 0 ? section.slice(0, systemIdx) : section).trim();
+    const meta = systemIdx >= 0 ? section.slice(systemIdx).trim() : null;
+    if (body) bodySections.push(body);
+    if (meta) auditLines.push(meta);
+  }
+
   return (
-    <div className="space-y-4">
-      {sections.map((section, i) => {
-        const systemIdx = section.search(/\[System\]/);
-        const body = (systemIdx >= 0 ? section.slice(0, systemIdx) : section).trim();
-        const meta = systemIdx >= 0 ? section.slice(systemIdx).trim() : null;
-        return (
-          <div key={i} className={i > 0 ? "border-t border-slate-200 pt-4" : undefined}>
-            <div className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-slate-800">
-              {body}
-            </div>
-            {meta ? (
-              <div className="mt-3 rounded-lg border border-slate-200/80 bg-slate-100/80 px-3 py-2 font-mono text-[11px] leading-relaxed text-slate-500 whitespace-pre-wrap">
-                {meta}
-              </div>
-            ) : null}
-          </div>
-        );
-      })}
+    <div className="space-y-3">
+      {bodySections.map((body, i) => (
+        <div
+          key={i}
+          className="prose prose-sm max-w-none
+            prose-headings:text-slate-900 prose-headings:font-semibold prose-headings:tracking-tight
+            prose-h3:text-[15px] prose-h3:mt-1 prose-h3:mb-2
+            prose-p:my-1.5 prose-p:leading-relaxed
+            prose-strong:text-slate-900
+            prose-table:text-xs prose-table:my-2
+            prose-th:px-2.5 prose-th:py-1.5 prose-th:text-left prose-th:font-semibold prose-th:text-slate-700 prose-th:bg-slate-50 prose-th:border-slate-200
+            prose-td:px-2.5 prose-td:py-1.5 prose-td:border-slate-200 prose-td:text-slate-700
+            prose-blockquote:border-l-violet-300 prose-blockquote:bg-violet-50/50 prose-blockquote:rounded-r-lg prose-blockquote:py-2 prose-blockquote:px-3 prose-blockquote:text-xs prose-blockquote:text-slate-600 prose-blockquote:not-italic prose-blockquote:my-2
+            prose-ul:my-1 prose-li:my-0.5
+            prose-em:text-slate-500 prose-em:text-xs"
+        >
+          <ReactMarkdown>{body}</ReactMarkdown>
+        </div>
+      ))}
+
+      {auditLines.length > 0 && (
+        <button
+          onClick={() => setAuditOpen(!auditOpen)}
+          className="flex items-center gap-1.5 text-[11px] font-medium text-slate-400 hover:text-slate-600 transition-colors"
+        >
+          <svg
+            width="10"
+            height="10"
+            viewBox="0 0 10 10"
+            className={`transition-transform ${auditOpen ? "rotate-90" : ""}`}
+          >
+            <path d="M3 1l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.5" />
+          </svg>
+          Audit details
+        </button>
+      )}
+      {auditOpen && auditLines.length > 0 && (
+        <div className="rounded-lg border border-slate-200/80 bg-slate-50 px-3 py-2 font-mono text-[10px] leading-relaxed text-slate-400 whitespace-pre-wrap">
+          {auditLines.join("\n")}
+        </div>
+      )}
     </div>
   );
 }
@@ -74,7 +112,7 @@ export default function ChatPanel({
   }, [history, loading]);
 
   return (
-    <div className="flex h-[calc(100vh-2rem)] max-h-[900px] flex-col bg-white font-sans antialiased overflow-hidden">
+    <div className="flex h-[calc(100vh-2rem)] max-h-[900px] flex-col bg-white font-sans antialiased overflow-hidden rounded-2xl border border-slate-100 shadow-sm">
 
       {/* ── TOP BAR ─────────────────────────────────────────────────── */}
       <header className="flex shrink-0 items-center justify-between border-b border-slate-100 px-6 py-4">
@@ -117,7 +155,7 @@ export default function ChatPanel({
               <path d="M6 8h4" />
               <path d="M6 10.5h4" />
             </svg>
-            {reportLoading ? "Writing" : `Report (${sessionToolRunCount})`}
+            {reportLoading ? "Writing..." : `Report (${sessionToolRunCount})`}
           </button>
 
           <button
@@ -147,8 +185,8 @@ export default function ChatPanel({
             </p>
             <p className="mt-1.5 max-w-xs text-xs leading-5 text-slate-400">
               {fileId
-                ? "Explore genes, clusters, aging signals, or ask for a plot."
-                : "Once uploaded, you can query your dataset with natural language."}
+                ? 'Try: "Run the full senescence analysis" or "Score senescence"'
+                : "Drag a .h5ad file into the upload panel to begin."}
             </p>
           </div>
         ) : (
@@ -156,12 +194,12 @@ export default function ChatPanel({
             {history.map((msg, i) => (
               <div
                 key={i}
-                className={`flex items-end gap-2.5 ${
+                className={`flex items-start gap-2.5 ${
                   msg.role === "user" ? "flex-row-reverse" : "flex-row"
                 }`}
               >
                 <div
-                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold ${
+                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold mt-1 ${
                     msg.role === "user"
                       ? "bg-violet-100 text-violet-700"
                       : "bg-slate-100 text-slate-500"
@@ -171,10 +209,10 @@ export default function ChatPanel({
                 </div>
 
                 <div
-                  className={`max-w-[72%] rounded-2xl px-4 py-3 text-sm leading-6 ${
+                  className={`rounded-2xl px-4 py-3 text-sm leading-6 ${
                     msg.role === "user"
-                      ? "rounded-br-sm bg-violet-600 text-white"
-                      : "rounded-bl-sm border border-slate-100 bg-slate-50 text-slate-800"
+                      ? "max-w-[72%] rounded-br-sm bg-violet-600 text-white"
+                      : "max-w-[85%] rounded-bl-sm border border-slate-100 bg-white text-slate-800"
                   }`}
                 >
                   {msg.role === "user" ? (
@@ -187,15 +225,16 @@ export default function ChatPanel({
             ))}
 
             {loading && (
-              <div className="flex items-end gap-2.5">
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[10px] font-semibold text-slate-500">
+              <div className="flex items-start gap-2.5">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[10px] font-semibold text-slate-500 mt-1">
                   AI
                 </div>
-                <div className="flex items-center gap-1.5 rounded-2xl rounded-bl-sm border border-slate-100 bg-slate-50 px-4 py-3">
+                <div className="flex items-center gap-1.5 rounded-2xl rounded-bl-sm border border-slate-100 bg-white px-4 py-3">
+                  <span className="text-xs text-slate-500 mr-2">Analyzing</span>
                   {[0, 1, 2].map((n) => (
                     <span
                       key={n}
-                      className="h-1.5 w-1.5 rounded-full bg-slate-400 animate-bounce"
+                      className="h-1.5 w-1.5 rounded-full bg-violet-400 animate-bounce"
                       style={{ animationDelay: `${n * 120}ms`, animationDuration: "0.9s" }}
                     />
                   ))}
@@ -208,22 +247,18 @@ export default function ChatPanel({
 
       {lastToolCalls.length > 0 && !loading && (
         <div className="mx-6 mb-2 rounded-xl border border-slate-100 bg-slate-50/80 px-4 py-2.5 text-xs text-slate-600">
-          <p className="font-semibold text-slate-700">Tools used (last reply)</p>
-          <ul className="mt-1 space-y-1">
+          <p className="font-semibold text-slate-700">Tools used</p>
+          <div className="mt-1 flex flex-wrap gap-1.5">
             {lastToolCalls.map((t, i) => (
-              <li key={`${t.name}-${i}`}>
-                <span className="font-mono text-violet-700">{t.name}</span>
-                {t.args && Object.keys(t.args).length > 0 ? (
-                  <span className="text-slate-500">
-                    {" "}
-                    ({Object.entries(t.args)
-                      .map(([k, v]) => `${k}=${JSON.stringify(v)}`)
-                      .join(", ")})
-                  </span>
-                ) : null}
-              </li>
+              <span
+                key={`${t.name}-${i}`}
+                className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-medium text-slate-600"
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                {t.name.replace(/_/g, " ")}
+              </span>
             ))}
-          </ul>
+          </div>
         </div>
       )}
 
@@ -247,7 +282,7 @@ export default function ChatPanel({
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={onKeyDown}
             rows={2}
-            placeholder={fileId ? "Ask about your dataset…" : "Upload a dataset first…"}
+            placeholder={fileId ? "Ask about your dataset..." : "Upload a dataset first..."}
             disabled={!fileId}
             className="flex-1 resize-none bg-transparent text-sm text-slate-800 placeholder-slate-400 outline-none disabled:cursor-not-allowed disabled:opacity-50"
           />
@@ -266,9 +301,9 @@ export default function ChatPanel({
         </div>
 
         <p className="mt-2 text-center text-[10px] text-slate-400">
-          Press <kbd className="rounded border border-slate-200 bg-white px-1 py-px font-mono text-[10px] text-slate-500">⏎</kbd> to send
-          &nbsp;·&nbsp;
-          <kbd className="rounded border border-slate-200 bg-white px-1 py-px font-mono text-[10px] text-slate-500">Shift ⏎</kbd> for new line
+          Press <kbd className="rounded border border-slate-200 bg-white px-1 py-px font-mono text-[10px] text-slate-500">Enter</kbd> to send
+          &nbsp;&middot;&nbsp;
+          <kbd className="rounded border border-slate-200 bg-white px-1 py-px font-mono text-[10px] text-slate-500">Shift+Enter</kbd> for new line
         </p>
       </div>
     </div>
