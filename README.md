@@ -2,6 +2,8 @@
 
 Single-cell RNA-seq analysis for **cellular senescence** and **aging**, driven by natural language. Upload an `.h5ad` dataset, ask questions in chat, and get reproducible Scanpy results with audit-friendly tool logs.
 
+[![Validated on GSE226225](https://img.shields.io/badge/Validated-GSE226225-brightgreen)](eval/results/validation/gse226225_report.md) [![SenMayo 125 genes](https://img.shields.io/badge/SenMayo-125%20genes-blue)](backend/data/senmayo.json)
+
 **Design principle:** Python owns the science; Google Gemini routes tools only. User-facing answers after tool runs are produced by a **deterministic renderer**, not free-form LLM prose.
 
 ---
