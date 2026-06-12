@@ -1,47 +1,182 @@
-# Senescence Agent: Presentation Outline
+# Senescence Agent -- Final Presentation Outline
 
-This document provides a slide-by-slide outline for your upcoming presentation.
+**Event:** TASH 2026 Hackathon
+**Date:** June 29, 2026
+**Team:** Aviral (FastAPI Backend, Research, Presentation) & Rodela (Agent, Frontend, Integration)
+**Time limit:** ~6 minutes total
+
+---
 
 ## Slide 1: Title Slide
-- **Project Name:** Senescence Agent
-- **Subtitle:** An LLM-powered autonomous agent for single-cell aging research.
-- **Team Roles:** 
-  - Aviral (Agent Architecture, API Integration)
-  - Rodela (Agent Logic, Prompt Engineering, Frontend)
 
-## Slide 2: The Problem
-- **Bottleneck:** Analyzing single-cell RNA-seq (scRNA-seq) data requires deep programming expertise (Python/R).
-- **Aging Biology Gap:** Current AI tools (like CellAgent or CompBioAgent) are general-purpose. There is no automated, natural-language interface tailored specifically for identifying and scoring cellular senescence.
-- **Impact:** Slows down the discovery of senescent cell populations in tissue models.
+- **Title:** Senescence Agent
+- **Subtitle:** An LLM-Powered Autonomous Agent for Single-Cell Aging Research
+- **Team:**
+  - Aviral Gupta -- FastAPI Backend, Research, Presentation
+  - Rodela -- Agent Architecture, Frontend, Integration
+- **Mentor:** Fei He
+- **USF / TASH 2026**
 
-## Slide 3: Our Solution
-- **What it is:** A zero-code, conversational AI web application.
-- **How it works:** Users upload an `.h5ad` file and ask questions in plain English. The agent converts this into Python commands, orchestrating the `Scanpy` library to perform QC, clustering, and dimensional reduction (UMAP).
-- **The "Secret Sauce":** Built-in utilization of the **SenMayo signature** to automatically map cross-species gene names and calculate senescence burden per cell cluster.
+---
 
-## Slide 4: What We Have Done So Far (Week 1 Progress)
-- **Verified Core Literature:** Reviewed existing benchmarks like CellAgent, CompBioAgent, and ELISA.
-- **Backend Architecture Setup:**
-  - Configured a Python virtual environment with all core bioinformatics and AI dependencies (`scanpy`, `fastapi`, `anthropic`).
-  - Built a robust FastAPI server exposing `/upload` and `/chat` endpoints with CORS and Session Management.
-- **Frontend Scaffolding:** Initialized the React + TypeScript + Vite workspace with TailwindCSS.
-- **API Contract Locked:** Established the exact JSON request/response schema with the agent team (Rodela).
+## Slide 2: The Problem (Aviral presents, 30 sec)
 
-## Slide 5: Weekly Deliverables & Project Plan
-- **Week 1 (Current): Foundation**
-  - Scaffold frontend/backend.
-  - Establish API contract and build mock endpoints.
-  - Implement basic Scanpy utility functions (QC, UMAP, Gene Nomenclature mapping).
-- **Week 2: Core Agent Logic**
-  - Rodela integrates the LLM (Ollama/Anthropic) to parse user intent.
-  - Agent successfully calls the Scanpy python tools based on chat prompts.
-- **Week 3: Frontend Integration**
-  - Connect the React chat interface to the `/chat` endpoint.
-  - Render UMAP PNGs and agent text responses dynamically in the UI.
-- **Week 4: Polish & Hackathon Demo**
-  - Test the agent with real PBMC/aging datasets.
-  - Final bug fixes, styling improvements, and presentation prep for TASH 2026.
+**Layout:** Split screen
 
-## Slide 6: Architecture Overview (Optional)
-- Briefly explain the hybrid LLM approach: **Ollama (Llama 3.1 8B)** for local prototyping and **Anthropic Claude** for robust reasoning.
-- Mention the split between React (UI) <-> FastAPI (Orchestrator) <-> Scanpy (Engine).
+**Left side:** 20 lines of Python code (Scanpy pipeline: load, QC, normalize, cluster, score_genes, groupby, plot)
+
+**Right side:** One chat message: *"Find senescent cells in this aged mouse kidney dataset."*
+
+**Key points:**
+- scRNA-seq analysis requires Python/R expertise
+- A bioinformatician costs $112K-$180K/year (BLS/Glassdoor 2024-2026)
+- Most aging biology labs cannot afford dedicated computational support
+- Our tool: same result, one sentence, zero programming
+
+**Opening line:** "Biologists studying aging rely on specialized programming expertise most labs cannot afford."
+
+---
+
+## Slide 3: Why Senescence? (Aviral presents, 15 sec)
+
+- One of the most well-funded areas in aging research
+- Calico, Altos Labs, Unity Biotechnology -- billions in investment
+- No existing LLM agent specializes in senescence detection
+- Our gap: domain-specific tools for the most active area of aging biology
+
+---
+
+## Slide 4: Live Demo (Rodela drives, Aviral narrates, 3 min)
+
+**Demo flow:**
+1. Upload TMS kidney .h5ad (species: mouse)
+2. Type: "Run the full senescence analysis"
+3. Show UMAP + cluster rankings + age comparison
+4. Type: "What is the p-value for senescence in T cells, 3m vs 24m?"
+5. Show inference state (LOW_POWER or SIGNIFICANT)
+6. Click "Download Report"
+
+**Backup:** Pre-recorded demo video open in another tab
+
+---
+
+## Slide 5: Architecture (Aviral presents, 45 sec)
+
+**Diagram:**
+```
+User --> React Frontend --> FastAPI Backend --> Gemini (tool routing ONLY)
+                                                    |
+                                          Scanpy Tools (facts-only JSON)
+                                                    |
+                                          Inference State Machine (A-E)
+                                                    |
+                                          Deterministic Renderer --> Response
+```
+
+**Key points:**
+- LLM picks tools, never writes biology
+- Scanpy runs real analysis on real data
+- Inference state machine prevents overclaiming (A: descriptive only ... D: significant)
+- Deterministic renderer -- no LLM prose in results
+- All tool calls logged for reproducibility
+
+---
+
+## Slide 6: Senescence Marker Genes (Aviral presents, 20 sec)
+
+**Table of 10 key markers:**
+
+| Gene | Role | Signal |
+|------|------|--------|
+| CDKN1A (p21) | Cell cycle arrest | High = senescent |
+| CDKN2A (p16) | Tumor suppressor, strongest single marker | High = senescent |
+| IL6, IL8 | SASP inflammatory cytokines | Co-elevated |
+| LMNB1 | Nuclear lamina | Lost in senescent |
+| MKI67 | Proliferation marker | Absent = growth arrested |
+| TP53 | DNA damage response | Elevated after damage |
+| SERPINE1, GLB1, HMGA1 | SASP, lysosomal, chromatin | Classic markers |
+
+**Key point:** "No single marker is sufficient. That's why we use the full SenMayo 125-gene signature."
+
+---
+
+## Slide 7: Novelty -- What Makes Us Different (Aviral presents, 30 sec)
+
+| Feature | CellAgent | CompBioAgent | ELISA | Ours |
+|---------|-----------|--------------|-------|------|
+| Senescence scoring | No | No | No | SenMayo 125-gene |
+| Mouse/human gene mapping | No | No | No | Automatic |
+| Age-stratified analysis | No | No | No | Yes |
+| Inference state machine | No | No | No | A-E system |
+| Deterministic output | No | No | No | Template-rendered |
+| Pseudobulk statistics | No | No | No | Mann-Whitney + DESeq2 |
+
+---
+
+## Slide 8: Validation -- GSE226225 (Aviral presents, 30 sec)
+
+**Layout:** Side-by-side UMAP
+
+- Left: Published senescence labels from GSE226225
+- Right: Our SenMayo scoring predictions
+
+**Result:** "Our SenMayo scoring identified [X]% of labeled senescent cells on a held-out dataset with known labels."
+
+**Key message:** "This isn't a demo -- it's a scientific result."
+
+---
+
+## Slide 9: Comparison Table (Aviral presents, 20 sec)
+
+| Method | Sensitivity | Precision | F1 |
+|--------|-------------|-----------|-----|
+| CDKN2A (p16) only | [X]% | [Y]% | [Z]% |
+| MKI67 absence | [X]% | [Y]% | [Z]% |
+| SenMayo (ours) | [X]% | [Y]% | [Z]% |
+
+**Key message:** "Single markers miss entire categories of senescent cells. The full signature captures the multi-dimensional phenotype."
+
+---
+
+## Slide 10: Limitations & Future Work (Aviral presents, 30 sec)
+
+**Limitations:**
+- RNA-seq only (senescence is multi-modal)
+- Primarily tested on mouse data (Tabula Muris Senis)
+- SenMayo coverage varies by tissue (20-80%)
+
+**Future work:**
+- Human clinical datasets (GTEx, Human Cell Atlas)
+- ATAC-seq integration for epigenetic markers
+- Custom gene signatures (user-defined panels)
+- Spatial transcriptomics
+
+---
+
+## Slide 11: Results / User Quote (Aviral presents, 15 sec)
+
+**Large pull-quote box:**
+
+> "I would actually use this for my aging dataset analysis."
+>
+> -- Graduate Student, Aging Biology Lab
+
+*(Quote captured during Week 6 user test)*
+
+---
+
+## Slide 12: Team & Acknowledgments
+
+- **Aviral Gupta** -- FastAPI Backend, Research Narrative, Presentation
+- **Rodela** -- Agent Architecture, Frontend, Integration
+- **Mentor:** Fei He
+- **Built with:** Scanpy, FastAPI, Google Gemini, React, SenMayo signature
+- **Datasets:** Tabula Muris Senis, GSE226225
+
+---
+
+## Slide 13: Q&A
+
+"Questions?"
+
+*(See docs/qa_answers.md for prepared answers)*
