@@ -1,0 +1,22 @@
+{
+  "dataset": "GSE226225",
+  "species": "human",
+  "published_label_column": "published_senescent",
+  "label_definition": "CTRL/day0 = non-senescent; RS/IR/ETO timepoints = senescent",
+  "threshold": "top_25_percent_senmayo_score",
+  "threshold_value": 0.2464,
+  "n_cells": 55317,
+  "n_genes": 33207,
+  "true_senescent": 43280,
+  "true_non_senescent": 12037,
+  "predicted_senescent": 13830,
+  "tp": 13028,
+  "fp": 802,
+  "fn": 30252,
+  "tn": 11235,
+  "precision": 0.942,
+  "sensitivity": 0.301,
+  "f1": 0.4562,
+  "senmayo_coverage_pct": 98.4,
+  "genes_used": 122
+}

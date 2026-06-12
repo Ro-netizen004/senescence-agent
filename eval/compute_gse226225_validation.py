@@ -269,43 +269,18 @@ def assign_senescence_labels(adata):
 
     We label: any condition containing RS, IR, or ETO (except day0) as senescent.
     """
-    condition = adata.obs["condition"].astype(str).str.upper()
+    condition = adata.obs["condition"].astype(str)
 
-    # CTRL and ETO-day0 are non-senescent; everything else is senescent
-    is_senescent = ~(
-        condition.str.contains("CTRL") |
-        condition.str.contains("DAY0") |
-        condition.str.contains("D0") |
-        (condition == "ETO")  # bare ETO without timepoint = day0
+    # Non-senescent: CTRL samples and ETO day 0 (treatment not yet active)
+    is_control = (
+        condition.str.upper().str.contains("CTRL") |
+        condition.str.contains("day_0", case=False) |
+        condition.str.contains("day0", case=False) |
+        condition.str.contains("d0", case=False)
     )
 
-    # But if all ETO samples are just "ETO" with no timepoint, they're mixed
-    # Let's be more careful: mark RS and IR as definitely senescent
-    is_definitely_senescent = (
-        condition.str.contains("RS") |
-        condition.str.contains("IR") |
-        condition.str.contains("DAY7") |
-        condition.str.contains("DAY10") |
-        condition.str.contains("D7") |
-        condition.str.contains("D10") |
-        condition.str.contains("ETO-7") |
-        condition.str.contains("ETO-10") |
-        condition.str.contains("ETO_7") |
-        condition.str.contains("ETO_10")
-    )
-
-    # For intermediate timepoints (day1, day2, day4), include as senescent
-    is_intermediate = (
-        condition.str.contains("DAY1") |
-        condition.str.contains("DAY2") |
-        condition.str.contains("DAY4") |
-        condition.str.contains("D1") |
-        condition.str.contains("D2") |
-        condition.str.contains("D4")
-    )
-
-    # Final label: CTRL/day0 = non-senescent, everything else = senescent
-    senescent = is_definitely_senescent | is_intermediate | is_senescent
+    # Senescent: RS, IR, and ETO timepoints (day 1+)
+    senescent = ~is_control
 
     adata.obs["published_senescent"] = senescent
     adata.obs["senescence_label"] = senescent.map({True: "senescent", False: "non-senescent"})
