@@ -66,10 +66,11 @@ export default function App() {
     }
   }
 
-  async function sendMessage() {
-    if (!message.trim() || !fileId || loading) return;
+  async function sendMessage(promptOverride?: string) {
+    const outgoingMessage = promptOverride ?? message;
+    if (!outgoingMessage.trim() || !fileId || loading) return;
 
-    const userMsg: Message = { role: "user", content: message };
+    const userMsg: Message = { role: "user", content: outgoingMessage };
     const updated = [...history, userMsg];
 
     setHistory(updated);
@@ -191,18 +192,18 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-emerald-50 py-6 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-100 py-6 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="mb-6 rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur-xl sm:p-8">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm uppercase tracking-[0.24em] text-emerald-700">Senescence Agent</p>
+              <p className="text-sm uppercase tracking-[0.24em] text-slate-600">Senescence Agent</p>
               <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-900">
                 Single-cell analysis assistant
               </h1>
             </div>
             <p className="max-w-xl text-sm leading-6 text-slate-600">
-              Upload a dataset, ask questions, and browse generated plots in a polished, responsive chat experience.
+              Upload a dataset, ask questions, and browse generated plots in a scientific chat interface with guarded interpretation and reproducible outputs.
             </p>
           </div>
         </div>
@@ -231,6 +232,7 @@ export default function App() {
             onGenerateReport={generateReport}
             onKeyDown={handleKeyDown}
             onReset={resetSession}
+            onSuggestedPrompt={sendMessage}
           />
 
           <Plots plots={plots} apiBase={API_BASE} />

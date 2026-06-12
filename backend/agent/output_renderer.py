@@ -50,33 +50,55 @@ def _pct(value) -> str:
         return str(value)
 
 
+def _safe_int(value):
+    try:
+        return int(float(value))
+    except (TypeError, ValueError):
+        return None
+
+
 # ── Tool-specific renderers ──────────────────────────────────────────────
 
 
 def _render_markers(schema: dict) -> str:
     metrics = schema.get("metrics") or {}
+    # NOTE: these lists are truncated previews (capped in the schema builder),
+    # so they are only safe to use for the "Detected:" sample, never for counts.
     found = metrics.get("found_markers") or []
     missing = metrics.get("missing_markers") or []
     obs = schema.get("key_observations") or []
 
-    # Extract coverage from observations
+    # Authoritative coverage and counts come from key_observations, which are
+    # computed on the full gene set before the marker lists were truncated.
     coverage = "NA"
+    found_count = None
+    missing_count = None
     for o in obs:
-        if "coverage_pct=" in o:
-            coverage = o.split("=")[1]
+        if o.startswith("coverage_pct="):
+            coverage = o.split("=", 1)[1]
+        elif o.startswith("found="):
+            found_count = _safe_int(o.split("=", 1)[1])
+        elif o.startswith("missing="):
+            missing_count = _safe_int(o.split("=", 1)[1])
 
-    total = len(found) + len(missing)
+    # Fall back to the preview lists only if the counts are absent from obs.
+    if found_count is None:
+        found_count = len(found)
+    if missing_count is None:
+        missing_count = len(missing)
+
+    total = found_count + missing_count
     lines = [
         f"### SenMayo Gene Coverage",
         "",
-        f"**{len(found)}** of **{total}** SenMayo genes detected in this dataset ({_pct(coverage)} coverage).",
+        f"**{found_count}** of **{total}** SenMayo genes detected in this dataset ({_pct(coverage)} coverage).",
         "",
     ]
 
     if found:
         preview = ", ".join(found[:15])
-        if len(found) > 15:
-            preview += f", ... (+{len(found) - 15} more)"
+        if found_count > 15:
+            preview += f", ... (+{found_count - 15} more)"
         lines.append(f"**Detected:** {preview}")
         lines.append("")
 
