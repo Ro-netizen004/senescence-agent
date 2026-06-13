@@ -87,7 +87,7 @@ export default function Plots({ plots, apiBase = "http://127.0.0.1:8000" }: Prop
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 bg-slate-50 text-slate-600">
+            <span className="flex h-8 w-8 items-center justify-center rounded-md border border-indigo-200 bg-indigo-50 text-indigo-600">
               <ImageIcon size={16} strokeWidth={1.8} />
             </span>
             <div>
@@ -152,8 +152,8 @@ export default function Plots({ plots, apiBase = "http://127.0.0.1:8000" }: Prop
                     onClick={() => setSelectedId(plot.id)}
                     className={`grid w-full grid-cols-[72px_minmax(0,1fr)] gap-3 rounded-md border p-2 text-left transition ${
                       isSelected
-                        ? "border-slate-400 bg-slate-50"
-                        : "border-slate-100 bg-white hover:border-slate-200 hover:bg-slate-50"
+                        ? "border-indigo-300 bg-indigo-50/60 ring-1 ring-indigo-200"
+                        : "border-slate-100 bg-white hover:border-indigo-200 hover:bg-indigo-50/30"
                     }`}
                   >
                     <span className="flex h-16 items-center justify-center overflow-hidden rounded bg-slate-100">

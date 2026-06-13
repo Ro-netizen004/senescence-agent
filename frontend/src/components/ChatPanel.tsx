@@ -78,7 +78,7 @@ function Badge({ label }: { label: string }) {
       className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold tracking-wide ${
         isCaution
           ? "border-amber-300 bg-amber-50 text-amber-800"
-          : "border-slate-200 bg-slate-50 text-slate-600"
+          : "border-indigo-200 bg-indigo-50 text-indigo-700"
       }`}
     >
       {label.replace(/_/g, " ")}
@@ -89,7 +89,7 @@ function Badge({ label }: { label: string }) {
 const mdComponents: Components = {
   h3: ({ children }) => (
     <h3 className="flex items-center gap-2 text-[15px] font-semibold text-slate-900 tracking-tight mt-4 mb-2 first:mt-0">
-      <span className="inline-block h-3 w-1 rounded-full bg-slate-400" />
+      <span className="inline-block h-3 w-1 rounded-full bg-gradient-to-b from-indigo-500 to-violet-500" />
       {children}
     </h3>
   ),
@@ -99,7 +99,7 @@ const mdComponents: Components = {
     </div>
   ),
   thead: ({ children }) => (
-    <thead className="bg-slate-50 border-b border-slate-200">
+    <thead className="bg-indigo-50/60 border-b border-indigo-100">
       {children}
     </thead>
   ),
@@ -110,13 +110,16 @@ const mdComponents: Components = {
   ),
   td: ({ children }) => {
     const text = String(children ?? "");
-    // Keep numbers legible without turning the answer into a dashboard.
+    // Keep numbers legible; use semantic color only for meaningful outcomes.
     let extra = "text-slate-700";
     if (/^\d+\.\d+%?$/.test(text) || /^[\d,]+$/.test(text.replace(/,/g, ""))) {
       extra = "font-semibold text-slate-900 tabular-nums";
     }
+    if (/significant/i.test(text) && !/not/i.test(text)) {
+      extra = "font-semibold text-emerald-700";
+    }
     if (/not significant/i.test(text) || /underpowered/i.test(text)) {
-      extra = "font-semibold text-slate-800";
+      extra = "font-semibold text-amber-700";
     }
     if (/NA/i.test(text) && text.length <= 3) {
       extra = "text-slate-400 italic";
@@ -124,26 +127,35 @@ const mdComponents: Components = {
     return <td className={`px-3 py-2 border-t border-slate-100 ${extra}`}>{children}</td>;
   },
   tr: ({ children }) => (
-    <tr className="hover:bg-slate-50/80 transition-colors">{children}</tr>
+    <tr className="hover:bg-indigo-50/40 transition-colors">{children}</tr>
   ),
   strong: ({ children }) => {
     const text = String(children ?? "");
     if (/error|failed|could not/i.test(text)) {
       return <strong className="text-rose-700 font-semibold">{children}</strong>;
     }
+    if (/significant/i.test(text) && !/not/i.test(text)) {
+      return <strong className="text-emerald-700 font-bold">{children}</strong>;
+    }
+    if (/not significant/i.test(text) || /underpowered/i.test(text)) {
+      return <strong className="text-amber-700 font-bold">{children}</strong>;
+    }
+    if (/highest senescence/i.test(text)) {
+      return <strong className="text-violet-700 font-bold">{children}</strong>;
+    }
     return <strong className="text-slate-900 font-semibold">{children}</strong>;
   },
   blockquote: ({ children }) => {
     const text = String(children ?? "");
-    let style = "border-l-slate-300 bg-slate-50";
+    let style = "border-l-indigo-300 bg-indigo-50/50";
     if (/warning|caution|note.*low/i.test(text)) {
       style = "border-l-amber-500 bg-amber-50/70";
     }
     if (/descriptive only|no p-value/i.test(text)) {
-      style = "border-l-slate-400 bg-slate-50";
+      style = "border-l-sky-300 bg-sky-50/60";
     }
     if (/good coverage|reliable/i.test(text)) {
-      style = "border-l-slate-400 bg-slate-50";
+      style = "border-l-emerald-400 bg-emerald-50/60";
     }
     return (
       <blockquote className={`${style} border-l-[3px] rounded-r-lg py-2 px-3 my-3 not-italic`}>
@@ -159,7 +171,7 @@ const mdComponents: Components = {
   ),
   li: ({ children }) => (
     <li className="flex gap-2 items-baseline">
-      <span className="h-1.5 w-1.5 rounded-full bg-slate-400 mt-1.5 shrink-0" />
+      <span className="h-1.5 w-1.5 rounded-full bg-indigo-400 mt-1.5 shrink-0" />
       <span>{children}</span>
     </li>
   ),
@@ -286,7 +298,7 @@ export default function ChatPanel({
       {/* ── TOP BAR ─────────────────────────────────────────────────── */}
       <header className="flex shrink-0 items-center justify-between border-b border-slate-100 px-6 py-4">
         <div className="flex items-center gap-3">
-          <span className="h-2.5 w-2.5 rounded-full bg-slate-500" />
+          <span className="h-2.5 w-2.5 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500" />
           <h1 className="text-[15px] font-bold tracking-tight text-slate-900">
             Senescence Agent
           </h1>
@@ -296,11 +308,11 @@ export default function ChatPanel({
           <div
             className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium leading-none transition-colors ${
               fileId
-                ? "border-slate-300 bg-slate-50 text-slate-700"
+                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
                 : "border-slate-200 bg-slate-50 text-slate-400"
             }`}
           >
-            <span className={`h-1.5 w-1.5 rounded-full ${fileId ? "bg-slate-500" : "bg-slate-300"}`} />
+            <span className={`h-1.5 w-1.5 rounded-full ${fileId ? "bg-emerald-500" : "bg-slate-300"}`} />
             {fileId ? (fileName || "Dataset loaded") : "No dataset"}
           </div>
 
@@ -308,7 +320,7 @@ export default function ChatPanel({
             onClick={onGenerateReport}
             disabled={!fileId || loading || reportLoading || sessionToolRunCount === 0}
             title={sessionToolRunCount === 0 ? "Run an analysis first" : "Generate PDF report"}
-            className="flex h-7 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-500 transition hover:border-slate-300 hover:text-slate-800 hover:bg-slate-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex h-7 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-500 transition hover:border-indigo-300 hover:text-indigo-700 hover:bg-indigo-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 1.5h5l3 3v10H4z" />
@@ -334,7 +346,7 @@ export default function ChatPanel({
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-5">
         {history.length === 0 && !loading ? (
           <div className="flex h-full flex-col items-center justify-center text-center">
-            <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-slate-500">
+            <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-100 to-violet-50 text-indigo-500">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
               </svg>
@@ -355,7 +367,7 @@ export default function ChatPanel({
                     type="button"
                     onClick={() => onSuggestedPrompt(prompt)}
                     disabled={loading}
-                    className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-left text-xs leading-5 text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-left text-xs leading-5 text-slate-700 shadow-sm transition hover:border-indigo-300 hover:bg-indigo-50/60 hover:text-indigo-900 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {prompt}
                   </button>
@@ -375,8 +387,8 @@ export default function ChatPanel({
                 <div
                   className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[10px] font-bold mt-0.5 ${
                     msg.role === "user"
-                ? "bg-slate-800 text-white"
-                      : "bg-gradient-to-br from-slate-100 to-slate-50 text-slate-500 border border-slate-200"
+                ? "bg-gradient-to-br from-indigo-600 to-violet-600 text-white"
+                      : "bg-gradient-to-br from-indigo-100 to-violet-50 text-indigo-500 border border-indigo-200"
                   }`}
                 >
                   {msg.role === "user" ? "You" : "SA"}
@@ -385,7 +397,7 @@ export default function ChatPanel({
                 <div
                   className={`rounded-2xl text-sm leading-6 ${
                     msg.role === "user"
-                      ? "max-w-[65%] rounded-br-md bg-slate-800 text-white px-4 py-3"
+                      ? "max-w-[65%] rounded-br-md bg-gradient-to-br from-indigo-600 to-violet-600 text-white px-4 py-3"
                       : "max-w-[90%] rounded-bl-md border border-slate-100 bg-white text-slate-800 px-5 py-4 shadow-sm"
                   }`}
                 >
@@ -400,7 +412,7 @@ export default function ChatPanel({
 
             {loading && (
               <div className="flex items-start gap-3">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-slate-100 to-slate-50 text-[10px] font-bold text-slate-500 border border-slate-200 mt-0.5">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-100 to-violet-50 text-[10px] font-bold text-indigo-500 border border-indigo-200 mt-0.5">
                   SA
                 </div>
                 <div className="rounded-2xl rounded-bl-md border border-slate-100 bg-white px-5 py-4 shadow-sm">
@@ -409,7 +421,7 @@ export default function ChatPanel({
                       {[0, 1, 2].map((n) => (
                         <span
                           key={n}
-                          className="h-2 w-2 rounded-full bg-slate-400 animate-bounce"
+                          className="h-2 w-2 rounded-full bg-indigo-400 animate-bounce"
                           style={{ animationDelay: `${n * 150}ms`, animationDuration: "1s" }}
                         />
                       ))}
@@ -430,13 +442,13 @@ export default function ChatPanel({
             <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Tools:</span>
             {lastToolCalls.map((t, i) => {
               const toolColors: Record<string, string> = {
-                find_senescence_markers: "bg-slate-50 text-slate-700 border-slate-200",
-                senescence_score: "bg-slate-50 text-slate-700 border-slate-200",
-                generate_umap: "bg-slate-50 text-slate-700 border-slate-200",
-                get_cluster_annotations: "bg-slate-50 text-slate-700 border-slate-200",
-                compare_across_age: "bg-slate-50 text-slate-700 border-slate-200",
-                test_senescence_difference: "bg-slate-50 text-slate-700 border-slate-200",
-                run_deseq2: "bg-slate-50 text-slate-700 border-slate-200",
+                find_senescence_markers: "bg-sky-50 text-sky-700 border-sky-200",
+                senescence_score: "bg-rose-50 text-rose-700 border-rose-200",
+                generate_umap: "bg-violet-50 text-violet-700 border-violet-200",
+                get_cluster_annotations: "bg-teal-50 text-teal-700 border-teal-200",
+                compare_across_age: "bg-amber-50 text-amber-700 border-amber-200",
+                test_senescence_difference: "bg-emerald-50 text-emerald-700 border-emerald-200",
+                run_deseq2: "bg-indigo-50 text-indigo-700 border-indigo-200",
               };
               const color = toolColors[t.name] || "bg-slate-50 text-slate-600 border-slate-200";
               return (
@@ -473,7 +485,7 @@ export default function ChatPanel({
                 type="button"
                 onClick={() => onSuggestedPrompt(q.prompt)}
                 disabled={loading}
-                className="shrink-0 whitespace-nowrap rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-600 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                className="shrink-0 whitespace-nowrap rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-600 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {q.label}
               </button>
@@ -484,7 +496,7 @@ export default function ChatPanel({
 
       {/* ── INPUT ───────────────────────────────────────────────────── */}
       <div className="shrink-0 border-t border-slate-100 px-4 py-4">
-        <div className="flex items-end gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-slate-400 focus-within:bg-white focus-within:ring-2 focus-within:ring-slate-100">
+        <div className="flex items-end gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 transition focus-within:border-indigo-300 focus-within:bg-white focus-within:ring-2 focus-within:ring-indigo-100">
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
@@ -497,7 +509,7 @@ export default function ChatPanel({
           <button
             onClick={onSend}
             disabled={!fileId || !message.trim()}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-800 text-white transition hover:bg-slate-900 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 shadow-sm"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white transition hover:from-indigo-700 hover:to-violet-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 shadow-sm"
             title="Send"
           >
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

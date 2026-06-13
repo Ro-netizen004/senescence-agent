@@ -192,12 +192,12 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 py-6 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-slate-100 to-violet-50 py-6 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="mb-6 rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur-xl sm:p-8">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm uppercase tracking-[0.24em] text-slate-600">Senescence Agent</p>
+              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-indigo-600">Senescence Agent</p>
               <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-900">
                 Single-cell analysis assistant
               </h1>

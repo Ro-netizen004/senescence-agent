@@ -35,7 +35,7 @@ export default function UploadPanel({
           value={species}
           onChange={(e) => onSpeciesChange(e.target.value)}
           disabled={!!fileId}
-          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:opacity-70"
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:opacity-70"
         >
           <option value="mouse">Mouse</option>
           <option value="human">Human</option>
@@ -50,13 +50,13 @@ export default function UploadPanel({
       <label
         className={`group relative flex cursor-pointer flex-col items-center gap-3 rounded-xl border-2 border-dashed px-4 py-8 text-center transition-colors ${
           fileId
-            ? "border-slate-300 bg-slate-50 hover:bg-slate-50"
-            : "border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-slate-100/70"
+            ? "border-emerald-200 bg-emerald-50/60 hover:bg-emerald-50"
+            : "border-slate-200 bg-slate-50 hover:border-indigo-300 hover:bg-indigo-50/40"
         }`}
       >
         <div
           className={`flex h-10 w-10 items-center justify-center rounded-xl transition-colors ${
-            fileId ? "bg-slate-200 text-slate-700" : "bg-slate-100 text-slate-500 group-hover:bg-slate-200 group-hover:text-slate-700"
+            fileId ? "bg-emerald-100 text-emerald-600" : "bg-slate-100 text-slate-500 group-hover:bg-indigo-100 group-hover:text-indigo-600"
           }`}
         >
           {fileId ? (
@@ -74,13 +74,13 @@ export default function UploadPanel({
 
         {fileId ? (
           <div className="space-y-0.5">
-            <p className="text-sm font-semibold text-slate-800">Dataset loaded</p>
-            <p className="max-w-[180px] truncate text-xs text-slate-600">{fileName || fileId}</p>
-            <p className="text-[11px] text-slate-500">Click to replace</p>
+            <p className="text-sm font-semibold text-emerald-700">Dataset loaded</p>
+            <p className="max-w-[180px] truncate text-xs text-emerald-600">{fileName || fileId}</p>
+            <p className="text-[11px] text-emerald-500/80">Click to replace</p>
           </div>
         ) : (
           <div className="space-y-0.5">
-            <p className="text-sm font-semibold text-slate-700 group-hover:text-slate-900 transition-colors">
+            <p className="text-sm font-semibold text-slate-700 group-hover:text-indigo-700 transition-colors">
               Choose a file
             </p>
             <p className="text-xs text-slate-400">
@@ -97,8 +97,9 @@ export default function UploadPanel({
         />
       </label>
 
-      <div className="rounded-xl border border-slate-100 bg-slate-50/60 p-4">
-        <h3 className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+      <div className="rounded-xl border border-indigo-100 bg-indigo-50/40 p-4">
+        <h3 className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-indigo-600">
+          <span className="inline-block h-2.5 w-1 rounded-full bg-gradient-to-b from-indigo-500 to-violet-500" />
           Reading results
         </h3>
         <p className="mt-1.5 text-[11px] leading-5 text-slate-500">
@@ -127,7 +128,7 @@ export default function UploadPanel({
                 className={`inline-flex w-fit items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold tracking-wide ${
                   item.caution
                     ? "border-amber-300 bg-amber-50 text-amber-800"
-                    : "border-slate-200 bg-white text-slate-600"
+                    : "border-indigo-200 bg-white text-indigo-700"
                 }`}
               >
                 {item.label}
