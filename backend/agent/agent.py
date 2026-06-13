@@ -204,6 +204,91 @@ def _wants_explicit_senescence_test(message: str) -> bool:
     )
 
 
+def _wants_deseq2(message: str) -> bool:
+    text = message.lower()
+    return any(
+        phrase in text
+        for phrase in (
+            "deseq2",
+            "deseq",
+            "differential expression",
+            "differentially expressed",
+        )
+    )
+
+
+def _order_ages_young_old(ref: str, comp: str) -> tuple[str, str]:
+    """Return (younger, older) so DESeq2 log2FC is positive for the older group."""
+    def months(value: str) -> int:
+        m = re.match(r"(\d+)", value or "")
+        return int(m.group(1)) if m else 0
+
+    return (ref, comp) if months(ref) <= months(comp) else (comp, ref)
+
+
+# Curated, deterministic explanations for common concepts. No LLM, no dataset
+# numbers — safe to return verbatim for definitional questions.
+_CONCEPT_ANSWERS: dict[str, str] = {
+    "senmayo": (
+        "### What the SenMayo score is\n\n"
+        "**SenMayo** is a curated set of ~125 senescence-associated genes "
+        "(Saul et al., 2022, *Nature Communications*), dominated by senescence-associated "
+        "secretory phenotype (SASP) factors such as cytokines, chemokines, and growth factors.\n\n"
+        "The **senescence score** is computed per cell with Scanpy's `score_genes`: it is the "
+        "mean expression of the detected SenMayo genes minus the mean of a matched reference "
+        "gene set. A higher score means a stronger senescence-associated transcriptional signal.\n\n"
+        "> This score is **relative and descriptive** -- it ranks cells and clusters by signature "
+        "strength. It is not a binary senescent vs. non-senescent label, and a score alone does "
+        "not establish statistical significance. Use a statistical test "
+        "(`test_senescence_difference`) for a governed comparison between groups."
+    ),
+}
+
+
+def _is_definitional_question(message: str) -> bool:
+    """True for conceptual 'what is X' questions that do not request dataset numbers."""
+    text = message.lower().strip()
+    triggers = (
+        "what is",
+        "what's",
+        "what are",
+        "explain",
+        "define",
+        "definition of",
+        "tell me about",
+        "what does",
+        "how does",
+    )
+    if not any(t in text for t in triggers):
+        return False
+    dataset_terms = (
+        "in this dataset",
+        "coverage",
+        "in these cells",
+        "which cluster",
+        "p-value",
+        "p value",
+        "median",
+        "score cells",
+        "highest",
+        "compare",
+        "deseq",
+    )
+    return not any(d in text for d in dataset_terms)
+
+
+def _try_concept_answer(message: str) -> dict | None:
+    """Deterministic answer for known concepts; None to defer to other routing."""
+    if not _is_definitional_question(message):
+        return None
+    text = message.lower()
+    if "senmayo" in text or "senescence score" in text or (
+        "senescence" in text and "score" in text
+    ):
+        return {"reply": _CONCEPT_ANSWERS["senmayo"], "plots": [], "tool_calls": []}
+    return None
+
+
 def _run_direct_tools(tool_map: dict, message: str, steps: list[tuple[str, dict]]) -> dict:
     """Run one or more tools without Gemini (same contract as run_agent)."""
     plots = []
@@ -228,11 +313,34 @@ def _run_direct_tools(tool_map: dict, message: str, steps: list[tuple[str, dict]
 
 def _try_deterministic_route(message: str, tool_map: dict, adata) -> dict | None:
     """Bypass Gemini for prompts that repeatedly fail tool routing."""
+    concept = _try_concept_answer(message)
+    if concept is not None:
+        return concept
+
     if _wants_umap(message):
         return _run_direct_tools(tool_map, message, [("generate_umap", {})])
 
     if _wants_cluster_annotations(message):
         return _run_direct_tools(tool_map, message, [("get_cluster_annotations", {})])
+
+    if _wants_deseq2(message):
+        cell_type = _infer_cell_type_for_test(message, adata)
+        if cell_type:
+            ref, comp = _order_ages_young_old(*_parse_age_contrast(message))
+            return _run_direct_tools(
+                tool_map,
+                message,
+                [
+                    (
+                        "run_deseq2",
+                        {
+                            "cell_type": cell_type,
+                            "reference_age": ref,
+                            "comparison_age": comp,
+                        },
+                    )
+                ],
+            )
 
     if _is_bare_pvalue_request(message, adata):
         ref, comp = _parse_age_contrast(message)
@@ -554,6 +662,19 @@ def run_agent(
                     "plots": plots,
                     "tool_calls": tool_calls_log,
                 }
+            # For conceptual questions (no dataset numbers requested), surface the
+            # model's explanation rather than the generic deflection.
+            if _is_definitional_question(message) and text_parts:
+                explanation = "\n\n".join(p.text.strip() for p in text_parts).strip()
+                if explanation:
+                    return {
+                        "reply": (
+                            f"{explanation}\n\n"
+                            "[System] General explanation (not computed from your dataset)."
+                        ),
+                        "plots": plots,
+                        "tool_calls": tool_calls_log,
+                    }
             return {
                 "reply": (
                     "Quantitative results are produced only by analysis tools. "
