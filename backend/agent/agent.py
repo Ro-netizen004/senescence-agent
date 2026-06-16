@@ -1,6 +1,5 @@
 import os
 import json
-import re
 import scanpy as sc
 import google.generativeai as genai
  
@@ -15,6 +14,14 @@ from agent.cache import get_adata, cache_adata
 from agent.pipeline import ensure_pipeline
 from agent.tool_schema import TOOLS
 from agent.tool_router import build_tool_map
+from agent.intent_router import (
+    RouteDecision,
+    route,
+    _wants_analysis_panel,
+    _is_definitional_question,
+    _needs_pvalue_clarification,
+)
+from agent.workflows import run_workflow, WORKFLOWS
 from agent.system_prompt import SYSTEM_PROMPT
 from dataset_paths import resolve_dataset_path
 from tools.dataset_info import build_dataset_summary, format_dataset_context
@@ -72,320 +79,20 @@ def _wants_multi_step(message: str) -> bool:
     return message.count(",") >= 2
 
 
-def _wants_analysis_panel(message: str) -> bool:
-    text = message.lower()
-    return any(
-        phrase in text
-        for phrase in (
-            "run everything",
-            "run all",
-            "run the full",
-            "full analysis",
-            "analyze everything",
-            "complete analysis",
-            "comprehensive analysis",
-            "end-to-end",
-            "what's interesting",
-            "whats interesting",
-            "what is interesting",
-            "tell me what's interesting",
-        )
+def _run_workflow_from_route(decision, tool_map: dict, message: str) -> dict:
+    workflow = WORKFLOWS[decision.workflow_id]
+    return run_workflow(
+        workflow,
+        tool_map,
+        message,
+        execute_tool=_execute_tool,
+        collect_plots=_collect_plots_from_result,
+        deterministic_reply=_deterministic_reply,
+        panel_highlights=_panel_highlights,
+        needs_pvalue_clarification=_needs_pvalue_clarification,
+        arg_overrides=decision.tool_args,
+        reply_suffix=decision.reply_suffix,
     )
-
-
-def _needs_pvalue_clarification(message: str) -> bool:
-    text = message.lower()
-    return any(
-        w in text
-        for w in (
-            "p-value",
-            "p value",
-            "pvalue",
-            "p-values",
-            "statistical significance",
-            "significant difference",
-            "exact p",
-        )
-    )
-
-
-def _wants_umap(message: str) -> bool:
-    return "umap" in message.lower()
-
-
-def _wants_cluster_annotations(message: str) -> bool:
-    text = message.lower()
-    return ("leiden" in text or "each cluster" in text) and (
-        "cell type" in text or "cell-type" in text
-    )
-
-
-def _cell_type_column(adata) -> str:
-    for col in ("cell_ontology_class", "cell_type", "celltype"):
-        if col in adata.obs.columns:
-            return col
-    return "cell_ontology_class"
-
-
-def _available_cell_types(adata) -> list[str]:
-    col = _cell_type_column(adata)
-    if col not in adata.obs.columns:
-        return []
-    return sorted(adata.obs[col].astype(str).unique().tolist())
-
-
-def _message_mentions_cell_type(message: str, adata) -> bool:
-    text = message.lower()
-    for ct in _available_cell_types(adata):
-        if ct.lower() in text:
-            return True
-    aliases = (
-        "neuron",
-        "neurons",
-        "t cell",
-        "t cells",
-        "macrophage",
-        "macrophages",
-        "mesangial",
-    )
-    return any(alias in text for alias in aliases)
-
-
-def _parse_age_contrast(message: str) -> tuple[str, str]:
-    ages = re.findall(r"\b(\d+m)\b", message, flags=re.I)
-    if len(ages) >= 2:
-        return ages[0].lower(), ages[1].lower()
-    text = message.lower()
-    if "young" in text and "old" in text:
-        return "3m", "24m"
-    return "3m", "24m"
-
-
-def _infer_cell_type_for_test(message: str, adata) -> str | None:
-    from tools.age_analysis import _resolve_cell_type
-
-    text = message.lower()
-    for ct in _available_cell_types(adata):
-        if ct.lower() in text:
-            return ct
-
-    aliases = {
-        "neurons": "neuron",
-        "neuron": "neuron",
-        "t cells": "T cell",
-        "t cell": "T cell",
-        "macrophages": "macrophage",
-        "macrophage": "macrophage",
-        "mesangial cells": "mesangial cell",
-        "mesangial cell": "mesangial cell",
-    }
-    for alias, canonical in aliases.items():
-        if alias in text:
-            resolved = _resolve_cell_type(canonical, _available_cell_types(adata))
-            return resolved or canonical
-    return None
-
-
-def _is_bare_pvalue_request(message: str, adata) -> bool:
-    if not _needs_pvalue_clarification(message):
-        return False
-    return not _message_mentions_cell_type(message, adata)
-
-
-def _wants_explicit_senescence_test(message: str) -> bool:
-    text = message.lower()
-    return any(
-        phrase in text
-        for phrase in (
-            "test senescence difference",
-            "senescence difference for",
-            "senescence difference in",
-        )
-    )
-
-
-def _wants_deseq2(message: str) -> bool:
-    text = message.lower()
-    return any(
-        phrase in text
-        for phrase in (
-            "deseq2",
-            "deseq",
-            "differential expression",
-            "differentially expressed",
-        )
-    )
-
-
-def _order_ages_young_old(ref: str, comp: str) -> tuple[str, str]:
-    """Return (younger, older) so DESeq2 log2FC is positive for the older group."""
-    def months(value: str) -> int:
-        m = re.match(r"(\d+)", value or "")
-        return int(m.group(1)) if m else 0
-
-    return (ref, comp) if months(ref) <= months(comp) else (comp, ref)
-
-
-# Curated, deterministic explanations for common concepts. No LLM, no dataset
-# numbers — safe to return verbatim for definitional questions.
-_CONCEPT_ANSWERS: dict[str, str] = {
-    "senmayo": (
-        "### What the SenMayo score is\n\n"
-        "**SenMayo** is a curated set of ~125 senescence-associated genes "
-        "(Saul et al., 2022, *Nature Communications*), dominated by senescence-associated "
-        "secretory phenotype (SASP) factors such as cytokines, chemokines, and growth factors.\n\n"
-        "The **senescence score** is computed per cell with Scanpy's `score_genes`: it is the "
-        "mean expression of the detected SenMayo genes minus the mean of a matched reference "
-        "gene set. A higher score means a stronger senescence-associated transcriptional signal.\n\n"
-        "> This score is **relative and descriptive** -- it ranks cells and clusters by signature "
-        "strength. It is not a binary senescent vs. non-senescent label, and a score alone does "
-        "not establish statistical significance. Use a statistical test "
-        "(`test_senescence_difference`) for a governed comparison between groups."
-    ),
-}
-
-
-def _is_definitional_question(message: str) -> bool:
-    """True for conceptual 'what is X' questions that do not request dataset numbers."""
-    text = message.lower().strip()
-    triggers = (
-        "what is",
-        "what's",
-        "what are",
-        "explain",
-        "define",
-        "definition of",
-        "tell me about",
-        "what does",
-        "how does",
-    )
-    if not any(t in text for t in triggers):
-        return False
-    dataset_terms = (
-        "in this dataset",
-        "coverage",
-        "in these cells",
-        "which cluster",
-        "p-value",
-        "p value",
-        "median",
-        "score cells",
-        "highest",
-        "compare",
-        "deseq",
-    )
-    return not any(d in text for d in dataset_terms)
-
-
-def _try_concept_answer(message: str) -> dict | None:
-    """Deterministic answer for known concepts; None to defer to other routing."""
-    if not _is_definitional_question(message):
-        return None
-    text = message.lower()
-    if "senmayo" in text or "senescence score" in text or (
-        "senescence" in text and "score" in text
-    ):
-        return {"reply": _CONCEPT_ANSWERS["senmayo"], "plots": [], "tool_calls": []}
-    return None
-
-
-def _run_direct_tools(tool_map: dict, message: str, steps: list[tuple[str, dict]]) -> dict:
-    """Run one or more tools without Gemini (same contract as run_agent)."""
-    plots = []
-    tool_calls_log = []
-
-    for name, args in steps:
-        if name not in tool_map:
-            continue
-        result = _execute_tool(tool_map, name, args, message)
-        for plot_entry in _collect_plots_from_result(result, name):
-            if not any(p["url"] == plot_entry["url"] for p in plots):
-                plots.append(plot_entry)
-        serializable_result = json.loads(json.dumps(result, default=str))
-        tool_calls_log.append({"name": name, "args": args, "result": serializable_result})
-
-    return {
-        "reply": _deterministic_reply(tool_calls_log),
-        "plots": plots,
-        "tool_calls": tool_calls_log,
-    }
-
-
-def _try_deterministic_route(message: str, tool_map: dict, adata) -> dict | None:
-    """Bypass Gemini for prompts that repeatedly fail tool routing."""
-    concept = _try_concept_answer(message)
-    if concept is not None:
-        return concept
-
-    if _wants_umap(message):
-        return _run_direct_tools(tool_map, message, [("generate_umap", {})])
-
-    if _wants_cluster_annotations(message):
-        return _run_direct_tools(tool_map, message, [("get_cluster_annotations", {})])
-
-    if _wants_deseq2(message):
-        cell_type = _infer_cell_type_for_test(message, adata)
-        if cell_type:
-            ref, comp = _order_ages_young_old(*_parse_age_contrast(message))
-            return _run_direct_tools(
-                tool_map,
-                message,
-                [
-                    (
-                        "run_deseq2",
-                        {
-                            "cell_type": cell_type,
-                            "reference_age": ref,
-                            "comparison_age": comp,
-                        },
-                    )
-                ],
-            )
-
-    if _is_bare_pvalue_request(message, adata):
-        ref, comp = _parse_age_contrast(message)
-        out = _run_direct_tools(
-            tool_map,
-            message,
-            [
-                (
-                    "test_senescence_difference",
-                    {
-                        "cell_type": "T cell",
-                        "reference_age": ref,
-                        "comparison_age": comp,
-                    },
-                )
-            ],
-        )
-        out["reply"] += (
-            "\n\n[System] Default contrast: T cell "
-            f"{ref} vs {comp} (question did not specify cell type or ages)."
-        )
-        return out
-
-    if _wants_explicit_senescence_test(message) or (
-        _needs_pvalue_clarification(message) and _message_mentions_cell_type(message, adata)
-    ):
-        cell_type = _infer_cell_type_for_test(message, adata)
-        if cell_type:
-            ref, comp = _parse_age_contrast(message)
-            return _run_direct_tools(
-                tool_map,
-                message,
-                [
-                    (
-                        "test_senescence_difference",
-                        {
-                            "cell_type": cell_type,
-                            "reference_age": ref,
-                            "comparison_age": comp,
-                        },
-                    )
-                ],
-            )
-
-    return None
 
 
 def _plot_basename(path) -> str:
@@ -455,46 +162,12 @@ def _panel_highlights(tool_calls_log: list) -> str:
 
 
 def run_analysis_panel(tool_map: dict, message: str = "") -> dict:
-    """Run standard senescence panel without relying on multi-turn LLM tool chaining."""
-    panel_steps = [
-        ("find_senescence_markers", {}),
-        ("senescence_score", {}),
-        ("generate_umap", {}),
-        ("get_cluster_annotations", {}),
-        ("compare_across_age", {}),
-    ]
-
-    plots = []
-    tool_calls_log = []
-    sections = []
-
-    for name, args in panel_steps:
-        if name not in tool_map:
-            continue
-        result = _execute_tool(tool_map, name, args, message)
-
-        for plot_entry in _collect_plots_from_result(result, name):
-            if not any(p["url"] == plot_entry["url"] for p in plots):
-                plots.append(plot_entry)
-
-        serializable_result = json.loads(json.dumps(result, default=str))
-        tool_calls_log.append({
-            "name": name,
-            "args": args,
-            "result": serializable_result,
-        })
-    reply = _deterministic_reply(tool_calls_log)
-    header = "Standard senescence analysis panel completed.\n\n"
-    highlights = _panel_highlights(tool_calls_log)
-    reply = f"{header}{reply}\n\n---\n\nPanel summary:\n{highlights}"
-
-    if _needs_pvalue_clarification(message):
-        reply += (
-            "\n\n[System] Score p-values require test_senescence_difference; "
-            "gene padj requires run_deseq2."
-        )
-
-    return {"reply": reply, "plots": plots, "tool_calls": tool_calls_log}
+    """Run standard senescence panel via the panel workflow graph."""
+    return _run_workflow_from_route(
+        RouteDecision(workflow_id="panel"),
+        tool_map,
+        message,
+    )
 
 
 def _collect_plots_from_result(result, tool_name: str) -> list:
@@ -609,12 +282,13 @@ def run_agent(
         }
     )
 
-    if _wants_analysis_panel(message):
-        return run_analysis_panel(tool_map, message)
+    decision = route(message, adata)
 
-    routed = _try_deterministic_route(message, tool_map, adata)
-    if routed is not None:
-        return routed
+    if decision.concept_reply:
+        return {"reply": decision.concept_reply, "plots": [], "tool_calls": []}
+
+    if decision.workflow_id and decision.workflow_id in WORKFLOWS:
+        return _run_workflow_from_route(decision, tool_map, message)
 
     system_instruction = SYSTEM_PROMPT
     if not session_history:

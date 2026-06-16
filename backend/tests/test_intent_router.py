@@ -1,4 +1,4 @@
-"""Routing heuristics — no Gemini API required."""
+"""Intent router → workflow selection (no Gemini, no tools)."""
 
 import os
 import sys
@@ -11,7 +11,9 @@ from agent.intent_router import (
     _wants_cluster_annotations,
     _wants_explicit_senescence_test,
     _wants_umap,
+    route,
 )
+from agent.workflows import WORKFLOWS
 
 
 class _FakeSeries:
@@ -49,7 +51,7 @@ KIDNEY_TYPES = ["T cell", "macrophage", "mesangial cell"]
 FAKE = _FakeAdata(KIDNEY_TYPES)
 
 
-class TestDeterministicRouting(unittest.TestCase):
+class TestIntentRouter(unittest.TestCase):
     def test_umap_prompt(self):
         self.assertTrue(_wants_umap("Generate a UMAP colored by clusters."))
         self.assertFalse(
@@ -72,6 +74,31 @@ class TestDeterministicRouting(unittest.TestCase):
                 "Test senescence difference for neurons between 3m and 24m."
             )
         )
+
+    def test_route_panel(self):
+        d = route("Run everything and tell me what's interesting", FAKE)
+        self.assertEqual(d.workflow_id, "panel")
+        self.assertIn("panel", WORKFLOWS)
+
+    def test_route_coverage(self):
+        d = route("What is SenMayo coverage in this dataset?", FAKE)
+        self.assertEqual(d.workflow_id, "coverage")
+
+    def test_route_deseq2(self):
+        d = route("Run DESeq2 on mesangial cells comparing 24m vs 3m.", FAKE)
+        self.assertEqual(d.workflow_id, "deseq2")
+        self.assertEqual(d.tool_args["run_deseq2"]["cell_type"], "mesangial cell")
+        self.assertEqual(d.tool_args["run_deseq2"]["reference_age"], "3m")
+        self.assertEqual(d.tool_args["run_deseq2"]["comparison_age"], "24m")
+
+    def test_route_score_and_annotate(self):
+        d = route("Score cells for senescence and show which cluster is highest.", FAKE)
+        self.assertEqual(d.workflow_id, "score_and_annotate")
+
+    def test_route_concept(self):
+        d = route("what is senmayo score", FAKE)
+        self.assertIsNone(d.workflow_id)
+        self.assertIn("SenMayo", d.concept_reply or "")
 
 
 if __name__ == "__main__":
