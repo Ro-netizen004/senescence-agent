@@ -14,12 +14,25 @@ def build_dataset_summary(adata, species: str = "mouse") -> dict:
         "obs_columns": obs_cols,
     }
 
-    for col in ("age", "cell_ontology_class", "sample_id", "mouse.id", "mouse_id"):
-        if col in adata.obs.columns:
+    # Include profile-resolved column values using actual column names
+    profile = adata.uns.get("dataset_profile") or {}
+    summary["dataset_profile"] = profile
+
+    age_col = profile.get("age_column") or "age"
+    ct_col = profile.get("cell_type_column") or "cell_ontology_class"
+    sample_col = profile.get("sample_column")
+
+    for col in (age_col, ct_col):
+        if col and col in adata.obs.columns:
             values = sorted(adata.obs[col].astype(str).unique().tolist())[:30]
             summary[col] = values
-            if col in ("age", "cell_ontology_class") and len(adata.obs[col].unique()) > 30:
+            if len(adata.obs[col].unique()) > 30:
                 summary[f"{col}_note"] = "truncated to 30 values"
+
+    if sample_col and sample_col in adata.obs.columns:
+        summary[sample_col] = sorted(
+            adata.obs[sample_col].astype(str).unique().tolist()
+        )[:30]
 
     genes = SENESCENCE_GENES_MOUSE if species == "mouse" else SENESCENCE_GENES
     found = [g for g in genes if g in adata.var_names]
@@ -40,33 +53,53 @@ def build_dataset_summary(adata, species: str = "mouse") -> dict:
 
 
 def format_dataset_context(summary: dict) -> str:
+    profile = summary.get("dataset_profile") or {}
+    age_col = profile.get("age_column") or "age"
+    ct_col = profile.get("cell_type_column") or "cell_ontology_class"
+    sample_col = profile.get("sample_column")
+    youngest = profile.get("youngest")
+    oldest = profile.get("oldest")
+    age_format = profile.get("age_format")
+
     lines = [
         "CURRENT DATASET (do not invent values beyond tools):",
-        f"- Cells: {summary.get('n_cells')}, Genes: {summary.get('n_genes')}, Species setting: {summary.get('species')}",
+        f"- Cells: {summary.get('n_cells')}, Genes: {summary.get('n_genes')}, Species: {summary.get('species')}",
         f"- SenMayo coverage: {summary.get('senmayo_genes_found')}/{summary.get('senmayo_genes_total')} genes ({summary.get('senmayo_coverage_pct')}%)",
     ]
 
-    if summary.get("age"):
-        lines.append(f"- Age groups: {', '.join(map(str, summary['age']))}")
+    # Age info — use profile-resolved column
+    age_values = summary.get(age_col)
+    if age_values:
+        lines.append(
+            f"- Age column: '{age_col}' (format: {age_format}) | "
+            f"Groups: {', '.join(map(str, age_values))} | "
+            f"Youngest: {youngest} | Oldest: {oldest}"
+        )
+        lines.append(
+            f"  → Use reference_age='{youngest}' and comparison_age='{oldest}' "
+            f"for young-vs-old contrasts unless user specifies otherwise."
+        )
     else:
-        lines.append("- Age column: not present (age comparison / DESeq2 by age will fail)")
+        lines.append("- Age column: not detected (age comparison / DESeq2 by age will fail)")
 
-    if summary.get("cell_ontology_class"):
-        types = summary["cell_ontology_class"]
-        preview = ", ".join(types[:8])
-        if len(types) > 8:
-            preview += f", … ({len(types)} types total)"
-        lines.append(f"- Cell types: {preview}")
-
-    sample_col = None
-    for col in ("sample_id", "mouse.id", "mouse_id"):
-        if summary.get(col):
-            sample_col = col
-            break
-    if sample_col:
-        lines.append(f"- Sample IDs ({sample_col}): {len(summary[sample_col])} unique")
+    # Cell type info
+    ct_values = summary.get(ct_col)
+    if ct_values:
+        preview = ", ".join(ct_values[:8])
+        if len(ct_values) > 8:
+            preview += f", … ({len(ct_values)} types total)"
+        lines.append(f"- Cell type column: '{ct_col}' | Types: {preview}")
     else:
-        lines.append("- Sample column: not detected (pseudobulk DESeq2 may fail)")
+        lines.append(f"- Cell type column: not detected")
+
+    # Sample info
+    if sample_col and summary.get(sample_col):
+        lines.append(
+            f"- Sample column: '{sample_col}' | "
+            f"{len(summary[sample_col])} unique samples"
+        )
+    else:
+        lines.append("- Sample column: not detected (statistical testing will fail)")
 
     meta = summary.get("metadata_status")
     if isinstance(meta, dict):

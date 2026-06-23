@@ -3,20 +3,32 @@ import numpy as np
 import scipy.sparse as sp
 
 
+_SAMPLE_COLUMN_CANDIDATES = [
+    "sample_id", "donor_id", "patient_id", "subject_id",
+    "mouse.id", "mouse_id", "donor", "participant_id", "individual", "batch",
+]
+
+
 def _get_sample_column(adata, sample_column):
-    """
-    Auto-detect sample column with fallback.
-    """
-    if sample_column in adata.obs.columns:
+    """Auto-detect sample column, checking profile then a broad candidate list."""
+    # Honour explicit column if present
+    if sample_column and sample_column in adata.obs.columns:
         return sample_column
 
-    if "mouse.id" in adata.obs.columns:
-        return "mouse.id"
+    # Use profile if available (set by pipeline)
+    profile_col = (adata.uns.get("dataset_profile") or {}).get("sample_column")
+    if profile_col and profile_col in adata.obs.columns:
+        return profile_col
 
-    if "mouse_id" in adata.obs.columns:
-        return "mouse_id"
+    # Broad fallback scan
+    for candidate in _SAMPLE_COLUMN_CANDIDATES:
+        if candidate in adata.obs.columns:
+            return candidate
 
-    raise ValueError("No valid sample column found (sample_id / mouse_id / mouse.id)")
+    raise ValueError(
+        f"No sample/donor column found. Tried: {_SAMPLE_COLUMN_CANDIDATES}. "
+        f"Available columns: {list(adata.obs.columns)}"
+    )
 
 
 def _extract_counts_matrix(adata):
@@ -57,8 +69,9 @@ def build_pseudobulk_matrix(
     # =========================
     # Filter cell type
     # =========================
+    ct_col = (adata.uns.get("dataset_profile") or {}).get("cell_type_column") or "cell_ontology_class"
     ad = adata[
-        adata.obs["cell_ontology_class"].astype(str) == str(cell_type)
+        adata.obs[ct_col].astype(str) == str(cell_type)
     ].copy()
 
     # =========================

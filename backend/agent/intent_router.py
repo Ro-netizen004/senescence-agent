@@ -110,14 +110,39 @@ def _message_mentions_cell_type(message: str, adata) -> bool:
     return any(alias in text for alias in aliases)
 
 
-def _parse_age_contrast(message: str) -> tuple[str, str]:
-    ages = re.findall(r"\b(\d+m)\b", message, flags=re.I)
-    if len(ages) >= 2:
-        return ages[0].lower(), ages[1].lower()
+def _parse_age_contrast(message: str, profile: dict | None = None) -> tuple[str, str]:
+    profile = profile or {}
+    youngest = profile.get("youngest") or "3m"
+    oldest = profile.get("oldest") or "24m"
+    age_format = profile.get("age_format")
+    age_values = profile.get("age_values") or []
+
     text = message.lower()
-    if "young" in text and "old" in text:
-        return "3m", "24m"
-    return "3m", "24m"
+
+    if age_format == "months_m":
+        ages = re.findall(r"\b(\d+m)\b", message, flags=re.I)
+        if len(ages) >= 2:
+            return ages[0].lower(), ages[1].lower()
+
+    elif age_format == "years_int":
+        candidates = re.findall(r"\b(\d{2,3})\b", message)
+        matched = [c for c in candidates if c in age_values]
+        if len(matched) >= 2:
+            return matched[0], matched[1]
+
+    elif age_format == "label" and age_values:
+        for val in age_values:
+            if val.lower() in text:
+                # found one label — check for a second
+                others = [v for v in age_values if v.lower() in text and v != val]
+                if others:
+                    return val, others[0]
+
+    # semantic young/old → use inferred extremes from profile
+    if ("young" in text or "younger" in text) and ("old" in text or "aged" in text or "elderly" in text):
+        return youngest, oldest
+
+    return youngest, oldest
 
 
 def _infer_cell_type_for_test(message: str, adata) -> str | None:
@@ -239,6 +264,8 @@ def _wants_score_and_annotate(message: str) -> bool:
 
 def route(message: str, adata) -> RouteDecision:
     """Pick a workflow template, concept answer, or defer to Gemini (workflow_id=None)."""
+    profile = (adata.uns.get("dataset_profile") or {}) if adata is not None else {}
+
     concept = _try_concept_answer(message)
     if concept is not None:
         return RouteDecision(concept_reply=concept["reply"])
@@ -255,7 +282,7 @@ def route(message: str, adata) -> RouteDecision:
     if _wants_deseq2(message):
         cell_type = _infer_cell_type_for_test(message, adata)
         if cell_type:
-            ref, comp = _order_ages_young_old(*_parse_age_contrast(message))
+            ref, comp = _order_ages_young_old(*_parse_age_contrast(message, profile))
             return RouteDecision(
                 workflow_id="deseq2",
                 tool_args={
@@ -274,18 +301,19 @@ def route(message: str, adata) -> RouteDecision:
         return RouteDecision(workflow_id="cluster_annotations")
 
     if _is_bare_pvalue_request(message, adata):
-        ref, comp = _parse_age_contrast(message)
+        ref, comp = _parse_age_contrast(message, profile)
+        default_ct = _infer_cell_type_for_test(message, adata) or "T cell"
         return RouteDecision(
             workflow_id="senescence_test",
             tool_args={
                 "test_senescence_difference": {
-                    "cell_type": "T cell",
+                    "cell_type": default_ct,
                     "reference_age": ref,
                     "comparison_age": comp,
                 }
             },
             reply_suffix=(
-                f"[System] Default contrast: T cell {ref} vs {comp} "
+                f"[System] Default contrast: {default_ct} {ref} vs {comp} "
                 "(question did not specify cell type or ages)."
             ),
         )
@@ -295,7 +323,7 @@ def route(message: str, adata) -> RouteDecision:
     ):
         cell_type = _infer_cell_type_for_test(message, adata)
         if cell_type:
-            ref, comp = _parse_age_contrast(message)
+            ref, comp = _parse_age_contrast(message, profile)
             return RouteDecision(
                 workflow_id="senescence_test",
                 tool_args={

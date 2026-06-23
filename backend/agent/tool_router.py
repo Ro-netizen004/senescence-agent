@@ -77,6 +77,13 @@ def run_deseq2_wrapper(
     return output
 
 def build_tool_map(adata, species, tools):
+    profile = adata.uns.get("dataset_profile") or {}
+    age_col = profile.get("age_column") or "age"
+    ct_col = profile.get("cell_type_column") or "cell_ontology_class"
+    sample_col = profile.get("sample_column") or "sample_id"
+    youngest = profile.get("youngest") or "3m"
+    oldest = profile.get("oldest") or "24m"
+
     return {
         "generate_umap": lambda args: tools["generate_umap"](adata),
 
@@ -86,25 +93,19 @@ def build_tool_map(adata, species, tools):
 
         "get_cluster_annotations": lambda args: tools["get_cluster_annotations"](adata),
 
-        # =========================
-        # DESEQ2 (NEW WRAPPER)
-        # =========================
         "run_deseq2": lambda args: run_deseq2_wrapper(
             adata,
             args.get("cell_type"),
-            args.get("sample_column", "sample_id"),
-            args.get("age_column", "age"),
-            args.get("reference_age"),
-            args.get("comparison_age")
+            args.get("sample_column", sample_col),
+            args.get("age_column", age_col),
+            args.get("reference_age") or youngest,
+            args.get("comparison_age") or oldest,
         ),
 
-        # =========================
-        # AGE ANALYSIS
-        # =========================
         "compare_across_age": lambda args: tools["compare_across_age"](
             adata,
-            args.get("age_column", "age"),
-            args.get("cell_type_column", "cell_ontology_class"),
+            args.get("age_column", age_col),
+            args.get("cell_type_column", ct_col),
             species,
             cell_type=args.get("cell_type"),
             reference_age=args.get("reference_age"),
@@ -114,11 +115,11 @@ def build_tool_map(adata, species, tools):
         "test_senescence_difference": lambda args: tools["test_senescence_difference"](
             adata,
             args.get("cell_type"),
-            args.get("age_column", "age"),
-            args.get("cell_type_column", "cell_ontology_class"),
-            args.get("sample_column", "sample_id"),
-            args.get("reference_age") or "3m",
-            args.get("comparison_age") or "24m",
+            args.get("age_column", age_col),
+            args.get("cell_type_column", ct_col),
+            args.get("sample_column", sample_col),
+            args.get("reference_age") or youngest,
+            args.get("comparison_age") or oldest,
             species,
         ),
     }

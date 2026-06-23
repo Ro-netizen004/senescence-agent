@@ -3,8 +3,74 @@
 # State stored in adata.uns so it survives cache retrieval.
 # LLM never controls this — code does.
 
+import re
+
 from tools.preprocessing import quality_control, normalize, check_required_metadata
 from tools.clustering import cluster_cells
+
+_AGE_CANDIDATES = [
+    "age", "Age", "donor_age", "age_group", "timepoint",
+    "time_point", "development_stage",
+]
+_CELL_TYPE_CANDIDATES = [
+    "cell_ontology_class", "cell_type", "celltype",
+    "Author_CellType", "Celltype", "cell_type_ontology_term_id",
+    "ann_level_1", "annotation", "cell_annotation",
+]
+_SAMPLE_CANDIDATES = [
+    "sample_id", "donor_id", "patient_id", "subject_id",
+    "mouse.id", "mouse_id", "donor", "participant_id", "individual", "batch",
+]
+
+
+def _resolve_age_extremes(values: list) -> tuple:
+    """Return (youngest, oldest, format_name) from a list of age value strings."""
+    month_re = re.compile(r"^(\d+)m$", re.I)
+    if all(month_re.match(v) for v in values):
+        sv = sorted(values, key=lambda v: int(month_re.match(v).group(1)))
+        return sv[0], sv[-1], "months_m"
+
+    if all(re.match(r"^\d{1,3}$", v) for v in values):
+        sv = sorted(values, key=int)
+        return sv[0], sv[-1], "years_int"
+
+    label_order = ["young", "juvenile", "adult", "middle", "old", "aged", "elderly"]
+    lower_map = {v.lower(): v for v in values}
+    matched = [l for l in label_order if l in lower_map]
+    if len(matched) >= 2:
+        return lower_map[matched[0]], lower_map[matched[-1]], "label"
+
+    sv = sorted(values)
+    return sv[0], sv[-1], "unknown"
+
+
+def _infer_dataset_profile(adata, species: str) -> dict:
+    obs = adata.obs
+
+    age_col = next((c for c in _AGE_CANDIDATES if c in obs.columns), None)
+    ct_col = next((c for c in _CELL_TYPE_CANDIDATES if c in obs.columns), None)
+    sample_col = next((c for c in _SAMPLE_CANDIDATES if c in obs.columns), None)
+
+    youngest = oldest = age_format = None
+    age_values = []
+    if age_col:
+        age_values = sorted(obs[age_col].astype(str).unique().tolist())
+        youngest, oldest, age_format = _resolve_age_extremes(age_values)
+
+    profile = {
+        "age_column": age_col,
+        "age_format": age_format,
+        "age_values": age_values,
+        "youngest": youngest,
+        "oldest": oldest,
+        "cell_type_column": ct_col,
+        "sample_column": sample_col,
+        "species": species,
+    }
+    print(f"Dataset profile: age_col={age_col} ({age_format}), "
+          f"ct_col={ct_col}, sample_col={sample_col}, "
+          f"youngest={youngest}, oldest={oldest}")
+    return profile
 
 
 def _fix_gene_names(adata) -> None:
@@ -62,6 +128,9 @@ def ensure_pipeline(adata, species: str) -> None:
 
     if "metadata_status" not in adata.uns:
         adata.uns["metadata_status"] = check_required_metadata(adata)
+
+    if "dataset_profile" not in adata.uns:
+        adata.uns["dataset_profile"] = _infer_dataset_profile(adata, species)
 
     # =========================
     # 0. LOCK RAW COUNTS (CRITICAL)

@@ -67,6 +67,7 @@ def _agent_iteration_limit(message: str) -> int:
     return DEFAULT_AGENT_ITERATIONS
 
 
+
 def _wants_multi_step(message: str) -> bool:
     text = f" {message.lower()} "
     if _wants_analysis_panel(message):
