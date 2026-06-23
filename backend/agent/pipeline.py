@@ -132,35 +132,65 @@ def ensure_pipeline(adata, species: str) -> None:
     if "dataset_profile" not in adata.uns:
         adata.uns["dataset_profile"] = _infer_dataset_profile(adata, species)
 
+    # Detect pre-processed datasets (e.g. TMS "processed official annotations"):
+    # adata.raw present means adata.X is already log-normalized.
+    already_normalized = adata.raw is not None
+
     # =========================
     # 0. LOCK RAW COUNTS (CRITICAL)
     # =========================
     if "counts" not in adata.layers:
-        adata.layers["counts"] = adata.X.copy()
-        print("OK Raw counts locked")
+        if already_normalized:
+            # X is normalized — raw counts live in adata.raw.X
+            import scipy.sparse as sp
+            raw_X = adata.raw.X
+            # Subset to current var (post-QC genes may differ from raw)
+            if hasattr(adata.raw, 'var') and adata.raw.var is not None:
+                shared = adata.var_names.intersection(adata.raw.var_names)
+                raw_idx = adata.raw.var_names.get_indexer(shared)
+                adata.layers["counts"] = raw_X[:, raw_idx]
+            else:
+                adata.layers["counts"] = raw_X
+            print("Raw counts locked from adata.raw.X (pre-processed dataset)")
+        else:
+            adata.layers["counts"] = adata.X.copy()
+            print("Raw counts locked from adata.X")
 
     # =========================
     # 1. QC
     # =========================
     if not state.get("qc"):
-        print("Auto-running: quality_control")
-        quality_control(adata, species)
+        if already_normalized:
+            # Pre-processed dataset — QC already applied by original authors
+            print("Skipping QC — dataset is pre-processed (adata.raw present)")
+        else:
+            print("Auto-running: quality_control")
+            quality_control(adata, species)
         state["qc"] = True
 
     # =========================
     # 2. NORMALIZATION (VISUAL ONLY)
     # =========================
     if not state.get("norm"):
-        print("Auto-running: normalize")
-        normalize(adata)
+        if already_normalized:
+            # adata.X is already log-normalized — do not normalize again
+            adata.uns["senescence_agent_viz_normalized"] = True
+            print("Skipping normalization — adata.X already log-normalized (adata.raw present)")
+        else:
+            print("Auto-running: normalize")
+            normalize(adata)
         state["norm"] = True
 
     # =========================
     # 3. CLUSTERING
     # =========================
     if not state.get("cluster"):
-        print("Auto-running: cluster_cells")
-        cluster_cells(adata)
+        if "leiden" in adata.obs.columns:
+            # Pre-computed clustering from original dataset — reuse it
+            print("Skipping clustering — leiden already present in dataset")
+        else:
+            print("Auto-running: cluster_cells")
+            cluster_cells(adata)
         state["cluster"] = True
 
     adata.uns["pipeline_state"] = state
