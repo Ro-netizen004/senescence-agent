@@ -1,0 +1,80 @@
+# Validation dataset manifest
+# All datasets used in senescence-agent paper validation.
+# Run `python eval/run_all_validation.py` to regenerate all results.
+
+datasets:
+
+  - id: GSE226225
+    description: >
+      WI-38 human fibroblasts with experimentally induced senescence.
+      Conditions: CTRL, RS (replicative), IR (irradiation), ETO (etoposide).
+      Ground-truth labels derived from experimental design.
+    species: human
+    source: GEO
+    accession: GSE226225
+    url: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE226225
+    download: >
+      Download GSE226225_RAW.tar from the GEO accession page.
+      Set env var GSE_TAR_PATH to the tar file location.
+      Set env var GSE_DATA_DIR to the extraction/cache directory (needs ~10GB free).
+    h5ad_cache: data/gse226225/GSE226225.h5ad  # auto-built on first run
+    script: eval/compute_gse226225_validation.py
+    outputs:
+      - eval/results/validation/gse226225_metrics.json
+      - eval/results/validation/gse226225_report.md
+      - eval/results/validation/marker_comparison.csv
+      - eval/results/validation/gse226225_umap.png
+    n_cells: 55317
+    n_genes: 33207
+    has_ground_truth: true
+
+  - id: TMS_Kidney
+    description: Tabula Muris Senis FACS, kidney. Ages 3m/18m/24m.
+    species: mouse
+    source: Figshare (Tabula Muris Consortium)
+    accession: "https://figshare.com/articles/dataset/Tabula_Muris_Senis_Data_Objects/12654728"
+    filename: tabula-muris-senis-facs-processed-official-annotations-Kidney.h5ad
+    local_path: backend/data/tabula-muris-senis-facs-processed-official-annotations-Kidney.h5ad
+    n_cells: 1833
+    has_ground_truth: false
+
+  # TMS_Lung excluded — file not available locally; omitted from analysis
+  - id: TMS_Liver
+    description: Tabula Muris Senis FACS, liver. Ages 3m/18m/24m.
+    species: mouse
+    source: Figshare (Tabula Muris Consortium)
+    accession: "https://figshare.com/articles/dataset/Tabula_Muris_Senis_Data_Objects/12654728"
+    filename: tabula-muris-senis-facs-processed-official-annotations-Liver.h5ad
+    local_path: backend/data/tabula-muris-senis-facs-processed-official-annotations-Liver.h5ad
+    n_cells: 2859
+    has_ground_truth: false
+
+  - id: TMS_Spleen
+    description: Tabula Muris Senis FACS, spleen. Ages 3m/18m/24m.
+    species: mouse
+    source: Figshare (Tabula Muris Consortium)
+    accession: "https://figshare.com/articles/dataset/Tabula_Muris_Senis_Data_Objects/12654728"
+    filename: tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad
+    local_path: backend/data/tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad
+    n_cells: 3834
+    has_ground_truth: false
+
+  - id: TMS_Aorta
+    description: Tabula Muris Senis FACS, aorta. Ages 3m/18m/24m.
+    species: mouse
+    source: Figshare (Tabula Muris Consortium)
+    accession: "https://figshare.com/articles/dataset/Tabula_Muris_Senis_Data_Objects/12654728"
+    filename: tabula-muris-senis-facs-processed-official-annotations-Aorta.h5ad
+    local_path: backend/data/tabula-muris-senis-facs-processed-official-annotations-Aorta.h5ad
+    n_cells: 906
+    has_ground_truth: false
+
+  - id: TMS_Limb_Muscle
+    description: Tabula Muris Senis FACS, limb muscle. Ages 3m/18m/24m.
+    species: mouse
+    source: Figshare (Tabula Muris Consortium)
+    accession: "https://figshare.com/articles/dataset/Tabula_Muris_Senis_Data_Objects/12654728"
+    filename: tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad
+    local_path: backend/data/tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad
+    n_cells: 3855
+    has_ground_truth: false

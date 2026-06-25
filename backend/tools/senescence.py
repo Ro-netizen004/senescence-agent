@@ -73,7 +73,8 @@ def senescence_score(adata, species: str = "mouse"):
     sc.tl.score_genes(
         adata,
         gene_list=available,
-        score_name="senescence_score"
+        score_name="senescence_score",
+        use_raw=False,  # always use adata.X (log-normalized), never adata.raw
     )
 
     # Only compute UMAP if not already done

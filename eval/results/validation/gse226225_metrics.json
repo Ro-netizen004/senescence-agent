@@ -3,6 +3,8 @@
   "species": "human",
   "published_label_column": "published_senescent",
   "label_definition": "CTRL/day0 = non-senescent; RS/IR/ETO timepoints = senescent",
+  "auroc": 0.5632,
+  "auprc": 0.8612,
   "threshold": "top_25_percent_senmayo_score",
   "threshold_value": 0.2464,
   "n_cells": 55317,

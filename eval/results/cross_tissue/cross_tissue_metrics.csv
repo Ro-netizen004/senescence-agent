@@ -1,0 +1,6 @@
+label,status,n_cells,n_genes,n_cell_types,age_values,youngest,oldest,coverage_pct,genes_used,mean_score,max_score,top_senescent_cell_type,youngest_median,oldest_median,age_trend,top_3_senescent_cell_types
+Kidney,ok,1833,22966,10,"18m, 24m, 3m",3m,24m,90.3,112,0.0355,0.9277,macrophage,0.0551,0.0355,decreasing,"macrophage, mesangial cell, fenestrated cell"
+Liver,ok,2859,22966,11,"18m, 24m, 3m",3m,24m,90.3,112,0.0572,0.6011,neutrophil,0.0525,0.0633,increasing,"neutrophil, endothelial cell of hepatic sinusoid, Kupffer cell"
+Spleen,ok,3834,22966,6,"18m, 24m, 3m",3m,24m,90.3,112,-0.0056,0.9608,granulocyte,-0.0015,-0.0095,decreasing,"granulocyte, NK cell, proerythroblast"
+Aorta,ok,906,22966,6,"18m, 24m, 3m",3m,24m,90.3,112,0.0994,0.5977,fibroblast of cardiac tissue,0.0702,0.0603,decreasing,"fibroblast of cardiac tissue, professional antigen presenting cell, fibrocyte"
+Limb_Muscle,ok,3855,22966,6,"18m, 24m, 3m",3m,24m,90.3,112,0.1243,0.8993,mesenchymal stem cell,0.1406,0.1199,decreasing,"mesenchymal stem cell, macrophage, endothelial cell"

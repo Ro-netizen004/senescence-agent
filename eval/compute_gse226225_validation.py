@@ -33,14 +33,28 @@ import matplotlib.pyplot as plt
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "backend"))
 
+# Load .env from repo root if present (before reading os.environ below)
+_dotenv = ROOT / ".env"
+if _dotenv.exists():
+    for _line in _dotenv.read_text().splitlines():
+        _line = _line.strip()
+        if _line and not _line.startswith("#") and "=" in _line:
+            _k, _v = _line.split("=", 1)
+            os.environ.setdefault(_k.strip(), _v.strip())
+
 from agent.pipeline import ensure_pipeline, _fix_gene_names, _fix_column_aliases
 from tools.senescence import senescence_score, find_senescence_markers
 
-DATA_DIR = ROOT / "backend" / "data" / "validation"
+# Paths — override via env vars for portability across machines/Colab/reviewers
+# GSE_DATA_DIR : directory where extracted data and .h5ad cache are stored
+# GSE_TAR_PATH : path to the downloaded GSE226225_RAW.tar
+_default_data_dir = ROOT / "data" / "gse226225"
+DATA_DIR = Path(os.environ.get("GSE_DATA_DIR", str(_default_data_dir)))
 OUT_DIR = ROOT / "eval" / "results" / "validation"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
+DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-TAR_PATH = DATA_DIR / "GSE226225_RAW.tar"
+TAR_PATH = Path(os.environ.get("GSE_TAR_PATH", str(DATA_DIR / "GSE226225_RAW.tar")))
 H5AD_PATH = DATA_DIR / "GSE226225.h5ad"
 SPECIES = "human"
 
@@ -326,13 +340,19 @@ def run_scoring(adata):
 # ── Step 5: Compute validation metrics ───────────────────────────────────
 
 def compute_metrics(adata, published_col: str, score_result: dict, marker_result: dict):
-    """Compute precision, sensitivity, F1 for SenMayo vs published labels."""
+    """Compute AUROC, AUPRC, precision, sensitivity, F1 for SenMayo vs published labels."""
+    from sklearn.metrics import roc_auc_score, average_precision_score
+
     print("\n" + "=" * 60)
     print("COMPUTING VALIDATION METRICS")
     print("=" * 60)
 
     true_senescent = adata.obs[published_col].astype(bool)
     scores = adata.obs["senescence_score"]
+
+    # Threshold-independent metrics
+    auroc = float(roc_auc_score(true_senescent.astype(int), scores))
+    auprc = float(average_precision_score(true_senescent.astype(int), scores))
 
     # Top 25% threshold
     threshold = np.percentile(scores, 75)
@@ -352,6 +372,8 @@ def compute_metrics(adata, published_col: str, score_result: dict, marker_result
         "species": SPECIES,
         "published_label_column": published_col,
         "label_definition": "CTRL/day0 = non-senescent; RS/IR/ETO timepoints = senescent",
+        "auroc": round(auroc, 4),
+        "auprc": round(auprc, 4),
         "threshold": "top_25_percent_senmayo_score",
         "threshold_value": round(float(threshold), 4),
         "n_cells": int(adata.n_obs),
@@ -370,7 +392,9 @@ def compute_metrics(adata, published_col: str, score_result: dict, marker_result
         "genes_used": score_result.get("genes_used"),
     }
 
-    print(f"\n  Threshold (75th percentile): {threshold:.4f}")
+    print(f"\n  AUROC: {auroc:.4f}")
+    print(f"  AUPRC: {auprc:.4f}")
+    print(f"  Threshold (75th percentile): {threshold:.4f}")
     print(f"  True senescent: {true_senescent.sum()}")
     print(f"  Predicted senescent: {pred.sum()}")
     print(f"  TP={tp}  FP={fp}  FN={fn}  TN={tn}")
@@ -427,7 +451,8 @@ def compare_markers(adata, published_col: str):
     true_senescent = adata.obs[published_col].astype(bool)
     rows = []
 
-    def calc(name, pred):
+    def calc(name, pred, scores=None):
+        from sklearn.metrics import roc_auc_score
         pred = pred.astype(bool)
         tp = int((pred & true_senescent).sum())
         fp = int((pred & ~true_senescent).sum())
@@ -435,14 +460,16 @@ def compare_markers(adata, published_col: str):
         sens = tp / (tp + fn) if (tp + fn) else 0
         prec = tp / (tp + fp) if (tp + fp) else 0
         f1_val = 2 * prec * sens / (prec + sens) if (prec + sens) else 0
+        auroc_val = round(float(roc_auc_score(true_senescent.astype(int), scores)), 4) if scores is not None else None
         rows.append({
             "method": name,
+            "auroc": auroc_val,
             "sensitivity": round(sens, 4),
             "precision": round(prec, 4),
             "f1": round(f1_val, 4),
             "tp": tp, "fp": fp, "fn": fn,
         })
-        print(f"  {name}: sens={sens:.4f}, prec={prec:.4f}, f1={f1_val:.4f}")
+        print(f"  {name}: auroc={auroc_val}, sens={sens:.4f}, prec={prec:.4f}, f1={f1_val:.4f}")
 
     # Method A: CDKN2A threshold (median)
     cdkn2a_gene = "CDKN2A" if "CDKN2A" in adata.var_names else "Cdkn2a"
@@ -452,7 +479,7 @@ def compare_markers(adata, published_col: str):
             expr = expr.toarray()
         expr = expr.flatten()
         pred_a = expr > np.median(expr)
-        calc("CDKN2A (p16) only", pred_a)
+        calc("CDKN2A (p16) only", pred_a, scores=expr)
     else:
         print(f"  CDKN2A not found in var_names, skipping")
 
@@ -464,14 +491,14 @@ def compare_markers(adata, published_col: str):
             expr = expr.toarray()
         expr = expr.flatten()
         pred_b = expr == 0
-        calc("MKI67 absence", pred_b)
+        calc("MKI67 absence", pred_b, scores=-expr)
     else:
         print(f"  MKI67 not found in var_names, skipping")
 
     # Method C: SenMayo top 25%
     threshold = np.percentile(adata.obs["senescence_score"], 75)
     pred_c = adata.obs["senescence_score"].values >= threshold
-    calc("SenMayo (ours)", pred_c)
+    calc("SenMayo (ours)", pred_c, scores=adata.obs["senescence_score"].values)
 
     # Save
     df = pd.DataFrame(rows)
@@ -487,7 +514,10 @@ def compare_markers(adata, published_col: str):
 
 def write_report(metrics: dict, comparison_df):
     """Write the final validation report."""
-    comp_table = comparison_df.to_markdown(index=False) if comparison_df is not None else "Not available"
+    if comparison_df is not None:
+        comp_table = comparison_df.to_markdown(index=False)
+    else:
+        comp_table = "Not available — marker comparison failed (check tabulate is installed: pip install tabulate)"
 
     report = f"""# GSE226225 Validation Report
 
@@ -501,6 +531,8 @@ def write_report(metrics: dict, comparison_df):
 
 ## SenMayo Results
 - **Coverage:** {metrics['senmayo_coverage_pct']}% ({metrics['genes_used']} genes used)
+- **AUROC:** {metrics['auroc']:.4f} (threshold-independent)
+- **AUPRC:** {metrics['auprc']:.4f} (threshold-independent)
 - **Threshold:** Top 25% of SenMayo scores (value: {metrics['threshold_value']})
 - **Sensitivity:** {metrics['sensitivity']:.1%}
 - **Precision:** {metrics['precision']:.1%}

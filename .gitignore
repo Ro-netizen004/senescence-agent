@@ -18,6 +18,11 @@ backend/data/*.h5
 backend/data/*.csv
 backend/data/uploads/
 
+# Validation data (large downloads)
+*.tar
+*.tar.gz
+data/gse226225/
+
 # Gene sets and reference data (small, keep in repo)
 !backend/data/*.json
 

@@ -1,4 +1,4 @@
-method,sensitivity,precision,f1,tp,fp,fn
-CDKN2A (p16) only,0.4838,0.757,0.5903,20938,6720,22342
-MKI67 absence,0.9466,0.9038,0.9247,40971,4363,2309
-SenMayo (ours),0.301,0.942,0.4562,13028,802,30252
+method,auroc,sensitivity,precision,f1,tp,fp,fn
+CDKN2A (p16) only,0.5055,0.4838,0.757,0.5903,20938,6720,22342
+MKI67 absence,0.7975,0.9466,0.9038,0.9247,40971,4363,2309
+SenMayo (ours),0.5632,0.301,0.942,0.4562,13028,802,30252
