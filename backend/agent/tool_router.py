@@ -1,6 +1,7 @@
 
 from tools.build_pseudobulk import build_pseudobulk_matrix
 from tools.run_deseq2 import run_deseq2_pseudobulk
+from agent.admissibility import check_admissibility, admissibility_block_result
 
 
 def run_deseq2_wrapper(
@@ -84,6 +85,20 @@ def build_tool_map(adata, species, tools):
     youngest = profile.get("youngest") or "3m"
     oldest = profile.get("oldest") or "24m"
 
+    def _gate(tool_name, fn):
+        """Gate 1: admissibility pre-check runs BEFORE the tool. If the inference
+        is inadmissible given the data design, the tool never runs and a BLOCKED
+        result is returned. Admissible-but-imperfect contrasts pass with warnings."""
+        def gated(args):
+            adm = check_admissibility(tool_name, args or {}, adata)
+            if not adm["admissible"]:
+                return admissibility_block_result(tool_name, adm)
+            result = fn(args)
+            if isinstance(result, dict) and adm.get("warnings"):
+                result.setdefault("admissibility_warnings", []).extend(adm["warnings"])
+            return result
+        return gated
+
     return {
         "generate_umap": lambda args: tools["generate_umap"](adata),
 
@@ -93,14 +108,14 @@ def build_tool_map(adata, species, tools):
 
         "get_cluster_annotations": lambda args: tools["get_cluster_annotations"](adata),
 
-        "run_deseq2": lambda args: run_deseq2_wrapper(
+        "run_deseq2": _gate("run_deseq2", lambda args: run_deseq2_wrapper(
             adata,
             args.get("cell_type"),
             args.get("sample_column", sample_col),
             args.get("age_column", age_col),
             args.get("reference_age") or youngest,
             args.get("comparison_age") or oldest,
-        ),
+        )),
 
         "compare_across_age": lambda args: tools["compare_across_age"](
             adata,
@@ -112,7 +127,7 @@ def build_tool_map(adata, species, tools):
             comparison_age=args.get("comparison_age"),
         ),
 
-        "test_senescence_difference": lambda args: tools["test_senescence_difference"](
+        "test_senescence_difference": _gate("test_senescence_difference", lambda args: tools["test_senescence_difference"](
             adata,
             args.get("cell_type"),
             args.get("age_column", age_col),
@@ -121,5 +136,5 @@ def build_tool_map(adata, species, tools):
             args.get("reference_age") or youngest,
             args.get("comparison_age") or oldest,
             species,
-        ),
+        )),
     }

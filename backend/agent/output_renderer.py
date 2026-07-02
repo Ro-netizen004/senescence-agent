@@ -343,8 +343,19 @@ def _footer(schema: dict) -> str:
     level = schema.get("allowed_interpretation_level", "")
     flags = schema.get("forbidden_inference_flags") or []
     flag_str = ", ".join(flags) if flags else "none"
+
+    # Admissibility warnings (Gate 1 passed but flagged the contrast).
+    warn_block = ""
+    warns = schema.get("admissibility_warnings") or []
+    if warns:
+        warn_lines = "\n".join(
+            f"> - {w.split(':', 1)[1].strip() if ':' in w else w}" for w in warns
+        )
+        warn_block = "\n\n> **Caution (contrast admissible but imperfect):**\n" + warn_lines
+
     return (
-        f"\n\n[System] inference_state={state} | "
+        warn_block
+        + f"\n\n[System] inference_state={state} | "
         f"interpretation_level={level} | "
         f"forbidden=[{flag_str}]"
     )
@@ -353,8 +364,44 @@ def _footer(schema: dict) -> str:
 # ── Main render entry point ──────────────────────────────────────────────
 
 
+def _render_admissibility_block(schema: dict) -> str:
+    """Gate 1 refusal: the inference was inadmissible and never ran."""
+    adm = schema.get("admissibility") or {}
+    reasons = adm.get("blocked_reasons") or []
+    checks = adm.get("checks") or {}
+    tool = schema.get("tool", "inference")
+
+    lines = [
+        "### Inference not run - inadmissible for this dataset",
+        "",
+        f"The requested analysis (`{tool}`) was **not executed** because the data "
+        "design does not support a valid statistical inference here:",
+        "",
+    ]
+    for r in reasons:
+        # reasons are "code: explanation"
+        parts = r.split(":", 1)
+        explanation = parts[1].strip() if len(parts) > 1 else r
+        lines.append(f"- {explanation}")
+    lines.append("")
+
+    reps = checks.get("replicates_per_group")
+    if reps:
+        lines.append(f"> Biological replicates per group: {reps}")
+        lines.append("")
+    lines.append(
+        "> This is an admissibility guard: a result would have been statistically "
+        "invalid (e.g. pseudoreplication), so no p-value was produced."
+    )
+    return "\n".join(lines)
+
+
 def render_strict_output(schema: dict) -> str:
     """Render one tool schema to final user-facing Markdown."""
+    # Gate 1 refusal (admissibility): render the reasons explicitly.
+    if schema.get("admissibility") and not (schema.get("admissibility") or {}).get("admissible", True):
+        return _render_admissibility_block(schema)
+
     if schema.get("errors"):
         tool = schema.get("tool", "tool")
         errors = "; ".join(str(e) for e in schema["errors"])

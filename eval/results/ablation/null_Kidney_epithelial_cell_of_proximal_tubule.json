@@ -1,0 +1,38 @@
+{
+  "dataset": "tabula-muris-senis-facs-processed-official-annotations-Kidney.h5ad",
+  "cell_type": "epithelial cell of proximal tubule",
+  "restrict_age": null,
+  "n_biological_replicates": 7,
+  "group_size": 3,
+  "n_genes_tested": 5333,
+  "n_permutations_valid": 500,
+  "alpha": 0.05,
+  "truth": "null (random mouse-to-group split of one population); expected DE genes = 0",
+  "layer1_false_positive_genes": {
+    "per_cell_raw_p": {
+      "mean": 1556.02,
+      "median": 1638.0,
+      "max": 2246
+    },
+    "per_cell_fdr": {
+      "mean": 889.7,
+      "median": 962.0,
+      "max": 1720
+    },
+    "pseudobulk_raw_p": {
+      "mean": 163.87,
+      "median": 143.0,
+      "max": 314
+    },
+    "pseudobulk_fdr": {
+      "mean": 0.01,
+      "median": 0.0,
+      "max": 1
+    }
+  },
+  "layer2_agent_claim_rate": {
+    "ungoverned_false_discovery_rate": 1.0,
+    "governed_false_discovery_rate": 0.008,
+    "definition": "fraction of null splits where the agent reports >=1 DE gene at FDR<0.05"
+  }
+}

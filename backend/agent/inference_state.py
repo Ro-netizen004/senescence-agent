@@ -193,7 +193,16 @@ def build_state_record(
         "power_gate_passed": state not in (InferenceState.LOW_POWER, InferenceState.BLOCKED),
         "power_gate_reasons": power_reasons,
         "statistical_unit": _statistical_unit(tool_name),
+        "validity_flags": _validity_flags(tool_name, result),
     }
+    # Validity axis overrides the power axis: an inadmissible inference cannot be
+    # licensed to conclude even if a p-value is "significant".
+    if record["validity_flags"] and record["allowed_interpretation_level"] == InterpretationLevel.INFERENTIAL.value:
+        record["allowed_interpretation_level"] = InterpretationLevel.DESCRIPTIVE_ONLY.value
+        record["conclusion"] = None
+        record["validity_gate_passed"] = False
+    else:
+        record["validity_gate_passed"] = not record["validity_flags"]
     return record
 
 
@@ -202,9 +211,45 @@ def _statistical_unit(tool_name: str) -> str:
         return "biological_replicate"
     if tool_name == "run_deseq2":
         return "pseudobulk_sample"
-    if tool_name == "compare_across_age":
+    if tool_name in ("compare_across_age", "differential_expression"):
         return "cell"
     return "none"
+
+
+# Tools whose statistical unit is the individual cell. Any *inferential* claim
+# built on a cell-unit comparison across biological groups is pseudoreplication.
+_CELL_UNIT_TOOLS = ("compare_across_age", "differential_expression")
+
+# Tools that define groups from expression and then test on that same expression
+# (leiden clusters -> marker DE). This is circular / double-dipping inference.
+_CIRCULAR_INFERENCE_TOOLS = ("differential_expression",)
+
+
+def _validity_flags(tool_name: str, result: dict) -> list[str]:
+    """
+    Validity axis (distinct from the power/significance axis).
+
+    Flags encode *admissibility* violations — reasons an inferential claim
+    would be statistically invalid regardless of the p-value. The renderer
+    uses these to forbid conclusions even when a tool returns a small p.
+    """
+    flags: list[str] = []
+
+    if tool_name in _CELL_UNIT_TOOLS:
+        flags.append("cell_unit_not_inferential")  # pseudoreplication if tested across groups
+
+    if tool_name in _CIRCULAR_INFERENCE_TOOLS:
+        flags.append("circular_inference_risk")  # clusters defined on same features tested
+
+    # Uncorrected multiple testing: many per-feature p-values without adjusted p.
+    rows = result.get("results") or result.get("top_markers")
+    if isinstance(rows, list) and rows:
+        has_p = any("pvalue" in r or "p_value" in r or "pvals" in r for r in rows if isinstance(r, dict))
+        has_padj = any("padj" in r or "pvals_adj" in r or "p_adj" in r for r in rows if isinstance(r, dict))
+        if has_p and not has_padj:
+            flags.append("uncorrected_multiple_testing")
+
+    return flags
 
 
 def apply_inference_state(

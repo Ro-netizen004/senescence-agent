@@ -45,6 +45,21 @@ def build_output_schema(
     result: Any,
     args: Optional[dict] = None,
 ) -> dict:
+    schema = _build_output_schema_inner(tool_name, result, args)
+    # Carry admissibility (Gate 1) payload through to the renderer.
+    if isinstance(result, dict):
+        if result.get("admissibility"):
+            schema["admissibility"] = result["admissibility"]
+        if result.get("admissibility_warnings"):
+            schema["admissibility_warnings"] = result["admissibility_warnings"]
+    return schema
+
+
+def _build_output_schema_inner(
+    tool_name: str,
+    result: Any,
+    args: Optional[dict] = None,
+) -> dict:
     args = args or {}
     if not isinstance(result, dict):
         return {

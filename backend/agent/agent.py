@@ -22,6 +22,7 @@ from agent.intent_router import (
     _needs_pvalue_clarification,
 )
 from agent.workflows import run_workflow, WORKFLOWS
+from agent.intent_extractor import extract_intent, validate_and_route
 from agent.system_prompt import SYSTEM_PROMPT
 from dataset_paths import resolve_dataset_path
 from tools.dataset_info import build_dataset_summary, format_dataset_context
@@ -283,6 +284,7 @@ def run_agent(
         }
     )
 
+    # ── Tier 1: deterministic keyword router ──────────────────────────
     decision = route(message, adata)
 
     if decision.concept_reply:
@@ -290,6 +292,15 @@ def run_agent(
 
     if decision.workflow_id and decision.workflow_id in WORKFLOWS:
         return _run_workflow_from_route(decision, tool_map, message)
+
+    # ── Tier 2: LLM structured-intent extraction + deterministic validation ──
+    # The LLM proposes a structured intent; the validator confirms it against
+    # the real dataset before routing. Falls through to Tier 3 (Gemini
+    # tool-calling) only if extraction fails or is unroutable.
+    intent = extract_intent(message, adata)
+    routed = validate_and_route(intent, adata)
+    if routed is not None and routed.workflow_id in WORKFLOWS:
+        return _run_workflow_from_route(routed, tool_map, message)
 
     system_instruction = SYSTEM_PROMPT
     if not session_history:
