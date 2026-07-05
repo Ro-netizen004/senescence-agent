@@ -147,18 +147,13 @@ def run(data_path: Path, cell_type: str, n_perm: int, seed: int, restrict_age):
             continue
 
         # ── PER-CELL Wilcoxon (ungoverned, pseudoreplication) ──
-        # Vectorized rank-sum via scipy on the two cell groups, per gene.
+        # Vectorized rank-sum across all genes at once (scipy axis=0).
         from scipy.stats import mannwhitneyu
         ca, cb = Xd[mask_a], Xd[mask_b]
-        p_cell = np.ones(n_genes)
-        for g in range(n_genes):
-            a, b = ca[:, g], cb[:, g]
-            if a.max() == a.min() and b.max() == b.min() and a.max() == b.max():
-                continue  # constant -> not significant
-            try:
-                p_cell[g] = mannwhitneyu(a, b, alternative="two-sided").pvalue
-            except ValueError:
-                p_cell[g] = 1.0
+        p_cell = np.asarray(
+            mannwhitneyu(ca, cb, axis=0, alternative="two-sided").pvalue, dtype=float
+        )
+        p_cell[np.isnan(p_cell)] = 1.0  # constant genes -> not significant
         padj_cell = _bh_fdr(p_cell)
 
         # ── PER-MOUSE pseudobulk t-test (governed) ──

@@ -1,0 +1,38 @@
+{
+  "dataset": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+  "cell_type": "endothelial cell",
+  "restrict_age": null,
+  "n_biological_replicates": 10,
+  "group_size": 5,
+  "n_genes_tested": 4458,
+  "n_permutations_valid": 200,
+  "alpha": 0.05,
+  "truth": "null (random mouse-to-group split of one population); expected DE genes = 0",
+  "layer1_false_positive_genes": {
+    "per_cell_raw_p": {
+      "mean": 1199.7,
+      "median": 1058.0,
+      "max": 3387
+    },
+    "per_cell_fdr": {
+      "mean": 592.65,
+      "median": 376.0,
+      "max": 3239
+    },
+    "pseudobulk_raw_p": {
+      "mean": 165.65,
+      "median": 147.0,
+      "max": 494
+    },
+    "pseudobulk_fdr": {
+      "mean": 0.02,
+      "median": 0.0,
+      "max": 1
+    }
+  },
+  "layer2_agent_claim_rate": {
+    "ungoverned_false_discovery_rate": 1.0,
+    "governed_false_discovery_rate": 0.02,
+    "definition": "fraction of null splits where the agent reports >=1 DE gene at FDR<0.05"
+  }
+}

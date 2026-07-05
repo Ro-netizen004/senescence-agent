@@ -5,23 +5,23 @@
   "n_biological_replicates": 7,
   "group_size": 3,
   "n_genes_tested": 5333,
-  "n_permutations_valid": 500,
+  "n_permutations_valid": 200,
   "alpha": 0.05,
   "truth": "null (random mouse-to-group split of one population); expected DE genes = 0",
   "layer1_false_positive_genes": {
     "per_cell_raw_p": {
-      "mean": 1556.02,
+      "mean": 1581.28,
       "median": 1638.0,
       "max": 2246
     },
     "per_cell_fdr": {
-      "mean": 889.7,
+      "mean": 916.09,
       "median": 962.0,
       "max": 1720
     },
     "pseudobulk_raw_p": {
-      "mean": 163.87,
-      "median": 143.0,
+      "mean": 163.03,
+      "median": 145.0,
       "max": 314
     },
     "pseudobulk_fdr": {
@@ -32,7 +32,7 @@
   },
   "layer2_agent_claim_rate": {
     "ungoverned_false_discovery_rate": 1.0,
-    "governed_false_discovery_rate": 0.008,
+    "governed_false_discovery_rate": 0.01,
     "definition": "fraction of null splits where the agent reports >=1 DE gene at FDR<0.05"
   }
 }

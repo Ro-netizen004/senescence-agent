@@ -115,6 +115,8 @@ def extract_intent(message: str, adata) -> dict:
             f"{_dataset_context(adata)}\n"
             f"User message: {message!r}\n"
         )
+        from agent.rate_limit import throttle
+        throttle()
         resp = model.generate_content(prompt)
         return _parse_json(resp.text)
     except Exception as e:  # network, quota, parse — all non-fatal

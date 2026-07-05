@@ -1,0 +1,38 @@
+{
+  "dataset": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+  "cell_type": "mesenchymal stem cell",
+  "restrict_age": null,
+  "n_biological_replicates": 12,
+  "group_size": 6,
+  "n_genes_tested": 7045,
+  "n_permutations_valid": 200,
+  "alpha": 0.05,
+  "truth": "null (random mouse-to-group split of one population); expected DE genes = 0",
+  "layer1_false_positive_genes": {
+    "per_cell_raw_p": {
+      "mean": 3245.95,
+      "median": 2838.5,
+      "max": 6657
+    },
+    "per_cell_fdr": {
+      "mean": 2570.01,
+      "median": 2100.5,
+      "max": 6648
+    },
+    "pseudobulk_raw_p": {
+      "mean": 279.31,
+      "median": 191.0,
+      "max": 1805
+    },
+    "pseudobulk_fdr": {
+      "mean": 0.28,
+      "median": 0.0,
+      "max": 48
+    }
+  },
+  "layer2_agent_claim_rate": {
+    "ungoverned_false_discovery_rate": 1.0,
+    "governed_false_discovery_rate": 0.03,
+    "definition": "fraction of null splits where the agent reports >=1 DE gene at FDR<0.05"
+  }
+}

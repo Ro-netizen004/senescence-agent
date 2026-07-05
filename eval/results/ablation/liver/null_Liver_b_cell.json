@@ -1,28 +1,28 @@
 {
-  "dataset": "tabula-muris-senis-facs-processed-official-annotations-Kidney.h5ad",
-  "cell_type": "epithelial cell of proximal tubule",
+  "dataset": "tabula-muris-senis-facs-processed-official-annotations-Liver.h5ad",
+  "cell_type": "B cell",
   "restrict_age": null,
-  "n_biological_replicates": 7,
-  "group_size": 3,
-  "n_genes_tested": 5333,
-  "n_permutations_valid": 30,
+  "n_biological_replicates": 4,
+  "group_size": 2,
+  "n_genes_tested": 4741,
+  "n_permutations_valid": 200,
   "alpha": 0.05,
   "truth": "null (random mouse-to-group split of one population); expected DE genes = 0",
   "layer1_false_positive_genes": {
     "per_cell_raw_p": {
-      "mean": 1623.57,
-      "median": 1638.0,
-      "max": 2229
+      "mean": 695.33,
+      "median": 606.0,
+      "max": 926
     },
     "per_cell_fdr": {
-      "mean": 970.03,
-      "median": 962.0,
-      "max": 1720
+      "mean": 63.41,
+      "median": 66.0,
+      "max": 67
     },
     "pseudobulk_raw_p": {
-      "mean": 173.4,
-      "median": 168.0,
-      "max": 258
+      "mean": 104.61,
+      "median": 101.0,
+      "max": 115
     },
     "pseudobulk_fdr": {
       "mean": 0.0,

@@ -1,22 +1,26 @@
 # Senescence Agent
 
-Single-cell RNA-seq analysis for **cellular senescence** and **aging**, driven by natural language. Upload an `.h5ad` dataset, ask questions in chat, and get reproducible Scanpy results with audit-friendly tool logs.
+A **statistically governed** LLM agent for single-cell RNA-seq analysis of **cellular senescence** and **aging**. Ask questions in plain English; the agent routes to Scanpy tools but is prevented, by design, from reporting conclusions the data cannot support.
 
-[![Validated on GSE226225](https://img.shields.io/badge/Validated-GSE226225-brightgreen)](eval/results/validation/gse226225_report.md) [![SenMayo 125 genes](https://img.shields.io/badge/SenMayo-125%20genes-blue)](backend/data/senmayo.json)
+[![False discovery: 100%→1%](https://img.shields.io/badge/false%20discovery-100%25%20%E2%86%92%201%25-brightgreen)](eval/results/ablation/null_harness_report.md) [![Benchmarked on GSE226225](https://img.shields.io/badge/benchmarked-GSE226225-blue)](eval/results/validation/gse226225_report.md) [![SenMayo signature](https://img.shields.io/badge/signature-SenMayo-lightgrey)](backend/data/senmayo.json)
 
-**Design principle:** Python owns the science; Google Gemini routes tools only. User-facing answers after tool runs are produced by a **deterministic renderer**, not free-form LLM prose.
+**Core contribution.** On data with *no real difference*, an ungoverned per-cell LLM agent reports false discoveries on **100% of null splits**; this agent's governance layer drops that to **~1%** by refusing pseudoreplicated and underpowered inferences ([null-harness report](eval/results/ablation/null_harness_report.md)).
+
+**Design principle:** Python owns the science; Google Gemini routes tools only. User-facing answers after tool runs are produced by a **deterministic renderer**, not free-form LLM prose. Statistical claims pass through an admissibility pre-check and an A–E inference-state machine before any wording is generated.
 
 ---
 
 ## What it does
 
-- Preprocesses data once per upload (QC, normalization, Leiden clustering)
-- Scores cells with the **SenMayo** gene signature (mouse/human orthologs)
+- **Governs inference:** blocks pseudoreplicated/underpowered tests up front and gates every result into an A–E state (see below) so significance is never overclaimed
+- Runs **sample-level** statistical tests (Mann–Whitney on per-mouse medians, not pooled cells) and **pseudobulk DESeq2** for gene-level aging contrasts
+- Scores cells with the **SenMayo** gene signature (mouse/human orthologs) as the demonstrated senescence readout
 - Compares senescence across age groups and cell types
-- Runs **sample-level** statistical tests (Mann–Whitney on per-mouse medians, not pooled cells)
-- Runs **pseudobulk DESeq2** for gene-level aging contrasts
+- Preprocesses data once per upload (QC, normalization, Leiden clustering)
 - Generates UMAP and distribution plots served at `/plots`
 - Builds Markdown/PDF reports from the **tool execution log** (not chat hallucination)
+
+> **On detection accuracy (be precise):** SenMayo is the senescence signature this agent demonstrates, not a claim of best-in-class detection. On the external GSE226225 benchmark SenMayo scores AUROC ≈ 0.56, and a single marker (MKI67 absence) does better — signature performance is dataset-dependent. The contribution here is *statistical governance*, not a new classifier. See [`gse226225_report.md`](eval/results/validation/gse226225_report.md).
 
 ---
 

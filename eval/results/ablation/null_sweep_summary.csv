@@ -1,0 +1,14 @@
+tissue,cell_type,n_mice,n_genes,n_perm,percell_fp_fdr_mean,pseudobulk_fp_fdr_mean,ungoverned_fdr_rate,governed_fdr_rate
+Kidney,epithelial cell of proximal tubule,7,5333,200,916.09,0.01,1.0,0.01
+Kidney,fenestrated cell,7,5867,200,220.84,0.01,1.0,0.015
+Kidney,kidney collecting duct epithelial cell,6,5176,200,708.41,0.09,1.0,0.09
+Liver,hepatocyte,9,9104,200,5747.77,0.69,1.0,0.01
+Liver,endothelial cell of hepatic sinusoid,6,7075,200,1161.48,0.0,1.0,0.0
+Liver,B cell,4,4741,200,63.41,0.0,1.0,0.0
+Spleen,B cell,13,5514,200,2291.14,0.01,1.0,0.015
+Spleen,"CD4-positive, alpha-beta T cell",12,5629,200,201.32,0.01,1.0,0.01
+Spleen,"CD8-positive, alpha-beta T cell",9,6113,200,290.51,0.06,1.0,0.03
+Aorta,aortic endothelial cell,7,6007,200,883.44,0.04,1.0,0.04
+Limb_Muscle,skeletal muscle satellite cell,13,5005,200,2877.2,4.91,1.0,0.05
+Limb_Muscle,mesenchymal stem cell,12,7045,200,2570.01,0.28,1.0,0.03
+Limb_Muscle,endothelial cell,10,4458,200,592.65,0.02,1.0,0.02

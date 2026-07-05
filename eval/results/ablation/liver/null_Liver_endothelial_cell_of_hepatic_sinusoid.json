@@ -1,0 +1,38 @@
+{
+  "dataset": "tabula-muris-senis-facs-processed-official-annotations-Liver.h5ad",
+  "cell_type": "endothelial cell of hepatic sinusoid",
+  "restrict_age": null,
+  "n_biological_replicates": 6,
+  "group_size": 3,
+  "n_genes_tested": 7075,
+  "n_permutations_valid": 200,
+  "alpha": 0.05,
+  "truth": "null (random mouse-to-group split of one population); expected DE genes = 0",
+  "layer1_false_positive_genes": {
+    "per_cell_raw_p": {
+      "mean": 2216.51,
+      "median": 2112.0,
+      "max": 3090
+    },
+    "per_cell_fdr": {
+      "mean": 1161.48,
+      "median": 973.0,
+      "max": 2122
+    },
+    "pseudobulk_raw_p": {
+      "mean": 220.38,
+      "median": 214.0,
+      "max": 327
+    },
+    "pseudobulk_fdr": {
+      "mean": 0.0,
+      "median": 0.0,
+      "max": 0
+    }
+  },
+  "layer2_agent_claim_rate": {
+    "ungoverned_false_discovery_rate": 1.0,
+    "governed_false_discovery_rate": 0.0,
+    "definition": "fraction of null splits where the agent reports >=1 DE gene at FDR<0.05"
+  }
+}

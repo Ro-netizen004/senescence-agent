@@ -1,0 +1,192 @@
+{
+  "dataset": "GSE226225",
+  "contrast": "senescent vs non_senescent",
+  "n_samples": {
+    "senescent": 11,
+    "non_senescent": 2
+  },
+  "governed_pseudobulk": {
+    "n_de_genes_fdr": 7613,
+    "n_up_in_senescent": 4309,
+    "senescence_markers_significant": "7/14",
+    "markers": {
+      "CDKN1A": {
+        "log2FC": 2.487,
+        "padj": 3.826076671213095e-06,
+        "significant": true
+      },
+      "CDKN2A": {
+        "log2FC": 0.841,
+        "padj": 0.16074111223883145,
+        "significant": false
+      },
+      "SERPINE1": {
+        "log2FC": -0.139,
+        "padj": 0.8159285809330652,
+        "significant": false
+      },
+      "IL6": {
+        "log2FC": 1.558,
+        "padj": 0.02405620486210612,
+        "significant": true
+      },
+      "CXCL8": {
+        "log2FC": -0.452,
+        "padj": 0.633398676857386,
+        "significant": false
+      },
+      "IL1B": {
+        "log2FC": 1.161,
+        "padj": 0.21914876418491971,
+        "significant": false
+      },
+      "GLB1": {
+        "log2FC": 0.499,
+        "padj": 0.1156893951062495,
+        "significant": false
+      },
+      "MMP3": {
+        "log2FC": 2.695,
+        "padj": 0.02397729377551141,
+        "significant": true
+      },
+      "IGFBP3": {
+        "log2FC": -0.265,
+        "padj": 0.7741827225329496,
+        "significant": false
+      },
+      "TP53": {
+        "log2FC": 0.119,
+        "padj": 0.8084217065281858,
+        "significant": false
+      },
+      "GDF15": {
+        "log2FC": 3.549,
+        "padj": 1.2601799474390576e-05,
+        "significant": true
+      },
+      "TNFRSF10C": {
+        "log2FC": 2.338,
+        "padj": 0.0022599693654345343,
+        "significant": true
+      },
+      "MKI67": {
+        "log2FC": -5.211,
+        "padj": 0.005854581347758216,
+        "significant": true
+      },
+      "LMNB1": {
+        "log2FC": -5.401,
+        "padj": 8.151218501137395e-08,
+        "significant": true
+      }
+    },
+    "top_genes": [
+      {
+        "gene": "OLFML2B",
+        "log2FC": -2.782,
+        "padj": 1.6523207157177484e-20
+      },
+      {
+        "gene": "WWC1",
+        "log2FC": -1.965,
+        "padj": 1.6523207157177484e-20
+      },
+      {
+        "gene": "KLHL23",
+        "log2FC": -1.441,
+        "padj": 1.6433124758817993e-19
+      },
+      {
+        "gene": "RRM2B",
+        "log2FC": 1.714,
+        "padj": 2.860505254016128e-18
+      },
+      {
+        "gene": "MIR924HG",
+        "log2FC": -4.677,
+        "padj": 5.476854577967298e-18
+      },
+      {
+        "gene": "AC010457.1",
+        "log2FC": 3.048,
+        "padj": 3.9223440387265946e-17
+      },
+      {
+        "gene": "SCLY",
+        "log2FC": -0.821,
+        "padj": 1.0393570279655979e-16
+      },
+      {
+        "gene": "SOX11",
+        "log2FC": -3.156,
+        "padj": 2.5446241741249324e-16
+      },
+      {
+        "gene": "F11R",
+        "log2FC": 2.772,
+        "padj": 7.193317293951729e-16
+      },
+      {
+        "gene": "MYH10",
+        "log2FC": -1.432,
+        "padj": 1.055709295297656e-15
+      },
+      {
+        "gene": "ANK1",
+        "log2FC": 2.216,
+        "padj": 1.5080594402624357e-15
+      },
+      {
+        "gene": "HES2",
+        "log2FC": 3.558,
+        "padj": 2.0441803128059782e-15
+      },
+      {
+        "gene": "IRAK1BP1",
+        "log2FC": -1.162,
+        "padj": 3.1011857366783952e-15
+      },
+      {
+        "gene": "PURPL",
+        "log2FC": 4.744,
+        "padj": 4.382416894997514e-15
+      },
+      {
+        "gene": "PLCE1",
+        "log2FC": -1.224,
+        "padj": 7.130532681369495e-15
+      },
+      {
+        "gene": "GPC2",
+        "log2FC": -2.044,
+        "padj": 7.540905755498684e-15
+      },
+      {
+        "gene": "RTN4IP1",
+        "log2FC": -1.18,
+        "padj": 1.1059566384741557e-14
+      },
+      {
+        "gene": "IFITM10",
+        "log2FC": 1.98,
+        "padj": 1.7028734446218703e-14
+      },
+      {
+        "gene": "APLP1",
+        "log2FC": 1.884,
+        "padj": 4.2286965144030785e-14
+      },
+      {
+        "gene": "HPDL",
+        "log2FC": -3.424,
+        "padj": 1.1771653773189665e-13
+      }
+    ]
+  },
+  "ungoverned_percell": {
+    "n_de_genes_fdr": 9652,
+    "n_genes_tested": 10789
+  },
+  "interpretation": "Governed pseudobulk detects a large real senescence program (7613 DE genes, 7 canonical markers) on GSE226225, versus ~0.47 mean false genes on constructed nulls (Result 1). Governance is selective: silent on nulls, detective on real effects."
+}

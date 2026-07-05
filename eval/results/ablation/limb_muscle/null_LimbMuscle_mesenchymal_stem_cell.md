@@ -2,11 +2,11 @@
 
 ## Setup
 
-- Dataset: tabula-muris-senis-facs-processed-official-annotations-Kidney.h5ad
-- Cell type: epithelial cell of proximal tubule
-- Biological replicates (mice): 7 (groups of 3)
-- Genes tested: 5333
-- Null permutations: 30
+- Dataset: tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad
+- Cell type: mesenchymal stem cell
+- Biological replicates (mice): 12 (groups of 6)
+- Genes tested: 7045
+- Null permutations: 200
 - alpha = 0.05
 
 **Truth: null (random mouse-to-group split of one population); expected DE genes = 0.** Every reported DE gene is a false positive.
@@ -15,13 +15,13 @@
 
 | Method | Statistical unit | FP genes (raw p<0.05) | FP genes (FDR<0.05) |
 |--------|------------------|----------------------:|--------------------:|
-| Per-cell Wilcoxon (ungoverned) | cell | 1623.57 | **970.03** |
-| Pseudobulk t-test (governed) | biological replicate | 173.4 | 0.0 |
+| Per-cell Wilcoxon (ungoverned) | cell | 3245.95 | **2570.01** |
+| Pseudobulk t-test (governed) | biological replicate | 279.31 | 0.28 |
 
 ## Layer 2 - agent false-discovery rate
 
 - Ungoverned agent reports >=1 DE gene on **100.0%** of null splits
-- Governed agent reports >=1 DE gene on **0.0%** of null splits
+- Governed agent reports >=1 DE gene on **3.0%** of null splits
 
 ## Interpretation
 

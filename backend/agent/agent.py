@@ -23,6 +23,7 @@ from agent.intent_router import (
 )
 from agent.workflows import run_workflow, WORKFLOWS
 from agent.intent_extractor import extract_intent, validate_and_route
+from agent.governance import governance_enabled
 from agent.system_prompt import SYSTEM_PROMPT
 from dataset_paths import resolve_dataset_path
 from tools.dataset_info import build_dataset_summary, format_dataset_context
@@ -108,8 +109,12 @@ def _execute_tool(
     name: str,
     args: dict,
     user_message: str = "",
+    governed: bool = True,
 ) -> dict:
-    """Run tool and attach scientific_validation before any formatting or LLM handoff."""
+    """Run tool and attach scientific_validation before any formatting or LLM handoff.
+
+    In ungoverned mode (ablation), the inference-state machine is skipped so the
+    raw tool numbers reach the LLM unguarded."""
     if name not in tool_map:
         return {"error": f"Unknown tool: {name}"}
     try:
@@ -117,7 +122,7 @@ def _execute_tool(
     except Exception as e:
         result = {"error": str(e)}
         print(f"Tool error in {name}: {e}")
-    if isinstance(result, dict):
+    if governed and isinstance(result, dict):
         result = apply_inference_state(name, result, args)
     return result
 
@@ -269,6 +274,9 @@ def run_agent(
     # ── pipeline ──────────────────────────────────────────────────────
     ensure_pipeline(adata, species)
  
+    # Production is always governed; AGENT_GOVERNANCE=off enables the ablation.
+    governed = governance_enabled()
+
     # ── tool map ──────────────────────────────────────────────────────
     tool_map = build_tool_map(
         adata,
@@ -281,26 +289,31 @@ def run_agent(
             "compare_across_age": compare_across_age,
             "test_senescence_difference": test_senescence_difference,
             "run_deseq2": run_deseq2_pseudobulk,
-        }
+        },
+        governed=governed,
     )
 
-    # ── Tier 1: deterministic keyword router ──────────────────────────
-    decision = route(message, adata)
+    # Deterministic routing and the deterministic renderer ARE the governance.
+    # In the ungoverned ablation we skip them entirely and let the LLM route
+    # and narrate freely (Tier 3 only).
+    if governed:
+        # ── Tier 1: deterministic keyword router ──────────────────────
+        decision = route(message, adata)
 
-    if decision.concept_reply:
-        return {"reply": decision.concept_reply, "plots": [], "tool_calls": []}
+        if decision.concept_reply:
+            return {"reply": decision.concept_reply, "plots": [], "tool_calls": []}
 
-    if decision.workflow_id and decision.workflow_id in WORKFLOWS:
-        return _run_workflow_from_route(decision, tool_map, message)
+        if decision.workflow_id and decision.workflow_id in WORKFLOWS:
+            return _run_workflow_from_route(decision, tool_map, message)
 
-    # ── Tier 2: LLM structured-intent extraction + deterministic validation ──
-    # The LLM proposes a structured intent; the validator confirms it against
-    # the real dataset before routing. Falls through to Tier 3 (Gemini
-    # tool-calling) only if extraction fails or is unroutable.
-    intent = extract_intent(message, adata)
-    routed = validate_and_route(intent, adata)
-    if routed is not None and routed.workflow_id in WORKFLOWS:
-        return _run_workflow_from_route(routed, tool_map, message)
+        # ── Tier 2: LLM structured-intent extraction + deterministic validation ──
+        # The LLM proposes a structured intent; the validator confirms it against
+        # the real dataset before routing. Falls through to Tier 3 (Gemini
+        # tool-calling) only if extraction fails or is unroutable.
+        intent = extract_intent(message, adata)
+        routed = validate_and_route(intent, adata)
+        if routed is not None and routed.workflow_id in WORKFLOWS:
+            return _run_workflow_from_route(routed, tool_map, message)
 
     system_instruction = SYSTEM_PROMPT
     if not session_history:
@@ -332,7 +345,9 @@ def run_agent(
  
     for i in range(max_iterations):
         print(f"Agent iteration {i + 1}/{max_iterations}")
- 
+
+        from agent.rate_limit import throttle
+        throttle()
         response = chat.send_message(current_message)
         candidate = response.candidates[0]
         parts = candidate.content.parts
@@ -343,6 +358,14 @@ def run_agent(
  
         if not tool_call_parts:
             if tool_calls_log:
+                if not governed:
+                    # Ungoverned ablation: surface the LLM's own narration.
+                    narration = "\n\n".join(p.text.strip() for p in text_parts).strip()
+                    return {
+                        "reply": narration or _deterministic_reply(tool_calls_log),
+                        "plots": plots,
+                        "tool_calls": tool_calls_log,
+                    }
                 return {
                     "reply": _deterministic_reply(tool_calls_log),
                     "plots": plots,
@@ -398,7 +421,7 @@ def run_agent(
  
             print(f"Calling tool: {name}")
  
-            result = _execute_tool(tool_map, name, args, message)
+            result = _execute_tool(tool_map, name, args, message, governed=governed)
             for plot_entry in _collect_plots_from_result(result, name):
                 if not any(p["url"] == plot_entry["url"] for p in plots):
                     plots.append(plot_entry)
@@ -415,8 +438,10 @@ def run_agent(
                 "args": args,
                 "result": serializable_result,
             })
- 
-            llm_payload = wrap_result_for_llm(name, result, args)
+
+            # Governed: hand the LLM a schema-sanitized payload. Ungoverned:
+            # hand it the raw numbers so it can narrate them unguarded.
+            llm_payload = result if not governed else wrap_result_for_llm(name, result, args)
             function_responses.append(
                 genai.protos.Part(
                     function_response=genai.protos.FunctionResponse(
@@ -426,8 +451,9 @@ def run_agent(
                 )
             )
 
-        # Deterministic renderer — never LLM prose for tool results
-        if not _wants_multi_step(message):
+        # Deterministic renderer — never LLM prose for tool results.
+        # Skipped in the ungoverned ablation (LLM narrates instead).
+        if governed and not _wants_multi_step(message):
             reply = _deterministic_reply(tool_calls_log)
             if _needs_pvalue_clarification(message) and any(
                 e["name"] == "compare_across_age" for e in tool_calls_log

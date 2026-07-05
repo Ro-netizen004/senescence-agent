@@ -77,7 +77,13 @@ def run_deseq2_wrapper(
 
     return output
 
-def build_tool_map(adata, species, tools):
+def build_tool_map(adata, species, tools, governed: bool = True):
+    """Build the name->callable tool map.
+
+    When ``governed`` is False (ablation only), the admissibility gate is
+    removed and the two inferential tools are swapped for per-cell
+    (pseudoreplicating) implementations. Production always passes governed=True.
+    """
     profile = adata.uns.get("dataset_profile") or {}
     age_col = profile.get("age_column") or "age"
     ct_col = profile.get("cell_type_column") or "cell_ontology_class"
@@ -88,7 +94,11 @@ def build_tool_map(adata, species, tools):
     def _gate(tool_name, fn):
         """Gate 1: admissibility pre-check runs BEFORE the tool. If the inference
         is inadmissible given the data design, the tool never runs and a BLOCKED
-        result is returned. Admissible-but-imperfect contrasts pass with warnings."""
+        result is returned. Admissible-but-imperfect contrasts pass with warnings.
+
+        In ungoverned mode this gate is a no-op (the tool always runs)."""
+        if not governed:
+            return fn
         def gated(args):
             adm = check_admissibility(tool_name, args or {}, adata)
             if not adm["admissible"]:
@@ -99,6 +109,59 @@ def build_tool_map(adata, species, tools):
             return result
         return gated
 
+    if governed:
+        def _deseq2_impl(args):
+            return run_deseq2_wrapper(
+                adata,
+                args.get("cell_type"),
+                args.get("sample_column", sample_col),
+                args.get("age_column", age_col),
+                args.get("reference_age") or youngest,
+                args.get("comparison_age") or oldest,
+            )
+
+        def _test_impl(args):
+            return tools["test_senescence_difference"](
+                adata,
+                args.get("cell_type"),
+                args.get("age_column", age_col),
+                args.get("cell_type_column", ct_col),
+                args.get("sample_column", sample_col),
+                args.get("reference_age") or youngest,
+                args.get("comparison_age") or oldest,
+                species,
+            )
+    else:
+        # Ungoverned ablation: per-cell (pseudoreplicating) versions.
+        from tools.percell_inference import (
+            differential_expression_percell,
+            test_senescence_difference_percell,
+        )
+
+        def _deseq2_impl(args):
+            return differential_expression_percell(
+                adata,
+                args.get("cell_type"),
+                args.get("age_column", age_col),
+                args.get("cell_type_column", ct_col),
+                args.get("sample_column", sample_col),
+                args.get("reference_age") or youngest,
+                args.get("comparison_age") or oldest,
+                species,
+            )
+
+        def _test_impl(args):
+            return test_senescence_difference_percell(
+                adata,
+                args.get("cell_type"),
+                args.get("age_column", age_col),
+                args.get("cell_type_column", ct_col),
+                args.get("sample_column", sample_col),
+                args.get("reference_age") or youngest,
+                args.get("comparison_age") or oldest,
+                species,
+            )
+
     return {
         "generate_umap": lambda args: tools["generate_umap"](adata),
 
@@ -108,14 +171,7 @@ def build_tool_map(adata, species, tools):
 
         "get_cluster_annotations": lambda args: tools["get_cluster_annotations"](adata),
 
-        "run_deseq2": _gate("run_deseq2", lambda args: run_deseq2_wrapper(
-            adata,
-            args.get("cell_type"),
-            args.get("sample_column", sample_col),
-            args.get("age_column", age_col),
-            args.get("reference_age") or youngest,
-            args.get("comparison_age") or oldest,
-        )),
+        "run_deseq2": _gate("run_deseq2", _deseq2_impl),
 
         "compare_across_age": lambda args: tools["compare_across_age"](
             adata,
@@ -127,14 +183,5 @@ def build_tool_map(adata, species, tools):
             comparison_age=args.get("comparison_age"),
         ),
 
-        "test_senescence_difference": _gate("test_senescence_difference", lambda args: tools["test_senescence_difference"](
-            adata,
-            args.get("cell_type"),
-            args.get("age_column", age_col),
-            args.get("cell_type_column", ct_col),
-            args.get("sample_column", sample_col),
-            args.get("reference_age") or youngest,
-            args.get("comparison_age") or oldest,
-            species,
-        )),
+        "test_senescence_difference": _gate("test_senescence_difference", _test_impl),
     }
