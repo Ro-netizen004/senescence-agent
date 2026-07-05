@@ -26,7 +26,7 @@ from scipy import stats
 
 warnings.filterwarnings("ignore")
 
-ROOT = Path(__file__).resolve().parent.parent.parent
+ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "backend"))
 
 from agent.pipeline import ensure_pipeline
