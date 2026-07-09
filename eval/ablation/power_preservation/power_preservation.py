@@ -4,8 +4,12 @@ Result #2: Power preservation.
 Shows the governed pseudobulk path DETECTS a real effect when one exists, so its
 ~0 false discoveries on nulls (Result #1) reflect calibration, not deafness.
 
-Data: GSE226225 (WI-38 fibroblasts). Non-senescent = CTRL + ETO day-0; senescent
-= RS / IR / ETO. This is a large, known real difference with true DE genes.
+Data: GSE226225 (WI-38 fibroblasts). To avoid induction-method and batch
+confounding, we use a single clean contrast: etoposide-induced senescence at its
+10-day endpoint (ETO_1, ETO_2, ETO_day_10 -- 3 biological replicates, all 50 uM /
+10 d) vs proliferating controls (ETO day-0 DMSO vehicle + untreated CTRL -- 2
+replicates). All other conditions (RS, IR, early ETO timepoints) are excluded so
+the comparison is a homogeneous, replicated, within-method senescent-vs-control.
 
 We run governed pseudobulk (per-sample) DE, senescent vs non-senescent, and:
   - count DE genes at FDR<0.05 (should be large -> power preserved)
@@ -61,11 +65,19 @@ def _bh(p):
     out = np.empty(n); out[o] = np.clip(adj, 0, 1); return out
 
 
+# Clean, single-method contrast (avoids induction-method + batch confounding).
+# senescent   = etoposide 50 uM / 10 d endpoint replicates
+# non_sen.    = proliferating baselines (ETO day-0 DMSO vehicle + untreated CTRL)
+# every other condition is excluded ("other"), so only 3-vs-2 homogeneous samples remain.
+_SENESCENT = {"ETO_1", "ETO_2", "ETO_DAY_10"}
+_NON_SENESCENT = {"CTRL_2", "ETO_DAY_0"}
+
+
 def label_group(condition: str) -> str:
-    c = str(condition).upper()
-    if c.startswith("CTRL") or "DAY_0" in c:
+    c = str(condition).strip().upper()
+    if c in _NON_SENESCENT:
         return "non_senescent"
-    if c.startswith(("RS", "IR", "ETO")):
+    if c in _SENESCENT:
         return "senescent"
     return "other"
 
@@ -180,7 +192,7 @@ def main():
     top = sig.reindex(sig["padj"].sort_values().index).head(20)
     results = {
         "dataset": "GSE226225",
-        "contrast": "senescent vs non_senescent",
+        "contrast": "etoposide-10d senescent vs proliferating control (clean single-method contrast)",
         "n_samples": {
             "senescent": int(adata.obs[adata.obs.group == "senescent"]["sample_id"].nunique()),
             "non_senescent": int(adata.obs[adata.obs.group == "non_senescent"]["sample_id"].nunique()),

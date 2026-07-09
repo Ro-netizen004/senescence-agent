@@ -34,7 +34,7 @@ from agent.scientific_validation import wrap_result_for_llm
  
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "../../.env"))
  
-MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+MODEL = os.getenv("GEMINI_MODEL", "gemini-flash-latest")
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 DEFAULT_AGENT_ITERATIONS = int(os.getenv("DEFAULT_AGENT_ITERATIONS", "3"))

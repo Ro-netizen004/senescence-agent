@@ -62,24 +62,38 @@ sc.pp.normalize_total(adata, target_sum=1e4)
 sc.pp.log1p(adata)
 ```
 
-## Execution note (an unrelated CellAgent robustness bug)
+## Execution: CellAgent reported 36 false genes
 
-CellAgent's execution did **not** reach the DE step, but for a reason unrelated
-to pseudoreplication: its generic droplet-style QC (`max_genes=2500`,
-`max_counts=10000`) removed **all** Smart-seq2 cells (which have thousands of
-genes and high counts), yielding an empty matrix and a
-`ValueError: Found array with 0 sample(s) (shape=(0,0))` at `log1p`. This is a
-separate weakness (wrong QC defaults for FACS data) and does not bear on the
-statistical-unit finding, which is established by the **plan** and generated
-**method choice**.
+**Standard task (autonomous QC):** CellAgent's own generic droplet QC
+(`max_genes=2500`, `max_counts=10000`) removed all Smart-seq2 cells (which have
+thousands of genes / high counts), emptying the matrix (`ValueError: Found array
+with 0 sample(s)` at `log1p`). This is a separate robustness weakness (wrong QC
+defaults for FACS data), not the statistical-unit finding.
 
-## The quantified failure (identical method, our harness)
+**QC-bypass task (told the data were pre-processed):** CellAgent skipped QC and
+executed its chosen per-cell test. Its generated Step-1 code ran
+`sc.tl.rank_genes_groups(adata_subset, 'group', method='wilcoxon')` and printed:
 
-CellAgent's chosen method — per-cell `rank_genes_groups` between two groups — is
-identical to the ungoverned per-cell arm of our constructed-null harness. On this
-exact fenestrated-cell null, that method yields **~221 false-positive genes at
-FDR < 0.05** (Table 1, `null_Kidney_fenestrated_cell.json`), all false by
-construction (truth = 0). Our admissibility gate refuses the identical input.
+```
+WARNING: It seems you use rank_genes_groups on the raw count data...
+36
+```
+
+So CellAgent **executed per-cell differential expression and reported 36
+significant genes at FDR < 0.05** on the null (truth = 0) — 36 false discoveries.
+(It also ran on raw counts, a further data-state error; Wilcoxon is rank-based so
+the p-values are unaffected.) Saved: `analysis_20260705_083332.ipynb`.
+
+## The quantified failure
+
+- **CellAgent, executed:** 36 false-positive genes (FDR < 0.05; all genes, no
+  detection filter). Truth = 0.
+- **Same per-cell method, our harness (detection-filtered):** mean 221 false
+  genes across splits of this cell type (Table 1, `null_Kidney_fenestrated_cell.json`);
+  the exact seed-0 split yields 101.
+
+Either way, per-cell DE on a null yields tens-to-hundreds of false discoveries.
+Our admissibility gate refuses the identical input.
 
 ## Claim supported
 

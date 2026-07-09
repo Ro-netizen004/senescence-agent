@@ -44,6 +44,10 @@ def run_deseq2_wrapper(
     # =========================
     df = results["results"] if isinstance(results, dict) else results
 
+    # True significant-gene count from the FULL results, before we truncate the
+    # display list to the top 100 (otherwise the count is capped at 100).
+    n_significant = int((df["padj"] < 0.05).sum()) if "padj" in df.columns else None
+
     df = (
         df.head(100)
         .reset_index()
@@ -51,6 +55,8 @@ def run_deseq2_wrapper(
     )
 
     output = {"results": df.to_dict(orient="records")}
+    if n_significant is not None:
+        output["n_significant_fdr_0_05"] = n_significant
 
     youngest = oldest = None
     if isinstance(results, dict):

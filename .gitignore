@@ -2,6 +2,7 @@
 venv/
 env/
 paper/
+presentation/
 
 # Python cache
 __pycache__/

@@ -29,7 +29,7 @@ from agent.intent_router import (
 from agent.workflows import WORKFLOWS
 
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "../../.env"))
-_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+_MODEL = os.getenv("GEMINI_MODEL", "gemini-flash-latest")
 if os.getenv("GEMINI_API_KEY"):
     genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 

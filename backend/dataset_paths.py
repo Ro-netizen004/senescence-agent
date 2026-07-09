@@ -4,7 +4,11 @@ import tempfile
 from typing import Optional
 
 BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
-UPLOADS_DIR = os.path.join(BACKEND_DIR, "data", "uploads")
+# Uploads can be large (GB-scale .h5ad). Allow pointing them at a roomy drive via
+# SENESCENCE_UPLOADS_DIR (e.g. D:\senescence_uploads) so they don't fill C:.
+UPLOADS_DIR = os.environ.get("SENESCENCE_UPLOADS_DIR") or os.path.join(
+    BACKEND_DIR, "data", "uploads"
+)
 
 
 def ensure_uploads_dir() -> str:
@@ -13,10 +17,16 @@ def ensure_uploads_dir() -> str:
 
 
 def persist_upload(file_id: str, source_path: str) -> str:
-    """Copy uploaded h5ad into durable storage; return final path."""
+    """Move uploaded h5ad into durable storage; return final path.
+
+    Uses move (not copy) so we never need 2x the file size on disk. shutil.move
+    renames within the same drive (instant, no extra space) and falls back to
+    copy+delete only across drives."""
     ensure_uploads_dir()
     dest = os.path.join(UPLOADS_DIR, f"{file_id}.h5ad")
-    shutil.copy2(source_path, dest)
+    if os.path.exists(dest):
+        os.remove(dest)
+    shutil.move(source_path, dest)
     return dest
 
 

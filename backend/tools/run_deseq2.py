@@ -33,15 +33,13 @@ def run_deseq2_pseudobulk(
     # =========================
     meta_df["age_numeric"] = meta_df["age"].apply(_extract_months)
 
-    if meta_df["age_numeric"].isna().all():
-        raise ValueError("Could not parse age values (expected formats like '3m', '24m')")
-
     available_ages = meta_df["age"].dropna().unique().tolist()
 
     # =========================
     # Detect or validate contrast
     # =========================
     if reference_age and comparison_age:
+        # Explicit groups given (any labels, e.g. "control"/"senescent") -> no age parsing needed.
         youngest_label = str(reference_age)
         oldest_label = str(comparison_age)
 
@@ -55,6 +53,9 @@ def run_deseq2_pseudobulk(
                 f"Available age groups: {available_ages}"
             )
     else:
+        # Auto-detect youngest/oldest requires numeric ages like '3m', '24m'.
+        if meta_df["age_numeric"].isna().all():
+            raise ValueError("Could not parse age values (expected formats like '3m', '24m')")
         youngest = meta_df["age_numeric"].min()
         oldest = meta_df["age_numeric"].max()
 
@@ -78,6 +79,13 @@ def run_deseq2_pseudobulk(
 
     count_df = count_df.loc[keep_samples]
     meta_df = meta_df.loc[keep_samples]
+
+    # =========================
+    # Drop low-count genes (standard pyDESeq2 practice) — avoids testing
+    # tens of thousands of all-zero genes, which is slow and inflates FDR.
+    # =========================
+    gene_totals = count_df.sum(axis=0)
+    count_df = count_df.loc[:, gene_totals >= 10]
 
     # =========================
     # Build DESeq2 dataset

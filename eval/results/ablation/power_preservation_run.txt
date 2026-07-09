@@ -1,0 +1,29 @@
+Loading D:\validation_data\GSE226225.h5ad...
+Samples per group:
+group
+non_senescent    2
+senescent        3
+Name: sample_id, dtype: int64
+
+Building pseudobulk + governed DESeq2 (senescent vs non_senescent)...
+  Governed: 10002 DE genes at FDR<0.05 (4922 up in senescent).
+  Senescence markers significant: 12/14 detected
+    * CDKN1A: log2FC=2.212, padj=1.9287765968235387e-15
+    * CDKN2A: log2FC=1.21, padj=0.002155994647805984
+    * SERPINE1: log2FC=-0.788, padj=0.003546289784935484
+    * IL6: log2FC=2.147, padj=8.256308180891116e-08
+      CXCL8: log2FC=-0.064, padj=0.96524701108703
+    * IL1B: log2FC=1.316, padj=0.008069888226926645
+    * GLB1: log2FC=0.686, padj=0.02538797354160504
+    * MMP3: log2FC=1.182, padj=0.023784159914010814
+    * IGFBP3: log2FC=-1.405, padj=1.95770687153118e-05
+      TP53: log2FC=0.365, padj=0.2778657026557869
+    * GDF15: log2FC=3.641, padj=7.869717702322364e-17
+    * TNFRSF10C: log2FC=2.485, padj=1.2928161489233515e-09
+    * MKI67: log2FC=-7.481, padj=4.5253186321069763e-98
+    * LMNB1: log2FC=-6.765, padj=3.9815753448833007e-100
+
+Ungoverned per-cell DE (same contrast)...
+  Ungoverned: 10005 DE genes at FDR<0.05 (of 10418 tested).
+
+Saved: C:\Users\Tech moon\Documents\GitHub\senescence-agent\eval\results\ablation\power_preservation.json

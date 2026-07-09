@@ -1,192 +1,192 @@
 {
   "dataset": "GSE226225",
-  "contrast": "senescent vs non_senescent",
+  "contrast": "etoposide-10d senescent vs proliferating control (clean single-method contrast)",
   "n_samples": {
-    "senescent": 11,
+    "senescent": 3,
     "non_senescent": 2
   },
   "governed_pseudobulk": {
-    "n_de_genes_fdr": 7613,
-    "n_up_in_senescent": 4309,
-    "senescence_markers_significant": "7/14",
+    "n_de_genes_fdr": 10002,
+    "n_up_in_senescent": 4922,
+    "senescence_markers_significant": "12/14",
     "markers": {
       "CDKN1A": {
-        "log2FC": 2.487,
-        "padj": 3.826076671213095e-06,
+        "log2FC": 2.212,
+        "padj": 1.9287765968235387e-15,
         "significant": true
       },
       "CDKN2A": {
-        "log2FC": 0.841,
-        "padj": 0.16074111223883145,
-        "significant": false
+        "log2FC": 1.21,
+        "padj": 0.002155994647805984,
+        "significant": true
       },
       "SERPINE1": {
-        "log2FC": -0.139,
-        "padj": 0.8159285809330652,
-        "significant": false
+        "log2FC": -0.788,
+        "padj": 0.003546289784935484,
+        "significant": true
       },
       "IL6": {
-        "log2FC": 1.558,
-        "padj": 0.02405620486210612,
+        "log2FC": 2.147,
+        "padj": 8.256308180891116e-08,
         "significant": true
       },
       "CXCL8": {
-        "log2FC": -0.452,
-        "padj": 0.633398676857386,
+        "log2FC": -0.064,
+        "padj": 0.96524701108703,
         "significant": false
       },
       "IL1B": {
-        "log2FC": 1.161,
-        "padj": 0.21914876418491971,
-        "significant": false
+        "log2FC": 1.316,
+        "padj": 0.008069888226926645,
+        "significant": true
       },
       "GLB1": {
-        "log2FC": 0.499,
-        "padj": 0.1156893951062495,
-        "significant": false
+        "log2FC": 0.686,
+        "padj": 0.02538797354160504,
+        "significant": true
       },
       "MMP3": {
-        "log2FC": 2.695,
-        "padj": 0.02397729377551141,
+        "log2FC": 1.182,
+        "padj": 0.023784159914010814,
         "significant": true
       },
       "IGFBP3": {
-        "log2FC": -0.265,
-        "padj": 0.7741827225329496,
-        "significant": false
+        "log2FC": -1.405,
+        "padj": 1.95770687153118e-05,
+        "significant": true
       },
       "TP53": {
-        "log2FC": 0.119,
-        "padj": 0.8084217065281858,
+        "log2FC": 0.365,
+        "padj": 0.2778657026557869,
         "significant": false
       },
       "GDF15": {
-        "log2FC": 3.549,
-        "padj": 1.2601799474390576e-05,
+        "log2FC": 3.641,
+        "padj": 7.869717702322364e-17,
         "significant": true
       },
       "TNFRSF10C": {
-        "log2FC": 2.338,
-        "padj": 0.0022599693654345343,
+        "log2FC": 2.485,
+        "padj": 1.2928161489233515e-09,
         "significant": true
       },
       "MKI67": {
-        "log2FC": -5.211,
-        "padj": 0.005854581347758216,
+        "log2FC": -7.481,
+        "padj": 4.5253186321069763e-98,
         "significant": true
       },
       "LMNB1": {
-        "log2FC": -5.401,
-        "padj": 8.151218501137395e-08,
+        "log2FC": -6.765,
+        "padj": 3.9815753448833007e-100,
         "significant": true
       }
     },
     "top_genes": [
       {
-        "gene": "OLFML2B",
-        "log2FC": -2.782,
-        "padj": 1.6523207157177484e-20
+        "gene": "BIRC5",
+        "log2FC": -6.492,
+        "padj": 1.0161736137313308e-119
       },
       {
-        "gene": "WWC1",
-        "log2FC": -1.965,
-        "padj": 1.6523207157177484e-20
+        "gene": "HIST1H1D",
+        "log2FC": -6.957,
+        "padj": 3.7872612800014924e-115
       },
       {
-        "gene": "KLHL23",
-        "log2FC": -1.441,
-        "padj": 1.6433124758817993e-19
+        "gene": "CENPF",
+        "log2FC": -6.481,
+        "padj": 1.15545540126579e-111
       },
       {
-        "gene": "RRM2B",
-        "log2FC": 1.714,
-        "padj": 2.860505254016128e-18
+        "gene": "PRC1",
+        "log2FC": -6.601,
+        "padj": 1.4986766920035439e-102
       },
       {
-        "gene": "MIR924HG",
-        "log2FC": -4.677,
-        "padj": 5.476854577967298e-18
+        "gene": "DLGAP5",
+        "log2FC": -6.713,
+        "padj": 4.8157100642992454e-101
       },
       {
-        "gene": "AC010457.1",
-        "log2FC": 3.048,
-        "padj": 3.9223440387265946e-17
+        "gene": "TOP2A",
+        "log2FC": -6.265,
+        "padj": 1.11259701700235e-100
       },
       {
-        "gene": "SCLY",
-        "log2FC": -0.821,
-        "padj": 1.0393570279655979e-16
+        "gene": "LMNB1",
+        "log2FC": -6.765,
+        "padj": 3.9815753448833007e-100
       },
       {
-        "gene": "SOX11",
-        "log2FC": -3.156,
-        "padj": 2.5446241741249324e-16
+        "gene": "MKI67",
+        "log2FC": -7.481,
+        "padj": 4.5253186321069763e-98
       },
       {
-        "gene": "F11R",
-        "log2FC": 2.772,
-        "padj": 7.193317293951729e-16
+        "gene": "ASPM",
+        "log2FC": -6.556,
+        "padj": 4.723067987005002e-98
       },
       {
-        "gene": "MYH10",
-        "log2FC": -1.432,
-        "padj": 1.055709295297656e-15
+        "gene": "TPX2",
+        "log2FC": -5.663,
+        "padj": 2.1732389155595854e-97
       },
       {
-        "gene": "ANK1",
-        "log2FC": 2.216,
-        "padj": 1.5080594402624357e-15
+        "gene": "ANLN",
+        "log2FC": -6.134,
+        "padj": 6.857558617729792e-95
       },
       {
-        "gene": "HES2",
-        "log2FC": 3.558,
-        "padj": 2.0441803128059782e-15
+        "gene": "KIF18B",
+        "log2FC": -7.195,
+        "padj": 1.4679154527258677e-94
       },
       {
-        "gene": "IRAK1BP1",
-        "log2FC": -1.162,
-        "padj": 3.1011857366783952e-15
+        "gene": "HIST1H1B",
+        "log2FC": -8.663,
+        "padj": 2.596612893231425e-94
       },
       {
-        "gene": "PURPL",
-        "log2FC": 4.744,
-        "padj": 4.382416894997514e-15
+        "gene": "MYBL2",
+        "log2FC": -6.56,
+        "padj": 4.4604989796184666e-94
       },
       {
-        "gene": "PLCE1",
-        "log2FC": -1.224,
-        "padj": 7.130532681369495e-15
+        "gene": "NDC80",
+        "log2FC": -6.208,
+        "padj": 9.459630866267148e-94
       },
       {
-        "gene": "GPC2",
-        "log2FC": -2.044,
-        "padj": 7.540905755498684e-15
+        "gene": "CDCA8",
+        "log2FC": -6.496,
+        "padj": 2.868256880188675e-92
       },
       {
-        "gene": "RTN4IP1",
-        "log2FC": -1.18,
-        "padj": 1.1059566384741557e-14
+        "gene": "NCAPG",
+        "log2FC": -6.542,
+        "padj": 3.730809319000271e-92
       },
       {
-        "gene": "IFITM10",
-        "log2FC": 1.98,
-        "padj": 1.7028734446218703e-14
+        "gene": "DTL",
+        "log2FC": -5.954,
+        "padj": 3.730809319000271e-92
       },
       {
-        "gene": "APLP1",
-        "log2FC": 1.884,
-        "padj": 4.2286965144030785e-14
+        "gene": "KIFC1",
+        "log2FC": -6.294,
+        "padj": 3.123982685894992e-91
       },
       {
-        "gene": "HPDL",
-        "log2FC": -3.424,
-        "padj": 1.1771653773189665e-13
+        "gene": "CLSPN",
+        "log2FC": -5.543,
+        "padj": 1.5332807147531464e-90
       }
     ]
   },
   "ungoverned_percell": {
-    "n_de_genes_fdr": 9652,
-    "n_genes_tested": 10789
+    "n_de_genes_fdr": 10005,
+    "n_genes_tested": 10418
   },
-  "interpretation": "Governed pseudobulk detects a large real senescence program (7613 DE genes, 7 canonical markers) on GSE226225, versus ~0.47 mean false genes on constructed nulls (Result 1). Governance is selective: silent on nulls, detective on real effects."
+  "interpretation": "Governed pseudobulk detects a large real senescence program (10002 DE genes, 12 canonical markers) on GSE226225, versus ~0.47 mean false genes on constructed nulls (Result 1). Governance is selective: silent on nulls, detective on real effects."
 }

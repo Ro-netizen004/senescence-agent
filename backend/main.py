@@ -85,7 +85,8 @@ async def upload_file(
         shutil.copyfileobj(file.file, buffer)
 
     file_path = persist_upload(file_id, temp_path)
-    os.remove(temp_path)
+    if os.path.exists(temp_path):  # persist_upload moves it; guard in case
+        os.remove(temp_path)
 
     print(f"Uploaded file: {file_id} ({file.filename}) -> {file_path}")
     return {"file_id": file_id, "species": species}

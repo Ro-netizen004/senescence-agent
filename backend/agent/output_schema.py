@@ -183,11 +183,15 @@ def _build_output_schema_inner(
     if tool_name == "run_deseq2":
         rows = result.get("results") or []
         sig = [r for r in rows if _to_float(r.get("padj"), 1) < 0.05]
+        # Display list is truncated to top 100; prefer the full count from the tool.
+        n_sig_total = result.get("n_significant_fdr_0_05")
+        if n_sig_total is None:
+            n_sig_total = len(sig)
         return {
             "headline": "",
             "stat_result": {
                 "test": "deseq2",
-                "n_significant_fdr_0_05": len(sig),
+                "n_significant_fdr_0_05": n_sig_total,
                 "conclusion": conclusion or _conclusion_from_state(state),
             },
             "population": {
@@ -201,7 +205,7 @@ def _build_output_schema_inner(
             "allowed_interpretation_level": inf.get("allowed_interpretation_level"),
             "inference_state": state.value,
             "key_observations": [
-                f"{len(sig)} gene(s) with padj < 0.05"
+                f"{n_sig_total} gene(s) with padj < 0.05"
                 if sig
                 else "0 genes with padj < 0.05"
             ],

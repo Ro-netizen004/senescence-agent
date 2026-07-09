@@ -11,7 +11,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
 
 
-REPORT_MODEL = os.getenv("REPORT_MODEL", os.getenv("GEMINI_MODEL", "gemini-2.5-flash"))
+REPORT_MODEL = os.getenv("REPORT_MODEL", os.getenv("GEMINI_MODEL", "gemini-flash-latest"))
 REPORT_API_KEY = os.getenv("REPORT_GEMINI_API_KEY", os.getenv("GEMINI_API_KEY"))
 
 MAX_DESEQ2_GENES_IN_REPORT = 15

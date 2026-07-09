@@ -100,10 +100,10 @@ def build_pseudobulk_matrix(
 
         # subset rows in matrix
         if sp.issparse(X):
-            sub_counts = X[sub.obs_names.get_indexer(idx), :]
+            sub_counts = X[ad.obs_names.get_indexer(idx), :]
             bulk = np.asarray(sub_counts.sum(axis=0)).flatten()
         else:
-            sub_counts = X[sub.obs_names.get_indexer(idx), :]
+            sub_counts = X[ad.obs_names.get_indexer(idx), :]
             bulk = sub_counts.sum(axis=0)
 
         # IMPORTANT: integer counts for DESeq2
