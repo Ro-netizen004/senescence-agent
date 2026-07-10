@@ -48,6 +48,18 @@ def run_deseq2_wrapper(
     # display list to the top 100 (otherwise the count is capped at 100).
     n_significant = int((df["padj"] < 0.05).sum()) if "padj" in df.columns else None
 
+    # Volcano plot from the FULL results (rendered inline by the frontend).
+    volcano_path = None
+    try:
+        from tools.run_deseq2 import generate_volcano
+        from tools.config import OUTPUT_DIR
+        yg = results.get("youngest_group") if isinstance(results, dict) else None
+        og = results.get("oldest_group") if isinstance(results, dict) else None
+        volcano_path = generate_volcano(df, OUTPUT_DIR, oldest=str(og or "comparison"),
+                                        youngest=str(yg or "reference"))
+    except Exception as e:  # never let a plot failure break the analysis
+        print(f"volcano generation failed: {e}")
+
     df = (
         df.head(100)
         .reset_index()
@@ -57,6 +69,8 @@ def run_deseq2_wrapper(
     output = {"results": df.to_dict(orient="records")}
     if n_significant is not None:
         output["n_significant_fdr_0_05"] = n_significant
+    if volcano_path:
+        output["plot_path"] = volcano_path
 
     youngest = oldest = None
     if isinstance(results, dict):

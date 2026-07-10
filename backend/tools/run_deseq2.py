@@ -115,3 +115,45 @@ def run_deseq2_pseudobulk(
         "youngest_group": youngest_label,
         "oldest_group": oldest_label
     }
+
+
+def generate_volcano(results_df, out_dir, oldest="comparison", youngest="reference",
+                     filename="volcano.png"):
+    """Volcano plot from a DESeq2 results frame (index=gene; cols log2FoldChange, padj).
+    Saves a PNG to out_dir and returns its path. Labels the strongest up/down genes."""
+    import os
+    import numpy as np
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    df = results_df.dropna(subset=["padj", "log2FoldChange"]).copy()
+    if df.empty:
+        return None
+    df["nlp"] = -np.log10(df["padj"].clip(lower=1e-300))
+    ymax = float(min(df["nlp"].max() * 1.05, 320)) or 1.0
+    df["nlp"] = df["nlp"].clip(upper=ymax)
+    sig = df["padj"] < 0.05
+    up = sig & (df["log2FoldChange"] > 0)
+    dn = sig & (df["log2FoldChange"] < 0)
+    n_sig = int(sig.sum())
+
+    plt.figure(figsize=(7, 5.5), dpi=150)
+    plt.scatter(df.loc[~sig, "log2FoldChange"], df.loc[~sig, "nlp"], s=6, c="#CAD2D8", alpha=0.5, linewidths=0, label="not significant")
+    plt.scatter(df.loc[up, "log2FoldChange"], df.loc[up, "nlp"], s=8, c="#006747", alpha=0.7, linewidths=0, label=f"up in {oldest}")
+    plt.scatter(df.loc[dn, "log2FoldChange"], df.loc[dn, "nlp"], s=8, c="#B85042", alpha=0.7, linewidths=0, label=f"down in {oldest}")
+    plt.axhline(-np.log10(0.05), ls="--", c="#7E96A0", lw=1)
+    for g in list(df[up].sort_values("padj").head(4).index) + list(df[dn].sort_values("padj").head(4).index):
+        row = df.loc[g]
+        plt.annotate(str(g), (row["log2FoldChange"], row["nlp"]), fontsize=8.5, fontweight="bold",
+                     color="#2B3B40", textcoords="offset points", xytext=(4, 3),
+                     bbox=dict(boxstyle="round,pad=0.1", fc="white", ec="none", alpha=0.8))
+    plt.xlabel(f"log2 fold change  ({oldest} vs {youngest})", fontsize=11)
+    plt.ylabel("-log10 adjusted p-value", fontsize=11)
+    plt.title(f"Differential expression volcano\n{n_sig:,} genes at FDR < 0.05", fontsize=12, fontweight="bold", color="#006747")
+    plt.legend(loc="upper center", fontsize=8, frameon=True, framealpha=0.9, markerscale=2)
+    plt.tight_layout()
+    path = os.path.join(out_dir, filename)
+    plt.savefig(path, dpi=150, bbox_inches="tight")
+    plt.close()
+    return path
