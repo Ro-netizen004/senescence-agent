@@ -166,6 +166,9 @@ def _render_umap(schema: dict) -> str:
 def _render_annotations(schema: dict) -> str:
     metrics = schema.get("metrics") or {}
     annotations = metrics.get("cluster_annotations") or {}
+    predicted = bool(metrics.get("predicted"))
+    confidence = metrics.get("cluster_confidence") or {}
+    markers = metrics.get("cluster_markers") or {}
     obs = schema.get("key_observations") or []
 
     total = None
@@ -173,17 +176,36 @@ def _render_annotations(schema: dict) -> str:
         if "total_clusters=" in o:
             total = o.split("=")[1]
 
+    heading = "Cluster Cell Types (predicted)" if predicted else "Cluster Cell Types"
     lines = [
-        f"### Cluster Cell Types",
+        f"### {heading}",
         "",
         f"**{total or len(annotations)}** clusters identified.",
         "",
-        "| Cluster | Dominant Cell Type |",
-        "|---------|-------------------|",
     ]
 
-    for cluster_id, cell_type in sorted(annotations.items(), key=lambda x: int(x[0]) if x[0].isdigit() else 999):
-        lines.append(f"| {cluster_id} | {cell_type} |")
+    def _sort_key(item):
+        return int(item[0]) if str(item[0]).isdigit() else 999
+
+    if predicted:
+        lines.append("| Cluster | Predicted Cell Type | Confidence | Supporting markers |")
+        lines.append("|---------|--------------------|-----------|--------------------|")
+        for cluster_id, cell_type in sorted(annotations.items(), key=_sort_key):
+            conf = confidence.get(cluster_id)
+            conf_str = f"{float(conf):.2f}" if conf is not None else "—"
+            marker_str = ", ".join(markers.get(cluster_id, [])) or "—"
+            lines.append(f"| {cluster_id} | {cell_type} | {conf_str} | {marker_str} |")
+        lines.append("")
+        lines.append(
+            "> Cell types are **predicted from cluster marker genes** (the dataset "
+            "carried no annotations) and are descriptive labels, not validated "
+            "claims. Clusters with no confident marker match are shown as `unknown`."
+        )
+    else:
+        lines.append("| Cluster | Dominant Cell Type |")
+        lines.append("|---------|-------------------|")
+        for cluster_id, cell_type in sorted(annotations.items(), key=_sort_key):
+            lines.append(f"| {cluster_id} | {cell_type} |")
 
     return "\n".join(lines)
 
@@ -306,12 +328,36 @@ def _render_deseq2(schema: dict) -> str:
 
     lines = ["### Differential Expression (DESeq2)", ""]
 
+    # Gate 2: result-plausibility caution (design was valid, but the numbers look
+    # like a technical artifact). Rendered up top so it can't be missed.
+    plaus = schema.get("result_plausibility") or {}
+    if plaus.get("verdict") == "suspect":
+        lines.append(
+            "> ⚠️ **These results look like a technical artifact, not real biology.** "
+            "The test is statistically valid (design passed the admissibility check), "
+            "but the effect sizes are implausible:"
+        )
+        for reason in plaus.get("reasons", []):
+            lines.append(f"> - {reason}")
+        lines.append(
+            "> \n> Typical fix: apply log2 fold-change shrinkage, filter low-count genes "
+            "more strictly, and check for a library-size / batch difference between the "
+            "groups before trusting these genes."
+        )
+        lines.append("")
+
     if state == InferenceState.NOT_SIGNIFICANT.value or n_sig == 0:
         lines.append(f"**No genes** passed FDR < 0.05 for {cell_type} ({oldest} vs {youngest}).")
         lines.append("")
         lines.append("Top ranked genes below are **exploratory only**.")
     elif state == InferenceState.LOW_POWER.value:
         lines.append(f"**{n_sig} gene(s)** with padj < 0.05 for {cell_type} -- but low sample count (exploratory).")
+    elif plaus.get("verdict") == "suspect":
+        lines.append(
+            f"**{n_sig} gene(s)** reached padj < 0.05 for {cell_type} ({oldest} vs {youngest}), "
+            f"but this result is flagged as a likely **technical artifact** (see caution above) "
+            f"-- reported as **exploratory only**, not a valid finding."
+        )
     else:
         lines.append(f"**{n_sig} gene(s)** with padj < 0.05 for {cell_type} ({oldest} vs {youngest}).")
     lines.append("")
@@ -323,7 +369,7 @@ def _render_deseq2(schema: dict) -> str:
     if top_genes:
         lines.append("| Gene | log2FC | padj |")
         lines.append("|------|--------|------|")
-        for row in top_genes[:10]:
+        for row in top_genes[:100]:
             gene = row.get("gene", "?")
             lfc = _fmt(row.get("log2FoldChange"))
             padj = _fmt(row.get("padj"))
@@ -331,6 +377,11 @@ def _render_deseq2(schema: dict) -> str:
         lines.append("")
 
     lines.append(f"> Positive log2FC = higher expression in {oldest} group. Pseudobulk aggregation across samples.")
+
+    dl = schema.get("download_url")
+    if dl:
+        lines.append("")
+        lines.append(f"[⬇ Download all results (CSV)]({dl})")
 
     return "\n".join(lines)
 

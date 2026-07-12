@@ -5,6 +5,68 @@ import pandas as pd
 from pydeseq2.dds import DeseqDataSet
 from pydeseq2.ds import DeseqStats
 
+# ── Gate 2: result-plausibility thresholds ──────────────────────────────────
+# The admissibility gate checks the *design*; this checks whether the *result*
+# has the fingerprints of a technical artifact rather than real biology.
+_EXTREME_LFC = 8.0            # |log2FC| > 8 (256-fold) is biologically implausible
+_IMPLAUSIBLE_MEDIAN_LFC = 5.0  # typical hit > 32-fold => effect sizes look technical
+_EXTREME_FRAC_WARN = 0.30      # >30% of hits extreme => suspect
+_DIRECTION_SKEW_WARN = 0.90    # >90% of hits one direction => systematic difference
+_MIN_SIG_FOR_CHECK = 20        # too few hits to judge skew/fraction reliably
+
+
+def assess_de_plausibility(results_df) -> dict:
+    """Flag DESeq2 results whose effect sizes look like a technical artifact
+    (implausibly large fold-changes, or a near-uniform direction — the signature
+    of library-size / low-count imbalance between groups). Does NOT block: the
+    test may be statistically valid; this only cautions on interpretation.
+    """
+    df = results_df.dropna(subset=["padj", "log2FoldChange"])
+    sig = df[df["padj"] < 0.05]
+    n = int(len(sig))
+    if n == 0:
+        return {"verdict": "ok", "n_significant": 0, "reasons": []}
+
+    lfc = sig["log2FoldChange"].astype(float)
+    n_extreme = int((lfc.abs() > _EXTREME_LFC).sum())
+    frac_extreme = n_extreme / n
+    n_up = int((lfc > 0).sum())
+    n_down = int((lfc < 0).sum())
+    skew = max(n_up, n_down) / n
+    median_abs = float(lfc.abs().median())
+
+    reasons = []
+    if n >= _MIN_SIG_FOR_CHECK and median_abs > _IMPLAUSIBLE_MEDIAN_LFC:
+        reasons.append(
+            f"the typical significant gene has |log2FC| = {median_abs:.1f} "
+            f"(~{2 ** median_abs:,.0f}-fold); effect sizes this large across many "
+            f"genes are usually a low-count / library-size artifact, not real regulation"
+        )
+    if n >= _MIN_SIG_FOR_CHECK and frac_extreme > _EXTREME_FRAC_WARN:
+        reasons.append(
+            f"{n_extreme}/{n} significant genes ({frac_extreme:.0%}) have "
+            f"|log2FC| > {_EXTREME_LFC:.0f}"
+        )
+    if n >= _MIN_SIG_FOR_CHECK and skew > _DIRECTION_SKEW_WARN:
+        direction = "down" if n_down > n_up else "up"
+        reasons.append(
+            f"{max(n_up, n_down)}/{n} significant genes ({skew:.0%}) move the same "
+            f"direction ({direction}); a near-uniform direction points to a systematic "
+            f"technical difference between the groups (e.g. library size or batch)"
+        )
+
+    return {
+        "verdict": "suspect" if reasons else "ok",
+        "n_significant": n,
+        "n_extreme_lfc": n_extreme,
+        "frac_extreme_lfc": round(frac_extreme, 3),
+        "pct_up": round(100 * n_up / n, 1),
+        "pct_down": round(100 * n_down / n, 1),
+        "median_abs_log2fc": round(median_abs, 2),
+        "extreme_lfc_threshold": _EXTREME_LFC,
+        "reasons": reasons,
+    }
+
 
 def _extract_months(age_str):
     """
@@ -17,65 +79,76 @@ def _extract_months(age_str):
 def run_deseq2_pseudobulk(
     count_df,
     meta_df,
-    design="age",
+    group_column="age",
+    reference_group=None,
+    comparison_group=None,
+    design=None,
     reference_age=None,
     comparison_age=None,
 ):
     """
-    DESeq2 pseudobulk with automatic young vs old contrast selection
+    Pseudobulk DESeq2 between two groups of a grouping variable.
+
+    The grouping variable can be anything sample-level: age, condition,
+    treatment, genotype, etc. When ``reference_group``/``comparison_group`` are
+    given they are used directly; otherwise — only for numeric age-like values
+    like '3m'/'24m' — the youngest and oldest groups are auto-selected.
+
+    Back-compat: ``design`` aliases ``group_column``; ``reference_age`` /
+    ``comparison_age`` alias ``reference_group`` / ``comparison_group``.
     """
 
+    group_column = design or group_column
+    reference_group = reference_group or reference_age
+    comparison_group = comparison_group or comparison_age
+
     meta_df = meta_df.copy()
-    meta_df["age"] = meta_df["age"].astype(str)
+    if group_column not in meta_df.columns:
+        raise ValueError(
+            f"Grouping column '{group_column}' not in pseudobulk metadata "
+            f"(have: {list(meta_df.columns)})."
+        )
 
-    # =========================
-    # Normalize age column
-    # =========================
-    meta_df["age_numeric"] = meta_df["age"].apply(_extract_months)
-
-    available_ages = meta_df["age"].dropna().unique().tolist()
+    # Copy the chosen grouping column into a fixed, formula-safe factor name so
+    # DESeq2's design never breaks on column names with spaces/dots.
+    meta_df["_group"] = meta_df[group_column].astype(str)
+    available_groups = meta_df["_group"].dropna().unique().tolist()
 
     # =========================
     # Detect or validate contrast
     # =========================
-    if reference_age and comparison_age:
-        # Explicit groups given (any labels, e.g. "control"/"senescent") -> no age parsing needed.
-        youngest_label = str(reference_age)
-        oldest_label = str(comparison_age)
+    if reference_group and comparison_group:
+        ref_label = str(reference_group)
+        comp_label = str(comparison_group)
 
-        missing = [
-            age for age in (youngest_label, oldest_label)
-            if age not in available_ages
-        ]
+        missing = [g for g in (ref_label, comp_label) if g not in available_groups]
         if missing:
             raise ValueError(
-                f"Requested age group(s) not found: {missing}. "
-                f"Available age groups: {available_ages}"
+                f"Requested group(s) not found in '{group_column}': {missing}. "
+                f"Available groups: {available_groups}"
             )
     else:
-        # Auto-detect youngest/oldest requires numeric ages like '3m', '24m'.
+        # Auto-detect only works for numeric age-like values ('3m', '24m').
+        meta_df["age_numeric"] = meta_df["_group"].apply(_extract_months)
         if meta_df["age_numeric"].isna().all():
-            raise ValueError("Could not parse age values (expected formats like '3m', '24m')")
+            raise ValueError(
+                f"Two groups to compare are required for '{group_column}'. "
+                f"Available groups: {available_groups}. "
+                f"Specify reference_group and comparison_group."
+            )
         youngest = meta_df["age_numeric"].min()
         oldest = meta_df["age_numeric"].max()
+        ref_label = meta_df.loc[meta_df["age_numeric"] == youngest, "_group"].iloc[0]
+        comp_label = meta_df.loc[meta_df["age_numeric"] == oldest, "_group"].iloc[0]
 
-        youngest_label = meta_df.loc[
-            meta_df["age_numeric"] == youngest, "age"
-        ].iloc[0]
-
-        oldest_label = meta_df.loc[
-            meta_df["age_numeric"] == oldest, "age"
-        ].iloc[0]
-
-    print(f"[DESeq2] Youngest group: {youngest_label}")
-    print(f"[DESeq2] Oldest group: {oldest_label}")
+    print(f"[DESeq2] grouping variable: {group_column}")
+    print(f"[DESeq2] reference group: {ref_label}")
+    print(f"[DESeq2] comparison group: {comp_label}")
 
     # =========================
-    # Filter to only young + old
+    # Filter to only the two contrast groups
     # =========================
-    keep_samples = meta_df[
-        meta_df["age"].isin([youngest_label, oldest_label])
-    ].index
+    keep_samples = meta_df[meta_df["_group"].isin([ref_label, comp_label])].index
 
     count_df = count_df.loc[keep_samples]
     meta_df = meta_df.loc[keep_samples]
@@ -93,17 +166,17 @@ def run_deseq2_pseudobulk(
     dds = DeseqDataSet(
         counts=count_df,
         metadata=meta_df,
-        design_factors=design
+        design_factors="_group"
     )
 
     dds.deseq2()
 
     # =========================
-    # Proper contrast (IMPORTANT FIX)
+    # Proper contrast: positive log2FC = higher in the comparison group.
     # =========================
     stat_res = DeseqStats(
         dds,
-        contrast=[design, oldest_label, youngest_label]
+        contrast=["_group", comp_label, ref_label]
     )
 
     stat_res.summary()
@@ -112,8 +185,12 @@ def run_deseq2_pseudobulk(
 
     return {
         "results": results,
-        "youngest_group": youngest_label,
-        "oldest_group": oldest_label
+        "group_column": group_column,
+        "reference_group": ref_label,
+        "comparison_group": comp_label,
+        # Legacy keys (kept so existing callers/volcano labels keep working).
+        "youngest_group": ref_label,
+        "oldest_group": comp_label,
     }
 
 

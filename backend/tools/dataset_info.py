@@ -101,6 +101,19 @@ def format_dataset_context(summary: dict) -> str:
     else:
         lines.append("- Sample column: not detected (statistical testing will fail)")
 
+    # Grouping variables available for differential-expression contrasts.
+    group_columns = profile.get("group_columns") or []
+    if group_columns:
+        parts = []
+        for gc in group_columns[:6]:
+            vals = ", ".join(map(str, (gc.get("values") or [])[:8]))
+            parts.append(f"{gc.get('column')} [{vals}]")
+        lines.append("- Grouping variables (for DESeq2 contrasts): " + " | ".join(parts))
+        lines.append(
+            "  → For differential expression, pass group_column + reference_group + "
+            "comparison_group using values shown above."
+        )
+
     meta = summary.get("metadata_status")
     if isinstance(meta, dict):
         lines.append(f"- Metadata check: {meta.get('status', 'unknown')}")

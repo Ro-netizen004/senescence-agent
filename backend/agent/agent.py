@@ -1,3 +1,5 @@
+import runtime_io  # noqa: F401  — reconfigures stdout/stderr to UTF-8 on import (must be first)
+
 import os
 import json
 import scanpy as sc

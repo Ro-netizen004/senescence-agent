@@ -8,6 +8,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 from agent.intent_router import (
     _is_bare_pvalue_request,
+    _parse_deseq2_template,
+    _resolve_group_pair,
     _wants_cluster_annotations,
     _wants_explicit_senescence_test,
     _wants_umap,
@@ -45,10 +47,32 @@ class _FakeObs:
 class _FakeAdata:
     def __init__(self, cell_types):
         self.obs = _FakeObs(cell_types)
+        # route() reads adata.uns.get("dataset_profile"); a real AnnData always
+        # has a .uns mapping, so the double must provide one too.
+        self.uns = {}
 
 
 KIDNEY_TYPES = ["T cell", "macrophage", "mesangial cell"]
 FAKE = _FakeAdata(KIDNEY_TYPES)
+
+
+class _FakeAdataWithProfile(_FakeAdata):
+    """Fake with a dataset_profile carrying grouping columns (condition dataset)."""
+
+    def __init__(self, cell_types, profile):
+        super().__init__(cell_types)
+        self.uns = {"dataset_profile": profile}
+
+
+CONDITION_PROFILE = {
+    "age_column": None,
+    "group_columns": [
+        {"column": "condition", "values": ["CTRL", "ETO", "IR", "RS"], "n_levels": 4},
+    ],
+    "primary_group_column": "condition",
+}
+HEPATO_TYPES = ["hepatocyte", "B cell", "endothelial cell"]
+CONDITION_FAKE = _FakeAdataWithProfile(HEPATO_TYPES, CONDITION_PROFILE)
 
 
 class TestIntentRouter(unittest.TestCase):
@@ -99,6 +123,42 @@ class TestIntentRouter(unittest.TestCase):
         d = route("what is senmayo score", FAKE)
         self.assertIsNone(d.workflow_id)
         self.assertIn("SenMayo", d.concept_reply or "")
+
+    # ── Generalized DESeq2: template + grouping variable ──────────────────
+    def test_resolve_group_pair(self):
+        col, ref, comp = _resolve_group_pair("ctrl", "eto", CONDITION_PROFILE)
+        self.assertEqual(col, "condition")
+        self.assertEqual((ref, comp), ("CTRL", "ETO"))  # dataset casing preserved
+        self.assertIsNone(_resolve_group_pair("CTRL", "nope", CONDITION_PROFILE))
+
+    def test_parse_deseq2_template(self):
+        parsed = _parse_deseq2_template(
+            "Run differential expression on hepatocyte between CTRL and ETO",
+            CONDITION_FAKE, CONDITION_PROFILE,
+        )
+        self.assertEqual(parsed["cell_type"], "hepatocyte")
+        self.assertEqual(parsed["group_column"], "condition")
+        self.assertEqual(parsed["reference_group"], "CTRL")
+        self.assertEqual(parsed["comparison_group"], "ETO")
+
+    def test_route_deseq2_template_condition(self):
+        d = route(
+            "Run differential expression on hepatocyte between CTRL and ETO",
+            CONDITION_FAKE,
+        )
+        self.assertEqual(d.workflow_id, "deseq2")
+        args = d.tool_args["run_deseq2"]
+        self.assertEqual(args["cell_type"], "hepatocyte")
+        self.assertEqual(args["group_column"], "condition")
+        self.assertEqual(args["reference_group"], "CTRL")
+        self.assertEqual(args["comparison_group"], "ETO")
+        self.assertIn("condition", d.reply_suffix or "")
+
+    def test_route_deseq2_underspecified_clarifies(self):
+        d = route("run differential expression", CONDITION_FAKE)
+        self.assertIsNone(d.workflow_id)
+        self.assertIn("template", (d.concept_reply or "").lower())
+        self.assertIn("condition", d.concept_reply or "")
 
 
 if __name__ == "__main__":

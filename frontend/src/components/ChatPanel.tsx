@@ -3,6 +3,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Components } from "react-markdown";
 import type { ToolCallLog } from "../App";
+import { API_BASE } from "../config";
 
 /* ── Restrained scientific Markdown renderer ─────────────────────────── */
 
@@ -87,6 +88,22 @@ function Badge({ label }: { label: string }) {
 }
 
 const mdComponents: Components = {
+  // Backend artifact links (/plots/, /reports/) point at the API host and download.
+  a: ({ href, children }) => {
+    const raw = href || "";
+    const backend = raw.startsWith("/plots/") || raw.startsWith("/reports/");
+    return (
+      <a
+        href={backend ? `${API_BASE}${raw}` : raw}
+        target="_blank"
+        rel="noreferrer"
+        {...(backend ? { download: true } : {})}
+        className="inline-flex items-center gap-1 font-medium text-indigo-600 underline decoration-indigo-300 underline-offset-2 hover:text-indigo-800"
+      >
+        {children}
+      </a>
+    );
+  },
   h3: ({ children }) => (
     <h3 className="flex items-center gap-2 text-[15px] font-semibold text-slate-900 tracking-tight mt-4 mb-2 first:mt-0">
       <span className="inline-block h-3 w-1 rounded-full bg-gradient-to-b from-indigo-500 to-violet-500" />

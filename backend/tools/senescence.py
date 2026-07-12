@@ -106,12 +106,23 @@ def senescence_score(adata, species: str = "mouse"):
 
     top_cluster = cluster_scores.index[0]
 
-    # Map ALL clusters → most common cell type
-    cluster_to_celltype = {}
+    # Map ALL clusters → most common cell type. Prefer real annotations; if the
+    # dataset has none, fall back to marker-based predicted cell types so the
+    # per-cluster scores read as biology instead of bare cluster numbers.
+    from tools.cell_type_annotation import ensure_predicted_cell_types, PREDICTED_COL
+    ensure_predicted_cell_types(adata, species)
+
+    label_col = None
     if "cell_ontology_class" in adata.obs.columns:
+        label_col = "cell_ontology_class"
+    elif PREDICTED_COL in adata.obs.columns:
+        label_col = PREDICTED_COL
+
+    cluster_to_celltype = {}
+    if label_col is not None:
         cluster_to_celltype = (
             adata.obs
-            .groupby("leiden", observed=True)["cell_ontology_class"]
+            .groupby("leiden", observed=True)[label_col]
             .agg(lambda x: x.value_counts().index[0])
             .to_dict()
         )
@@ -136,18 +147,36 @@ def senescence_score(adata, species: str = "mouse"):
         "plot_path": filepath
     }
 
-def get_cluster_annotations(adata) -> dict:
+def get_cluster_annotations(adata, species: str = "mouse") -> dict:
     """
-    Return:
-    - dominant cell type per cluster
-    - full distribution per cluster (safe serialization)
+    Return the dominant cell type per Leiden cluster plus the full per-cluster
+    cell-type distribution.
+
+    When the dataset ships real annotations (``cell_ontology_class``) those are
+    used. When it does not, cell types are **predicted** from cluster marker
+    genes (deterministic, descriptive-only) so the clusters get biological names
+    instead of bare numbers. Predicted results carry ``predicted=True`` plus the
+    supporting marker genes and a confidence per cluster.
     """
 
     if "leiden" not in adata.obs.columns:
         return {"error": "No leiden clustering found. Run pipeline first."}
 
+    # No real labels → predict from markers.
     if "cell_ontology_class" not in adata.obs.columns:
-        return {"error": "No cell type annotations found in dataset."}
+        from tools.cell_type_annotation import annotate_clusters_by_markers, PREDICTED_COL
+
+        ann = annotate_clusters_by_markers(adata, species)
+        if ann.get("error"):
+            return ann
+
+        # Provide the same distribution shape callers expect (trivial here: each
+        # cluster maps to a single predicted type at 100%).
+        distribution = {
+            cid: {label: 1.0} for cid, label in ann["cluster_annotations"].items()
+        }
+        ann["cluster_distributions"] = distribution
+        return ann
 
     dominant = {}
     distribution = {}
@@ -177,5 +206,7 @@ def get_cluster_annotations(adata) -> dict:
     return {
         "cluster_annotations": dominant,
         "cluster_distributions": distribution,
-        "total_clusters": len(dominant)
+        "total_clusters": len(dominant),
+        "predicted": False,
+        "method": "dataset_labels",
     }

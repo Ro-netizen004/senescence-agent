@@ -1,0 +1,218 @@
+{
+  "dataset": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+  "cell_type": "B cell",
+  "arm": "governed",
+  "mode": "random",
+  "prompt": "Run differential expression on B cell between 3m and 24m",
+  "n_perm_requested": 5,
+  "n_perm_completed": 5,
+  "n_perm_ran_deseq2": 5,
+  "n_perm_blocked": 0,
+  "n_perm_routing_miss": 0,
+  "mean_fp_genes": 46.6,
+  "false_discovery_rate": 0.0,
+  "exploratory_fp_rate": 0.0,
+  "truth": "null (random mouse-to-group split); expected DE genes = 0",
+  "permutations": [
+    {
+      "perm": 0,
+      "seed": 0,
+      "meta": {
+        "cell_type": "B cell",
+        "mode": "random",
+        "stratum": "random split",
+        "fake_young_mice": [
+          "18_53_M",
+          "24_59_M",
+          "24_60_M",
+          "3_10_M",
+          "3_39_F",
+          "3_9_M"
+        ],
+        "fake_old_mice": [
+          "18_45_M",
+          "24_58_M",
+          "24_61_M",
+          "3_11_M",
+          "3_38_F",
+          "3_8_M"
+        ],
+        "n_mice": 12,
+        "n_cells": 2598
+      },
+      "skipped": false,
+      "ran_deseq2": true,
+      "blocked": false,
+      "n_sig": 49,
+      "inference_state": "DESCRIPTIVE_ONLY",
+      "false_discovery": false,
+      "exploratory_fp": false,
+      "n_samples": 12,
+      "samples_per_age": {
+        "24m": 6,
+        "3m": 6
+      },
+      "error": null
+    },
+    {
+      "perm": 1,
+      "seed": 1,
+      "meta": {
+        "cell_type": "B cell",
+        "mode": "random",
+        "stratum": "random split",
+        "fake_young_mice": [
+          "18_47_F",
+          "24_59_M",
+          "3_10_M",
+          "3_38_F",
+          "3_39_F",
+          "3_9_M"
+        ],
+        "fake_old_mice": [
+          "18_45_M",
+          "18_53_M",
+          "24_60_M",
+          "24_61_M",
+          "3_11_M",
+          "3_8_M"
+        ],
+        "n_mice": 12,
+        "n_cells": 2580
+      },
+      "skipped": false,
+      "ran_deseq2": true,
+      "blocked": false,
+      "n_sig": 40,
+      "inference_state": "DESCRIPTIVE_ONLY",
+      "false_discovery": false,
+      "exploratory_fp": false,
+      "n_samples": 12,
+      "samples_per_age": {
+        "24m": 6,
+        "3m": 6
+      },
+      "error": null
+    },
+    {
+      "perm": 2,
+      "seed": 2,
+      "meta": {
+        "cell_type": "B cell",
+        "mode": "random",
+        "stratum": "random split",
+        "fake_young_mice": [
+          "18_45_M",
+          "18_53_M",
+          "24_61_M",
+          "3_10_M",
+          "3_38_F",
+          "3_39_F"
+        ],
+        "fake_old_mice": [
+          "24_58_M",
+          "24_59_M",
+          "24_60_M",
+          "3_11_M",
+          "3_8_M",
+          "3_9_M"
+        ],
+        "n_mice": 12,
+        "n_cells": 2598
+      },
+      "skipped": false,
+      "ran_deseq2": true,
+      "blocked": false,
+      "n_sig": 74,
+      "inference_state": "DESCRIPTIVE_ONLY",
+      "false_discovery": false,
+      "exploratory_fp": false,
+      "n_samples": 12,
+      "samples_per_age": {
+        "24m": 6,
+        "3m": 6
+      },
+      "error": null
+    },
+    {
+      "perm": 3,
+      "seed": 3,
+      "meta": {
+        "cell_type": "B cell",
+        "mode": "random",
+        "stratum": "random split",
+        "fake_young_mice": [
+          "18_45_M",
+          "18_47_F",
+          "18_53_M",
+          "3_38_F",
+          "3_8_M",
+          "3_9_M"
+        ],
+        "fake_old_mice": [
+          "24_58_M",
+          "24_59_M",
+          "24_60_M",
+          "24_61_M",
+          "3_10_M",
+          "3_39_F"
+        ],
+        "n_mice": 12,
+        "n_cells": 2604
+      },
+      "skipped": false,
+      "ran_deseq2": true,
+      "blocked": false,
+      "n_sig": 38,
+      "inference_state": "DESCRIPTIVE_ONLY",
+      "false_discovery": false,
+      "exploratory_fp": false,
+      "n_samples": 12,
+      "samples_per_age": {
+        "24m": 6,
+        "3m": 6
+      },
+      "error": null
+    },
+    {
+      "perm": 4,
+      "seed": 4,
+      "meta": {
+        "cell_type": "B cell",
+        "mode": "random",
+        "stratum": "random split",
+        "fake_young_mice": [
+          "18_45_M",
+          "18_47_F",
+          "18_53_M",
+          "3_10_M",
+          "3_38_F",
+          "3_9_M"
+        ],
+        "fake_old_mice": [
+          "24_58_M",
+          "24_59_M",
+          "24_60_M",
+          "24_61_M",
+          "3_11_M",
+          "3_39_F"
+        ],
+        "n_mice": 12,
+        "n_cells": 2602
+      },
+      "skipped": false,
+      "ran_deseq2": true,
+      "blocked": false,
+      "n_sig": 32,
+      "inference_state": "DESCRIPTIVE_ONLY",
+      "false_discovery": false,
+      "exploratory_fp": false,
+      "n_samples": 12,
+      "samples_per_age": {
+        "24m": 6,
+        "3m": 6
+      },
+      "error": null
+    }
+  ]
+}

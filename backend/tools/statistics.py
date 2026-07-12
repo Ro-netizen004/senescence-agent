@@ -22,24 +22,43 @@ MIN_CELLS_WARNING = 20
 def test_senescence_difference(
     adata,
     cell_type: str,
-    age_column: str = "age",
+    group_column: str = "age",
     cell_type_column: str = "cell_ontology_class",
     sample_column: str = "sample_id",
-    reference_age: str = "3m",
-    comparison_age: str = "24m",
+    reference_group: str = None,
+    comparison_group: str = None,
     species: str = "mouse",
+    age_column: str = None,
+    reference_age: str = None,
+    comparison_age: str = None,
 ):
     """
-    Compare SenMayo scores between two age groups using Mann-Whitney U on
-    per-sample median scores (biological replicates), not individual cells.
+    Compare SenMayo scores between two groups of a grouping variable (age,
+    condition, treatment, ...) using Mann-Whitney U on per-sample median scores
+    (biological replicates), not individual cells.
+
+    Back-compat: ``age_column`` / ``reference_age`` / ``comparison_age`` alias
+    ``group_column`` / ``reference_group`` / ``comparison_group``.
     """
+
+    group_column = age_column or group_column
+    reference_group = reference_group or reference_age
+    comparison_group = comparison_group or comparison_age
 
     if not cell_type:
         return {"error": "cell_type is required (e.g. 'T cell', 'macrophage')."}
 
-    if age_column not in adata.obs.columns:
+    if not reference_group or not comparison_group:
         return {
-            "error": f"Column '{age_column}' not found. Available: {list(adata.obs.columns)}"
+            "error": (
+                f"Two groups to compare are required (reference_group and comparison_group) "
+                f"for grouping variable '{group_column}'."
+            )
+        }
+
+    if group_column not in adata.obs.columns:
+        return {
+            "error": f"Column '{group_column}' not found. Available: {list(adata.obs.columns)}"
         }
 
     if cell_type_column not in adata.obs.columns:
@@ -68,20 +87,20 @@ def test_senescence_difference(
     if "senescence_score" not in adata.obs.columns:
         _senescence_score(adata, species)
 
-    ref = str(reference_age)
-    comp = str(comparison_age)
+    ref = str(reference_group)
+    comp = str(comparison_group)
 
     subset = adata[adata.obs[cell_type_column].astype(str) == resolved_cell_type].copy()
 
     sample_rows = []
     for sample_id in subset.obs[resolved_sample_col].astype(str).unique():
         cells = subset[subset.obs[resolved_sample_col].astype(str) == sample_id]
-        age = str(cells.obs[age_column].iloc[0])
-        if age not in (ref, comp):
+        grp = str(cells.obs[group_column].iloc[0])
+        if grp not in (ref, comp):
             continue
         sample_rows.append({
             "sample_id": sample_id,
-            "age": age,
+            "group": grp,
             "median_senescence_score": float(cells.obs["senescence_score"].median()),
             "n_cells": int(cells.shape[0]),
         })
@@ -89,15 +108,15 @@ def test_senescence_difference(
     if not sample_rows:
         return {
             "error": (
-                f"No samples found for {resolved_cell_type} at ages {ref} or {comp}. "
-                f"Available ages: {sorted(subset.obs[age_column].astype(str).unique().tolist())}"
+                f"No samples found for {resolved_cell_type} in {group_column} groups {ref} or {comp}. "
+                f"Available groups: {sorted(subset.obs[group_column].astype(str).unique().tolist())}"
             ),
         }
 
-    ref_scores = [r["median_senescence_score"] for r in sample_rows if r["age"] == ref]
-    comp_scores = [r["median_senescence_score"] for r in sample_rows if r["age"] == comp]
-    ref_cells = sum(r["n_cells"] for r in sample_rows if r["age"] == ref)
-    comp_cells = sum(r["n_cells"] for r in sample_rows if r["age"] == comp)
+    ref_scores = [r["median_senescence_score"] for r in sample_rows if r["group"] == ref]
+    comp_scores = [r["median_senescence_score"] for r in sample_rows if r["group"] == comp]
+    ref_cells = sum(r["n_cells"] for r in sample_rows if r["group"] == ref)
+    comp_cells = sum(r["n_cells"] for r in sample_rows if r["group"] == comp)
 
     warnings = []
     inference_tier = "inferential"
@@ -106,12 +125,15 @@ def test_senescence_difference(
         return {
             "error": "Insufficient biological replicates for testing.",
             "cell_type": resolved_cell_type,
-            "reference_age": ref,
-            "comparison_age": comp,
+            "group_column": group_column,
+            "reference_group": ref,
+            "comparison_group": comp,
+            "reference_age": ref,       # legacy alias
+            "comparison_age": comp,     # legacy alias
             "n_samples": {"reference": len(ref_scores), "comparison": len(comp_scores)},
             "n_cells": {"reference": ref_cells, "comparison": comp_cells},
             "sample_column": resolved_sample_col,
-            "hint": f"Need at least {MIN_SAMPLES_PER_GROUP} samples per age group.",
+            "hint": f"Need at least {MIN_SAMPLES_PER_GROUP} samples per group.",
         }
 
     if (
@@ -144,8 +166,11 @@ def test_senescence_difference(
         "unit": "biological_replicate",
         "aggregation": "median_senescence_score_per_sample",
         "cell_type": resolved_cell_type,
-        "reference_age": ref,
-        "comparison_age": comp,
+        "group_column": group_column,
+        "reference_group": ref,
+        "comparison_group": comp,
+        "reference_age": ref,       # legacy alias
+        "comparison_age": comp,     # legacy alias
         "sample_column": resolved_sample_col,
         "n_samples": {
             "reference": len(ref_scores),

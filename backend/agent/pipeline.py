@@ -22,6 +22,79 @@ _SAMPLE_CANDIDATES = [
     "mouse.id", "mouse_id", "donor", "participant_id", "individual", "batch",
 ]
 
+# Columns that are never a biological grouping variable for a contrast: cell
+# identifiers, cell-type labels, expression-derived clusters, and QC metrics.
+_NON_GROUP_COLS = frozenset({
+    "cell", "cell_id", "barcode", "index",
+    "cell_ontology_class", "cell_ontology_id", "cell_type", "celltype",
+    "free_annotation", "predicted_cell_type",
+    "leiden", "louvain", "clusters",
+    "n_genes", "n_counts", "n_genes_by_counts", "total_counts", "pct_counts_mt",
+    "senescence_score", "tissue",
+})
+
+# A grouping variable is a low-cardinality categorical column (>= 2, <= this).
+_MAX_GROUP_LEVELS = 12
+
+
+def _missing_like(value: str) -> bool:
+    return str(value).strip().lower() in ("", "nan", "none", "na", "unknown", "<na>")
+
+
+def _group_testable_levels(obs, sample_col, group_col) -> int:
+    """How many groups of ``group_col`` have >= 2 biological samples. A contrast
+    needs this >= 2 to be statistically testable."""
+    if not sample_col or sample_col not in obs.columns or group_col not in obs.columns:
+        return 0
+    sl = obs[[sample_col, group_col]].astype(str).drop_duplicates()
+    counts = sl.groupby(group_col)[sample_col].nunique()
+    return int((counts >= 2).sum())
+
+
+def _pick_primary_group(obs, sample_col, group_columns: list[dict]) -> str | None:
+    """Choose the default grouping variable. Prefer a *testable* grouping
+    (>= 2 samples in >= 2 groups), then a clean 2-level contrast, then more
+    samples — so a name-matched-but-untestable column (e.g. one sample per
+    condition) doesn't become the default over a usable one."""
+    if not group_columns:
+        return None
+
+    def score(gc: dict):
+        testable = _group_testable_levels(obs, sample_col, gc["column"])
+        return (testable >= 2, gc.get("n_levels") == 2, testable)
+
+    return max(group_columns, key=score)["column"]
+
+
+def _infer_group_columns(obs, sample_col, ct_col) -> list[dict]:
+    """Detect categorical columns usable as a case/control grouping variable for
+    differential expression (age, condition, treatment, genotype, sex, ...).
+
+    A column qualifies if it has 2.._MAX_GROUP_LEVELS distinct non-missing values
+    and — when a sample column exists — varies across samples (so pseudobulk
+    contrasts are possible). Returns one entry per column with its values.
+    """
+    groups = []
+    has_samples = bool(sample_col and sample_col in obs.columns)
+    for c in obs.columns:
+        if c == sample_col or c == ct_col:
+            continue
+        if str(c).lower() in _NON_GROUP_COLS:
+            continue
+        try:
+            vals = [v for v in obs[c].astype(str).unique().tolist() if not _missing_like(v)]
+        except Exception:
+            continue
+        if not (2 <= len(vals) <= _MAX_GROUP_LEVELS):
+            continue
+        if has_samples:
+            sl = obs[[sample_col, c]].astype(str).drop_duplicates(subset=[sample_col])
+            sl_levels = [v for v in sl[c].unique().tolist() if not _missing_like(v)]
+            if len(sl_levels) < 2:
+                continue
+        groups.append({"column": str(c), "values": sorted(vals), "n_levels": len(vals)})
+    return groups
+
 
 def _resolve_age_extremes(values: list) -> tuple:
     """Return (youngest, oldest, format_name) from a list of age value strings."""
@@ -56,6 +129,21 @@ def _infer_dataset_profile(adata, species: str) -> dict:
     if age_col:
         age_values = sorted(obs[age_col].astype(str).unique().tolist())
         youngest, oldest, age_format = _resolve_age_extremes(age_values)
+        if age_format == "unknown":
+            # A column named like age but whose values are not ages (e.g.
+            # 'control'/'senescent') is NOT the biological age axis. Drop the
+            # age semantics; it is still picked up as an ordinary grouping
+            # variable below, just without youngest/oldest ordering.
+            print(f"Column '{age_col}' has non-age values {age_values[:6]} — "
+                  f"treating as an ordinary grouping variable, not the age axis.")
+            age_col = None
+            youngest = oldest = age_format = None
+            age_values = []
+
+    group_columns = _infer_group_columns(obs, sample_col, ct_col)
+    # Primary grouping variable for a default contrast: age when present (keeps
+    # the aging-atlas behaviour), otherwise the best *testable* grouping column.
+    primary_group_column = age_col or _pick_primary_group(obs, sample_col, group_columns)
 
     profile = {
         "age_column": age_col,
@@ -66,10 +154,14 @@ def _infer_dataset_profile(adata, species: str) -> dict:
         "cell_type_column": ct_col,
         "sample_column": sample_col,
         "species": species,
+        "group_columns": group_columns,
+        "primary_group_column": primary_group_column,
     }
     print(f"Dataset profile: age_col={age_col} ({age_format}), "
           f"ct_col={ct_col}, sample_col={sample_col}, "
-          f"youngest={youngest}, oldest={oldest}")
+          f"youngest={youngest}, oldest={oldest}, "
+          f"group_columns={[g['column'] for g in group_columns]}, "
+          f"primary_group={primary_group_column}")
     return profile
 
 

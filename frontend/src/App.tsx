@@ -1,5 +1,6 @@
 import { useState, type ChangeEvent, type KeyboardEvent } from "react";
 import UploadPanel from "./components/UploadPanel";
+import ColumnRoles from "./components/ColumnRoles";
 import ChatPanel from "./components/ChatPanel";
 import Plots from "./components/Plots";
 import { API_BASE } from "./config";
@@ -208,7 +209,13 @@ export default function App() {
           </div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+        {fileId ? (
+          <div className="mb-6">
+            <ColumnRoles fileId={fileId} species={species} apiBase={API_BASE} />
+          </div>
+        ) : null}
+
+        <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)] lg:items-start">
           <UploadPanel
             fileId={fileId}
             fileName={fileName}

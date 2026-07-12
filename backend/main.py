@@ -1,3 +1,5 @@
+import runtime_io  # noqa: F401  — reconfigures stdout/stderr to UTF-8 on import (must be first)
+
 from fastapi import FastAPI, UploadFile, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -10,7 +12,9 @@ import scanpy as sc
 
 from agent.agent import run_agent
 from agent.report import generate_report, save_report_files
-from agent.cache import cache_adata
+from agent.cache import cache_adata, get_adata
+from agent.pipeline import ensure_pipeline
+from agent.column_roles import build_column_roles, apply_column_overrides
 from dataset_paths import persist_upload, resolve_dataset_path, ensure_uploads_dir
 from tools.dataset_info import build_dataset_summary
 
@@ -65,6 +69,28 @@ class ReportRequest(BaseModel):
     session_history: Optional[List[HistoryMessage]] = []
     tool_runs: Optional[List[ToolRunRecord]] = []
     plots: Optional[list[dict]] = []
+
+
+class ColumnOverrideRequest(BaseModel):
+    species: str = "mouse"
+    sample_column: Optional[str] = None
+    primary_group_column: Optional[str] = None
+    cell_type_column: Optional[str] = None
+    # Custom grouping: {"column": "condition", "groups": {"control": [...], "senescent": [...]}}
+    grouping: Optional[dict] = None
+
+
+def _load_and_profile(file_id: str, species: str):
+    """Load (or reuse) the dataset and ensure its profile is computed."""
+    adata = get_adata(file_id)
+    if adata is None:
+        file_path = resolve_dataset_path(file_id)
+        if not file_path:
+            raise HTTPException(status_code=404, detail="Dataset not found. Please upload again.")
+        adata = sc.read_h5ad(file_path)
+        cache_adata(file_id, adata)
+    ensure_pipeline(adata, species)
+    return adata
 
 # ── Upload ──────────────────────────────────────────────────────────────────
 @app.post("/upload")
@@ -214,6 +240,12 @@ async def health():
     return {
         "status": "ok",
         "gemini_configured": bool(os.getenv("GEMINI_API_KEY")),
+        # Bump this when you want to confirm a restart picked up new code.
+        "build": "2026-07-12-result-plausibility",
+        "features": [
+            "column_roles", "custom_grouping", "celltype_partial_match",
+            "result_plausibility_gate",
+        ],
     }
 
 
@@ -227,6 +259,22 @@ async def dataset_info(file_id: str, species: str = "mouse"):
     summary = build_dataset_summary(adata, species)
     cache_adata(file_id, adata)
     return summary
+
+
+@app.get("/dataset/{file_id}/columns")
+async def dataset_columns(file_id: str, species: str = "mouse"):
+    """AI-suggested column roles for the confirm-panel."""
+    adata = _load_and_profile(file_id, species)
+    return build_column_roles(adata)
+
+
+@app.post("/dataset/{file_id}/columns")
+async def set_dataset_columns(file_id: str, request: ColumnOverrideRequest):
+    """Apply user column-role overrides onto the (session-cached) profile."""
+    adata = _load_and_profile(file_id, request.species)
+    result = apply_column_overrides(adata, request.model_dump())
+    cache_adata(file_id, adata)  # keep the edited profile warm for this session
+    return build_column_roles(adata) | {"result": result}
 
 
 if __name__ == "__main__":

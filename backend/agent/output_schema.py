@@ -212,8 +212,10 @@ def _build_output_schema_inner(
             "forbidden_inference_flags": inf.get("forbidden_inference_flags", []),
             "interpretation": "not permitted",
             "metrics": {
-                "top_genes": rows[:10],
+                "top_genes": rows[:100],
             },
+            "result_plausibility": result.get("result_plausibility"),
+            "download_url": result.get("download_url"),
             "tool": tool_name,
         }
 
@@ -261,18 +263,29 @@ def _build_output_schema_inner(
         }
 
     if tool_name == "get_cluster_annotations":
+        predicted = bool(result.get("predicted"))
+        observations = [f"total_clusters={result.get('total_clusters')}"]
+        observations.append(f"method={result.get('method', 'dataset_labels')}")
+        if predicted:
+            observations.append(f"n_unknown={result.get('n_unknown', 0)}")
         return {
             "headline": "",
             "stat_result": None,
             "allowed_interpretation_level": "DESCRIPTIVE_ONLY",
             "inference_state": InferenceState.DESCRIPTIVE_ONLY.value,
-            "key_observations": [
-                f"total_clusters={result.get('total_clusters')}",
-            ],
+            "key_observations": observations,
             "interpretation": "not permitted",
             "metrics": {
                 "cluster_annotations": dict(
                     list((result.get("cluster_annotations") or {}).items())[:20]
+                ),
+                "predicted": predicted,
+                "method": result.get("method", "dataset_labels"),
+                "cluster_confidence": dict(
+                    list((result.get("cluster_confidence") or {}).items())[:20]
+                ),
+                "cluster_markers": dict(
+                    list((result.get("cluster_markers") or {}).items())[:20]
                 ),
             },
             "tool": tool_name,

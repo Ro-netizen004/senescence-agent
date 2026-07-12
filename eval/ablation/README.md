@@ -17,6 +17,23 @@ $env:PYTHONIOENCODING="utf-8"; .\backend\venv\Scripts\python.exe eval\ablation\n
 python eval/ablation/null_harness/run_null_sweep.py --n-perm 200 --top 3
 ```
 
+## `agent_null_harness/` — Result 1b: null harness on the **real agent**
+- `null_builder.py` — constructs fake 3m/24m nulls (homogeneous or random split).
+- `agent_null_sweep.py` — runs `run_agent()` per permutation; scores DESeq2 +
+  inference state (end-to-end, not isolated Wilcoxon/t-test).
+- `run_agent_null_sweep.py` — multi-tissue sweep; writes `agent_null_sweep_summary_*.csv/.md`.
+
+```
+# Quick smoke (1 cell type, 3 permutations, governed — no Gemini needed):
+python eval/ablation/agent_null_harness/agent_null_sweep.py --cell-type "fenestrated cell" --n-perm 3
+
+# One cell type, paper-scale:
+python eval/ablation/agent_null_harness/agent_null_sweep.py --cell-type "aortic endothelial cell" --n-perm 50
+
+# All tissues (top 1 cell type each):
+python eval/ablation/agent_null_harness/run_agent_null_sweep.py --n-perm 10 --top 1
+```
+
 ## `power_preservation/` — Result 2: governance preserves power
 - `power_preservation.py` — governed pseudobulk DE on GSE226225 (senescent vs
   control); shows it detects a real effect (7,613 genes, correct markers) vs

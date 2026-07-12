@@ -39,8 +39,11 @@ TOOLS = Tool(function_declarations=[
     FunctionDeclaration(
         name="get_cluster_annotations",
         description=(
-            "Returns mapping of clusters to most common cell types. "
-            "Used for identifying cell type composition of clusters."
+            "Returns the cell type of each Leiden cluster. Uses the dataset's own "
+            "annotations when present; otherwise PREDICTS the cell type of each "
+            "cluster from its marker genes (deterministic, descriptive-only). "
+            "Use this whenever the user asks to name, label, annotate, or identify "
+            "the cell types of clusters, or asks why the UMAP shows unlabeled clusters."
         ),
         parameters={
             "type": "object",
@@ -51,32 +54,35 @@ TOOLS = Tool(function_declarations=[
     FunctionDeclaration(
         name="run_deseq2",
         description=(
-            "Performs gene-level differential expression analysis using pseudobulk + DESeq2. "
-            "Requires a specific cell type. Compares age groups using sample-level aggregation. "
-            "Returns log2 fold changes, adjusted p-values, and ranked gene list."
+            "Performs gene-level differential expression using pseudobulk + DESeq2 for one "
+            "cell type, between two groups of a grouping variable (age, condition, treatment, "
+            "genotype, ...) via sample-level aggregation. Provide reference_group and "
+            "comparison_group naming exact values that exist in the dataset. For an aging "
+            "dataset the grouping variable is 'age' and the groups can be omitted to default "
+            "to youngest vs oldest. Returns log2 fold changes, adjusted p-values, ranked genes."
         ),
         parameters={
             "type": "object",
             "properties": {
                 "cell_type": {
                     "type": "string",
-                    "description": "Cell type to analyze (e.g., macrophage, T cell)"
+                    "description": "Cell type to analyze (e.g., macrophage, hepatocyte)"
+                },
+                "group_column": {
+                    "type": "string",
+                    "description": "Grouping variable column to compare on (e.g. 'condition', 'treatment', 'age'). Defaults to the dataset's primary grouping column."
+                },
+                "reference_group": {
+                    "type": "string",
+                    "description": "Reference/control group value (e.g. 'CTRL', '3m'). Must exist in group_column. If omitted for an age contrast, the youngest age is used."
+                },
+                "comparison_group": {
+                    "type": "string",
+                    "description": "Comparison group value (e.g. 'ETO', '24m'). Positive log2 fold change means higher expression in this group. If omitted for an age contrast, the oldest age is used."
                 },
                 "sample_column": {
                     "type": "string",
                     "description": "Sample ID column (default: sample_id)"
-                },
-                "age_column": {
-                    "type": "string",
-                    "description": "Age column (default: age)"
-                },
-                "reference_age": {
-                    "type": "string",
-                    "description": "Reference/control age group for the contrast, e.g. '3m'. If omitted, the youngest age is used."
-                },
-                "comparison_age": {
-                    "type": "string",
-                    "description": "Comparison age group for the contrast, e.g. '18m' or '24m'. Positive log2 fold change means higher expression in this group. If omitted, the oldest age is used."
                 }
             },
             "required": ["cell_type"]

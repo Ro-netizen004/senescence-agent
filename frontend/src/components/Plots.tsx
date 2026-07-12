@@ -37,8 +37,9 @@ function describePlot(plot: Plot) {
 
   if (raw.includes("umap")) {
     return {
-      title: "Cell Cluster UMAP",
-      description: "Two-dimensional UMAP embedding colored by Leiden cluster.",
+      title: "Cell Type UMAP",
+      description:
+        "Two-dimensional UMAP embedding colored by cell type — the dataset's own annotations when available, otherwise cell types predicted from cluster marker genes.",
     };
   }
 

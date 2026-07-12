@@ -38,12 +38,20 @@ text are deterministic.
 - **Gate 1 — Admissibility** (`agent/admissibility.py`): pre-execution. Refuses
   inadmissible inferences (no replicate column, <2 replicates/group, confounded
   contrast, circular) *before* the tool runs. Wired via `_gate` in
-  `agent/tool_router.py`.
+  `agent/tool_router.py`. **A sample only counts as a replicate if it has ≥
+  `MIN_CELLS_PER_SAMPLE` (=20) cells of the queried cell type** — 1–3-cell
+  "replicates" are excluded (added 2026-07-12; see §7 changelog). The threshold is
+  a single source of truth in `tools/build_pseudobulk.py`, imported by both the
+  gate and the null harness so they can never drift.
 - **Gate 2 — Justification** (`agent/inference_state.py`): post-execution.
   Five-state machine (DESCRIPTIVE_ONLY, LOW_POWER, NOT_SIGNIFICANT,
   SIGNIFICANT_INFERENTIAL, BLOCKED) + `validity_flags` (cell_unit_not_inferential,
-  circular_inference_risk, uncorrected_multiple_testing) that **override**
-  significance — an inadmissible result cannot conclude even with a small p.
+  circular_inference_risk, uncorrected_multiple_testing, **technical_artifact_risk**)
+  that **override** significance — an inadmissible result cannot conclude even with
+  a small p. `technical_artifact_risk` fires when the result-plausibility check
+  (`tools/run_deseq2.assess_de_plausibility`) returns `verdict="suspect"`
+  (implausible fold-changes / near-uniform direction), downgrading the state to
+  DESCRIPTIVE_ONLY so an artifact result is never reported as a finding.
 - **Deterministic renderer** (`agent/output_renderer.py`): no LLM prose for
   results; "interpretation firewall".
 - **Governance toggle** (`agent/governance.py`): `AGENT_GOVERNANCE=off` enables the
@@ -52,8 +60,10 @@ text are deterministic.
 - **Rate limiter** (`agent/rate_limit.py`): `GEMINI_MAX_RPM` (currently 0 = off in
   `.env`; user is on paid Gemini tier, ~1000 RPM).
 - Tools: `tools/senescence.py` (SenMayo scoring; NOTE the `use_raw=False` fix),
-  `tools/statistics.py` (per-sample Mann-Whitney), `tools/run_deseq2.py` +
-  `tools/build_pseudobulk.py` (pseudobulk DESeq2), `tools/age_analysis.py`.
+  `tools/statistics.py` (per-sample Mann-Whitney), `tools/run_deseq2.py`
+  (pseudobulk DESeq2 + `assess_de_plausibility` result-artifact check) +
+  `tools/build_pseudobulk.py` (pseudobulk; extracts raw integer counts from
+  `adata.raw.X`, drops sub-`MIN_CELLS_PER_SAMPLE` samples), `tools/age_analysis.py`.
 - Pipeline (`agent/pipeline.py`) auto-detects pre-processed data (`adata.raw`
   present) and skips re-normalization (double-normalization bug fix).
 
@@ -148,7 +158,82 @@ Authors: Rodela Ghosh, Aviral Gupta (USF). `custom.bib` author lists verified.
 
 ---
 
-## 7. Remaining to-do (priority order)
+## 7. Changelog & remaining to-do
+
+### Recent changes — 2026-07-12 (two firewall fixes)
+
+Triggered by a real agent output: TMS `mesangial cell` 24m-vs-3m DESeq2 returned
+**814 "significant" genes with a badge of SIGNIFICANT_INFERENTIAL**, while the
+plausibility warning underneath said the numbers were a technical artifact (median
+|log2FC|≈10, 93% one direction, several genes at the −43.28 bound). Investigation
+(NOT a counts bug — `adata.raw.X` is real integer counts, verified) traced it to an
+extremely rare cell type: 93 cells total, pseudobulk "replicates" built from as few
+as **1 cell**, and a ~3.8× library-size imbalance between age groups.
+
+- **Fix B — admissibility min-cells gate (root cause).** `build_pseudobulk_matrix`
+  now drops samples with `< MIN_CELLS_PER_SAMPLE` (=20) cells; `admissibility.py`
+  counts only such samples as replicates and blocks when a group falls below 2.
+  Production now matches the null harness (which always used 20). Constant is the
+  single source of truth in `tools/build_pseudobulk.py`, imported by
+  `null_harness.py`. Result: the mesangial contrast is now **BLOCKED** up front;
+  abundant types (e.g. `fenestrated cell`) stay admissible. Gate and tool keep the
+  exact same replicate set (no drift, verified).
+- **Fix A — plausibility governs the state (the overclaim itself).** A
+  `verdict="suspect"` plausibility result now emits the `technical_artifact_risk`
+  validity flag and downgrades the state from SIGNIFICANT_INFERENTIAL to
+  DESCRIPTIVE_ONLY (`conclusion=None`, `validity_gate_passed=False`); the renderer
+  reports the genes as "exploratory only, not a valid finding". Previously the
+  warning was advisory prose bolted above a SIGNIFICANT_INFERENTIAL badge.
+- Files: `backend/tools/build_pseudobulk.py`, `backend/agent/admissibility.py`,
+  `backend/agent/inference_state.py`, `backend/agent/output_renderer.py`,
+  `eval/ablation/null_harness/null_harness.py`. Tests added in
+  `backend/tests/test_inference_state.py` (3 new); full suite 31/31 green.
+- **Paper implication:** the firewall now demonstrably governs **three** validity
+  errors — pseudoreplication, insufficient/unreliable replicates (min-cells), and
+  technical-artifact results — not one. Strengthens the "governs a taxonomy" framing.
+
+### Recent changes — 2026-07-12 (agent-level null validation + paper edits)
+
+Same session, follow-on work.
+
+- **Agent-level null harness run on the REAL agent** (`eval/ablation/agent_null_harness/`,
+  which drives `run_agent` end-to-end: routing → admissibility → DESeq2 → inference
+  state, unlike the method-level `null_harness.py`). Governed arm, constructed nulls
+  (truth = 0). Two regimes:
+  - **2v2 (Kidney `fenestrated cell`, homogeneous 24m/male stratum, 3 perms):**
+    inferential FDR **0%**; but DESeq2 emits ~**400 raw FP genes/perm**, caught by the
+    **power gate** (`LOW_POWER` → exploratory). Note DESeq2 is anti-conservative at
+    n=2 (400 FPs) vs the method-level pseudobulk **t-test** (0.47 in Table 1) — the
+    Table 1 "0.47 governed" is the t-test proxy, NOT the agent's DESeq2. Agent yields
+    **0 false conclusions**, not ~0 raw genes.
+  - **6v6 (Spleen `B cell`, random-mode null, 5 perms):** inferential FDR **0%**;
+    ~33–74 raw FP genes/perm. Here the power gate is SILENT (6 reps/group), so the
+    **plausibility gate (Fix A)** does all the work → `DESCRIPTIVE_ONLY`. Deterministic
+    counterfactual: **without Fix A this is 5/5 `SIGNIFICANT_INFERENTIAL` = 100%
+    inferential FDR**; with it, 0%. Fix A is load-bearing at adequate power.
+  - **Defense-in-depth confirmed:** low power → power axis catches nulls; adequate
+    power → plausibility axis catches nulls. Neither alone spans both; together 0%
+    inferential FDR across the power range. Results: `agent_null_Kidney_fenestrated_cell_governed.json`,
+    `agent_null_Spleen_b_cell_governed.json`.
+- **CRITICAL coupling (shrinkage ↔ plausibility).** The 6v6 firewall success relies
+  on TMS unshrunk DESeq2 giving null genes *large* LFCs (which trip plausibility).
+  **Naive LFC shrinkage would collapse those magnitudes → plausibility passes → the
+  6v6 nulls flip to `SIGNIFICANT_INFERENTIAL` = real false discoveries.** So shrinkage
+  is NOT a free best-practice add: it must be paired with plausibility-threshold
+  recalibration (validate against shrunk null vs shrunk GSE226225). Deferred, not done.
+  Empirical basis: proximal-tubule 24m-vs-18m shrinkage test (median |log2FC| 8.2→1.6).
+- **Paper edits (`paper/paper.tex`).** Reconciled the power-preservation framing with
+  the agent's own `LOW_POWER` verdict on the 2-control GSE226225 design (the agent
+  would stamp the flagship 7,613-gene result `LOW_POWER`, not a licensed conclusion).
+  Three edits: (1) §Governance Preserves Power — reframed "power preservation" as a
+  property of the statistical *unit* (sensitivity) vs inferential *licensing*;
+  (2) §Why Governance Does Not Over-Refuse — clarified restraint targets the claim,
+  not the data (surfaces genes under `DESCRIPTIVE_ONLY`); (3) §Limitations power cohort
+  — added explicit disclosure that the agent reports this contrast `LOW_POWER`.
+  **Not yet recompiled** — no LaTeX toolchain on this machine (pdflatex/latexmk absent);
+  verify the PDF elsewhere.
+
+### Remaining to-do (priority order)
 
 1. **Results figure** — null-vs-real 2×2 bar chart (pgfplots, native). THE last
    content gap. Not done.
@@ -158,7 +243,17 @@ Authors: Rodela Ghosh, Aviral Gupta (USF). `custom.bib` author lists verified.
    (`cellagent_analysis_step1.ipynb`). The "36" is verified in the pasted console
    output and recorded in `cellagent_evidence.md`, but the DE notebook artifact is
    not yet saved locally.
-4. **Optional upside (weeks 3–6 before Sept):** second dataset / human cohort for
+4. **Recompile the paper** on a machine with LaTeX and verify the three
+   power-preservation edits render + read cleanly (this machine has no toolchain).
+5. **Shrinkage decision (deferred, coupled).** IF adding LFC shrinkage to
+   `tools/run_deseq2.py` (best practice; recommended by the plausibility warning
+   itself), it MUST be paired with plausibility-threshold recalibration, or it
+   breaks the 6v6 firewall (see coupling note above). Recalibrate magnitude
+   thresholds (`_IMPLAUSIBLE_MEDIAN_LFC`, `_EXTREME_LFC`, `_EXTREME_FRAC_WARN`)
+   against shrunk-null vs shrunk-GSE226225; keep `_DIRECTION_SKEW_WARN` (shrinkage-
+   robust). Note `power_preservation.py` has its OWN inlined DESeq2 — changing the
+   agent tool does not touch that paper number.
+6. **Optional upside (weeks 3–6 before Sept):** second dataset / human cohort for
    generalizability; CellAgent fully-autonomous droplet run; **confounding** as a
    2nd demonstrated validity error (raises ceiling toward main-track "firewall
    governs a taxonomy" — but keep the pseudoreplication paper locked first).

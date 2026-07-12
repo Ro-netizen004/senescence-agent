@@ -39,7 +39,9 @@ ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "backend"))
 
 from agent.pipeline import ensure_pipeline
-from tools.build_pseudobulk import _get_sample_column
+# Single source of truth: production admissibility gates on this same threshold,
+# so the harness and the deployed agent never drift on what counts as a replicate.
+from tools.build_pseudobulk import _get_sample_column, MIN_CELLS_PER_SAMPLE
 
 OUT_DIR = ROOT / "eval" / "results" / "ablation"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -47,7 +49,8 @@ OUT_DIR.mkdir(parents=True, exist_ok=True)
 DEFAULT_DATA = ROOT / "backend" / "data" / "tabula-muris-senis-facs-processed-official-annotations-Kidney.h5ad"
 
 ALPHA = 0.05
-MIN_CELLS_PER_SAMPLE = 20      # a mouse needs >= this many cells of the type
+# MIN_CELLS_PER_SAMPLE is imported from tools.build_pseudobulk (shared with the
+# production admissibility gate) — a mouse needs >= this many cells of the type.
 MIN_GENE_DETECTION_FRAC = 0.10  # keep genes detected in >= 10% of the subset cells
 
 

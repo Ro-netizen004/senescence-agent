@@ -12,23 +12,9 @@ import scanpy as sc
 from tools.config import OUTPUT_DIR
 from tools.senescence import senescence_score as _senescence_score
 
-
-def _resolve_cell_type(requested: str, available: list) -> Optional[str]:
-    req = requested.strip()
-    if req in available:
-        return req
-
-    lower_map = {a.lower(): a for a in available}
-    key = req.lower()
-    if key in lower_map:
-        return lower_map[key]
-
-    if key.endswith("s") and key[:-1] in lower_map:
-        return lower_map[key[:-1]]
-    if key + "s" in lower_map:
-        return lower_map[key + "s"]
-
-    return None
+# Re-exported from the lightweight, scanpy-free module so existing importers
+# (statistics, percell_inference, admissibility, ...) keep working unchanged.
+from tools.text_match import resolve_cell_type as _resolve_cell_type
 
 
 def _resolve_age_contrast(

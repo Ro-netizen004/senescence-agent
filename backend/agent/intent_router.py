@@ -74,9 +74,14 @@ def _wants_umap(message: str) -> bool:
 
 def _wants_cluster_annotations(message: str) -> bool:
     text = message.lower()
-    return ("leiden" in text or "each cluster" in text) and (
-        "cell type" in text or "cell-type" in text
-    )
+    mentions_cluster = "leiden" in text or "cluster" in text or "each cluster" in text
+    mentions_celltype = "cell type" in text or "cell-type" in text or "celltype" in text
+    # "annotate the clusters", "identify cell types", "what cell types are here"
+    if "annotat" in text and mentions_cluster:
+        return True
+    if ("identify" in text or "label" in text or "what" in text) and mentions_celltype:
+        return True
+    return mentions_cluster and mentions_celltype
 
 
 def _cell_type_column(adata) -> str:
@@ -147,9 +152,24 @@ def _parse_age_contrast(message: str, profile: dict | None = None) -> tuple[str,
 
 def _infer_cell_type_for_test(message: str, adata) -> str | None:
     text = message.lower()
-    for ct in _available_cell_types(adata):
+    available = _available_cell_types(adata)
+
+    # 1. Exact full-name mention.
+    for ct in available:
         if ct.lower() in text:
             return ct
+
+    # 2. Extract the phrase after "on"/"for" (up to a contrast keyword) and resolve
+    #    it, so "on fibroblast cells comparing ..." -> "fibroblast of cardiac tissue".
+    from tools.text_match import resolve_cell_type
+    m = re.search(
+        r"\b(?:on|for)\s+(.+?)(?:\s+(?:between|comparing|compare|vs\.?|versus|across|by|,)|$)",
+        text,
+    )
+    if m:
+        resolved = resolve_cell_type(m.group(1).strip(), available)
+        if resolved:
+            return resolved
 
     aliases = {
         "neurons": "neuron",
@@ -163,10 +183,12 @@ def _infer_cell_type_for_test(message: str, adata) -> str | None:
     }
     for alias, canonical in aliases.items():
         if alias in text:
-            from tools.age_analysis import _resolve_cell_type
+            from tools.text_match import resolve_cell_type
 
-            resolved = _resolve_cell_type(canonical, _available_cell_types(adata))
-            return resolved or canonical
+            # Only return the alias if it actually exists in THIS dataset — never
+            # fabricate a cell type the data doesn't contain (e.g. "T cell" in an
+            # aorta dataset that has none).
+            return resolve_cell_type(canonical, _available_cell_types(adata))
     return None
 
 
@@ -197,9 +219,109 @@ def _wants_deseq2(message: str) -> bool:
             "deseq2",
             "deseq",
             "differential expression",
+            "differential analysis",
             "differentially expressed",
         )
     )
+
+
+# "Run differential expression on <cell type> between <Group A> and <Group B>"
+_DE_TEMPLATE_RE = re.compile(
+    r"(?:differential\s+(?:gene\s+)?(?:expression|analysis)|deseq2?)\b"
+    r".*?\b(?:on|for|in)\s+(?P<ct>.+?)\s+between\s+(?P<g1>.+?)\s+(?:and|vs\.?|versus)\s*(?P<g2>.+?)[.!?\s]*$",
+    re.IGNORECASE,
+)
+
+
+def _has_two_age_tokens(message: str) -> bool:
+    return len(re.findall(r"\b\d+\s*m\b", message, flags=re.I)) >= 2
+
+
+def _resolve_group_pair(g1: str, g2: str, profile: dict) -> tuple[str, str, str] | None:
+    """Find the grouping column (age/condition/treatment/...) that contains BOTH
+    named group values, returning (group_column, ref_value, comp_value) with the
+    dataset's exact casing. Returns None if no single column contains both."""
+    g1n, g2n = str(g1).strip().lower(), str(g2).strip().lower()
+    if g1n == g2n:
+        return None
+    for gc in (profile.get("group_columns") or []):
+        vals = {str(v).strip().lower(): str(v) for v in gc.get("values", [])}
+        if g1n in vals and g2n in vals:
+            return gc["column"], vals[g1n], vals[g2n]
+    return None
+
+
+def _parse_deseq2_template(message: str, adata, profile: dict) -> dict | None:
+    """Parse the fill-in template into a validated {cell_type, group_column,
+    reference_group, comparison_group}. Returns None if the cell type or the two
+    groups can't be resolved against the real dataset."""
+    m = _DE_TEMPLATE_RE.search(message)
+    if not m:
+        return None
+    from tools.text_match import resolve_cell_type
+    cell_type = resolve_cell_type(m.group("ct").strip(), _available_cell_types(adata))
+    if not cell_type:
+        return None
+    pair = _resolve_group_pair(m.group("g1"), m.group("g2"), profile)
+    if not pair:
+        return None
+    group_column, ref, comp = pair
+    return {
+        "cell_type": cell_type,
+        "group_column": group_column,
+        "reference_group": ref,
+        "comparison_group": comp,
+    }
+
+
+def _deseq2_clarification(adata, profile: dict) -> str:
+    """Deterministic 'ask + template' reply listing the real cell types and
+    grouping variables the user can pick from."""
+    cts = _available_cell_types(adata)
+    ct_preview = ", ".join(cts[:8]) + (f", … ({len(cts)} total)" if len(cts) > 8 else "")
+    gcs = profile.get("group_columns") or []
+
+    lines = [
+        "### Differential expression — which contrast?",
+        "",
+        "I can run pseudobulk DESeq2, but I need the exact comparison. Fill in this template:",
+        "",
+        "```",
+        "Run differential expression on <cell type> between <Group A> and <Group B>",
+        "```",
+        "",
+        f"**Available cell types:** {ct_preview or '(none detected)'}",
+        "",
+        "**Grouping variables you can compare:**",
+    ]
+    primary = profile.get("primary_group_column")
+    if gcs:
+        # List the recommended (testable) grouping first.
+        ordered = sorted(gcs, key=lambda g: g["column"] != primary)
+        for gc in ordered[:6]:
+            vals = ", ".join(map(str, gc["values"][:12]))
+            tag = "  _(recommended)_" if gc["column"] == primary else ""
+            lines.append(f"- **{gc['column']}** — {vals}{tag}")
+    else:
+        lines.append(
+            "- _(no grouping column with ≥2 groups detected — DESeq2 needs a "
+            "condition / age / treatment column defined at the sample level)_"
+        )
+
+    # Example uses the recommended grouping's own values (not two single-sample
+    # values that would fail as pseudoreplication).
+    primary_gc = next((g for g in gcs if g["column"] == primary), gcs[0] if gcs else None)
+    if cts and primary_gc and len(primary_gc.get("values") or []) >= 2:
+        ex_ct, ex_vals = cts[0], primary_gc["values"]
+        lines += [
+            "",
+            f"_Example:_ `Run differential expression on {ex_ct} between "
+            f"{ex_vals[0]} and {ex_vals[1]}`",
+            "",
+            "_Tip: use the **Dataset setup** table at the top to define custom groups "
+            "(e.g. treat several conditions as one 'control' group)._",
+        ]
+    return "\n".join(lines)
 
 
 def _order_ages_young_old(ref: str, comp: str) -> tuple[str, str]:
@@ -280,19 +402,54 @@ def route(message: str, adata) -> RouteDecision:
         return RouteDecision(workflow_id="score_and_annotate")
 
     if _wants_deseq2(message):
-        cell_type = _infer_cell_type_for_test(message, adata)
-        if cell_type:
-            ref, comp = _order_ages_young_old(*_parse_age_contrast(message, profile))
+        # 1) Explicit template: "... on <cell type> between <Group A> and <Group B>"
+        parsed = _parse_deseq2_template(message, adata, profile)
+        if parsed:
             return RouteDecision(
                 workflow_id="deseq2",
-                tool_args={
-                    "run_deseq2": {
-                        "cell_type": cell_type,
-                        "reference_age": ref,
-                        "comparison_age": comp,
-                    }
-                },
+                tool_args={"run_deseq2": {
+                    "cell_type": parsed["cell_type"],
+                    "group_column": parsed["group_column"],
+                    "reference_group": parsed["reference_group"],
+                    "comparison_group": parsed["comparison_group"],
+                }},
+                reply_suffix=(
+                    f"[System] Contrast: differential expression on {parsed['cell_type']} "
+                    f"by {parsed['group_column']} "
+                    f"({parsed['reference_group']} vs {parsed['comparison_group']})."
+                ),
             )
+        # 2) Auto-run when the contrast is unambiguous: an age grouping (youngest
+        #    vs oldest) or a grouping variable with exactly two levels.
+        cell_type = _infer_cell_type_for_test(message, adata)
+        has_age = bool(profile.get("age_column")) or _has_two_age_tokens(message)
+        primary = profile.get("primary_group_column")
+        primary_gc = next(
+            (g for g in (profile.get("group_columns") or []) if g["column"] == primary),
+            None,
+        )
+        two_level = bool(primary_gc and len(primary_gc.get("values") or []) == 2)
+        if cell_type and (has_age or two_level):
+            if has_age:
+                ref, comp = _order_ages_young_old(*_parse_age_contrast(message, profile))
+                args = {"cell_type": cell_type, "reference_age": ref, "comparison_age": comp}
+                conf = f"by age ({ref} vs {comp})"
+            else:
+                vals = primary_gc["values"]
+                args = {
+                    "cell_type": cell_type,
+                    "group_column": primary,
+                    "reference_group": vals[0],
+                    "comparison_group": vals[1],
+                }
+                conf = f"by {primary} ({vals[0]} vs {vals[1]})"
+            return RouteDecision(
+                workflow_id="deseq2",
+                tool_args={"run_deseq2": args},
+                reply_suffix=f"[System] Contrast: differential expression on {cell_type} {conf}.",
+            )
+        # 3) Underspecified → deterministic clarification (template + real options).
+        return RouteDecision(concept_reply=_deseq2_clarification(adata, profile))
 
     if _wants_umap(message):
         return RouteDecision(workflow_id="umap")

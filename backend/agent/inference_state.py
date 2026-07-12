@@ -103,6 +103,51 @@ def _to_float(value, default=None):
     return n
 
 
+def _deseq2_group_counts(result: dict) -> list[int]:
+    per_group = result.get("samples_per_age") or result.get("samples_per_group") or {}
+    return [int(c) for c in per_group.values()]
+
+
+def _deseq2_n_significant(result: dict) -> int:
+    if result.get("n_significant_fdr_0_05") is not None:
+        return int(result["n_significant_fdr_0_05"])
+    rows = result.get("results") or []
+    return sum(1 for r in rows if _to_float(r.get("padj"), 1) < ALPHA)
+
+
+def _plausibility_suspect(result: dict) -> bool:
+    """True when the result-plausibility check (Gate 2) flagged the effect sizes
+    as the fingerprint of a technical artifact rather than real biology."""
+    plaus = result.get("result_plausibility") or {}
+    return plaus.get("verdict") == "suspect"
+
+
+def _deseq2_low_power(result: dict) -> tuple[bool, list[str]]:
+    """Match test_senescence_difference: <3 replicates/group is exploratory only."""
+    reasons: list[str] = []
+    group_counts = _deseq2_group_counts(result)
+    if not group_counts:
+        n_total = int(result.get("n_samples") or 0)
+        if n_total < RECOMMENDED_SAMPLES_PER_GROUP * 2:
+            reasons.append("few_pseudobulk_samples")
+        return bool(reasons), reasons
+
+    for count in group_counts:
+        if count < MIN_PSEUDOBULK_SAMPLES_PER_AGE:
+            reasons.append("insufficient_replicates_per_group")
+            break
+    for count in group_counts:
+        if count < RECOMMENDED_SAMPLES_PER_GROUP:
+            reasons.append("few_replicates_per_group")
+            break
+
+    for w in (result.get("admissibility_warnings") or []) + (result.get("warnings") or []):
+        if "few_replicates" in str(w) and "few_replicates_per_group" not in reasons:
+            reasons.append("few_replicates_per_group")
+
+    return bool(reasons), reasons
+
+
 def assign_inference_state(tool_name: str, result: dict) -> InferenceState:
     if result.get("error"):
         return InferenceState.BLOCKED
@@ -143,17 +188,18 @@ def assign_inference_state(tool_name: str, result: dict) -> InferenceState:
         return InferenceState.NOT_SIGNIFICANT
 
     if tool_name == "run_deseq2":
-        rows = result.get("results") or []
-        sig = [r for r in rows if _to_float(r.get("padj"), 1) < ALPHA]
-        n_samples = int(result.get("n_samples") or 0)
-        samples_per_age = result.get("samples_per_age") or {}
-        low_power = n_samples < 4 or any(
-            int(c) < MIN_PSEUDOBULK_SAMPLES_PER_AGE for c in samples_per_age.values()
-        )
-        if not sig:
+        n_sig = _deseq2_n_significant(result)
+        low_power, _ = _deseq2_low_power(result)
+        if not n_sig:
             return InferenceState.NOT_SIGNIFICANT
         if low_power:
             return InferenceState.LOW_POWER
+        if _plausibility_suspect(result):
+            # Statistically significant, but the effect sizes carry the signature
+            # of a technical artifact (library-size / low-count imbalance). This is
+            # not a valid inferential conclusion — downgrade to descriptive so no
+            # finding is licensed, even though the design passed admissibility.
+            return InferenceState.DESCRIPTIVE_ONLY
         return InferenceState.SIGNIFICANT_INFERENTIAL
 
     return InferenceState.DESCRIPTIVE_ONLY
@@ -179,7 +225,8 @@ def build_state_record(
             if int(ns.get("comparison") or 0) < RECOMMENDED_SAMPLES_PER_GROUP:
                 power_reasons.append("few_comparison_samples")
         elif tool_name == "run_deseq2":
-            power_reasons.append("few_pseudobulk_samples")
+            _, power_reasons = _deseq2_low_power(result)
+            power_reasons.extend(result.get("admissibility_warnings") or [])
 
     record = {
         "state": state.value,
@@ -240,6 +287,12 @@ def _validity_flags(tool_name: str, result: dict) -> list[str]:
 
     if tool_name in _CIRCULAR_INFERENCE_TOOLS:
         flags.append("circular_inference_risk")  # clusters defined on same features tested
+
+    # Result-plausibility (Gate 2): effect sizes look like a technical artifact
+    # (implausible fold-changes / near-uniform direction). A significant p-value
+    # over an artifact is not a valid conclusion, so this overrides significance.
+    if _plausibility_suspect(result):
+        flags.append("technical_artifact_risk")
 
     # Uncorrected multiple testing: many per-feature p-values without adjusted p.
     rows = result.get("results") or result.get("top_markers")

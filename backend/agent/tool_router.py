@@ -8,14 +8,14 @@ def run_deseq2_wrapper(
     adata,
     cell_type,
     sample_column="sample_id",
-    age_column="age",
-    reference_age=None,
-    comparison_age=None,
+    group_column="age",
+    reference_group=None,
+    comparison_group=None,
 ):
     """
     Full pipeline:
-    1. Build pseudobulk matrix
-    2. Run DESeq2
+    1. Build pseudobulk matrix for one cell type, carrying `group_column`
+    2. Run DESeq2 between `reference_group` and `comparison_group`
     3. Return JSON-safe output
     """
 
@@ -26,7 +26,7 @@ def run_deseq2_wrapper(
         adata,
         cell_type,
         sample_column=sample_column,
-        age_column=age_column
+        group_column=group_column,
     )
 
     # =========================
@@ -35,8 +35,9 @@ def run_deseq2_wrapper(
     results = run_deseq2_pseudobulk(
         count_df,
         meta_df,
-        reference_age=reference_age,
-        comparison_age=comparison_age,
+        group_column=group_column,
+        reference_group=reference_group,
+        comparison_group=comparison_group,
     )
 
     # =========================
@@ -47,6 +48,15 @@ def run_deseq2_wrapper(
     # True significant-gene count from the FULL results, before we truncate the
     # display list to the top 100 (otherwise the count is capped at 100).
     n_significant = int((df["padj"] < 0.05).sum()) if "padj" in df.columns else None
+
+    # Gate 2: assess result plausibility on the FULL significant set (effect-size
+    # magnitude + directional skew) — flags technical-artifact fingerprints.
+    result_plausibility = None
+    try:
+        from tools.run_deseq2 import assess_de_plausibility
+        result_plausibility = assess_de_plausibility(df)
+    except Exception as e:
+        print(f"plausibility assessment failed: {e}")
 
     # Volcano plot from the FULL results (rendered inline by the frontend).
     volcano_path = None
@@ -60,6 +70,16 @@ def run_deseq2_wrapper(
     except Exception as e:  # never let a plot failure break the analysis
         print(f"volcano generation failed: {e}")
 
+    # Save the FULL results as a downloadable CSV (all genes, not just top 100).
+    download_url = None
+    try:
+        import os
+        from tools.config import OUTPUT_DIR
+        df.to_csv(os.path.join(OUTPUT_DIR, "deseq2_results.csv"))
+        download_url = "/plots/deseq2_results.csv"
+    except Exception as e:
+        print(f"CSV export failed: {e}")
+
     df = (
         df.head(100)
         .reset_index()
@@ -69,31 +89,42 @@ def run_deseq2_wrapper(
     output = {"results": df.to_dict(orient="records")}
     if n_significant is not None:
         output["n_significant_fdr_0_05"] = n_significant
+    if result_plausibility is not None:
+        output["result_plausibility"] = result_plausibility
     if volcano_path:
         output["plot_path"] = volcano_path
+    if download_url:
+        output["download_url"] = download_url
 
-    youngest = oldest = None
+    ref = comp = None
     if isinstance(results, dict):
-        youngest = results.get("youngest_group")
-        oldest = results.get("oldest_group")
-        output["youngest_group"] = youngest
-        output["oldest_group"] = oldest
+        ref = results.get("reference_group")
+        comp = results.get("comparison_group")
+        group_column = results.get("group_column", group_column)
+        output["group_column"] = group_column
+        output["reference_group"] = ref
+        output["comparison_group"] = comp
+        # Legacy aliases (older renderers / eval expect these).
+        output["youngest_group"] = ref
+        output["oldest_group"] = comp
 
     # Report only the samples actually used in the contrast. DESeq2 filters to
-    # the two contrast ages internally, so counting the full pseudobulk matrix
-    # (which may include other age groups, e.g. 18m) would misreport sample
-    # counts and skew the downstream low-power assessment.
+    # the two contrast groups internally, so counting the full pseudobulk matrix
+    # (which may include other groups, e.g. 18m) would misreport sample counts
+    # and skew the downstream low-power assessment.
     contrast_meta = meta_df
-    if "age" in meta_df.columns and youngest is not None and oldest is not None:
+    if group_column in meta_df.columns and ref is not None and comp is not None:
         contrast_meta = meta_df[
-            meta_df["age"].astype(str).isin([str(youngest), str(oldest)])
+            meta_df[group_column].astype(str).isin([str(ref), str(comp)])
         ]
 
     output["n_samples"] = int(contrast_meta.shape[0])
-    if "age" in contrast_meta.columns:
-        output["samples_per_age"] = (
-            contrast_meta["age"].astype(str).value_counts().sort_index().to_dict()
+    if group_column in contrast_meta.columns:
+        counts = (
+            contrast_meta[group_column].astype(str).value_counts().sort_index().to_dict()
         )
+        output["samples_per_group"] = counts
+        output["samples_per_age"] = counts  # legacy alias
 
     return output
 
@@ -110,6 +141,7 @@ def build_tool_map(adata, species, tools, governed: bool = True):
     sample_col = profile.get("sample_column") or "sample_id"
     youngest = profile.get("youngest") or "3m"
     oldest = profile.get("oldest") or "24m"
+    primary_group_col = profile.get("primary_group_column") or age_col
 
     def _gate(tool_name, fn):
         """Gate 1: admissibility pre-check runs BEFORE the tool. If the inference
@@ -130,25 +162,29 @@ def build_tool_map(adata, species, tools, governed: bool = True):
         return gated
 
     if governed:
+        from agent.contrast import resolve_contrast
+
         def _deseq2_impl(args):
+            spec = resolve_contrast(adata, args)
             return run_deseq2_wrapper(
                 adata,
-                args.get("cell_type"),
-                args.get("sample_column", sample_col),
-                args.get("age_column", age_col),
-                args.get("reference_age") or youngest,
-                args.get("comparison_age") or oldest,
+                spec.cell_type or args.get("cell_type"),
+                spec.sample_column or sample_col,
+                spec.group_column,
+                spec.reference_group,
+                spec.comparison_group,
             )
 
         def _test_impl(args):
+            spec = resolve_contrast(adata, args)
             return tools["test_senescence_difference"](
                 adata,
-                args.get("cell_type"),
-                args.get("age_column", age_col),
-                args.get("cell_type_column", ct_col),
-                args.get("sample_column", sample_col),
-                args.get("reference_age") or youngest,
-                args.get("comparison_age") or oldest,
+                spec.cell_type or args.get("cell_type"),
+                spec.group_column,
+                spec.cell_type_column,
+                spec.sample_column or sample_col,
+                spec.reference_group,
+                spec.comparison_group,
                 species,
             )
     else:
@@ -183,13 +219,13 @@ def build_tool_map(adata, species, tools, governed: bool = True):
             )
 
     return {
-        "generate_umap": lambda args: tools["generate_umap"](adata),
+        "generate_umap": lambda args: tools["generate_umap"](adata, species=species),
 
         "find_senescence_markers": lambda args: tools["find_senescence_markers"](adata, species),
 
         "senescence_score": lambda args: tools["senescence_score"](adata, species),
 
-        "get_cluster_annotations": lambda args: tools["get_cluster_annotations"](adata),
+        "get_cluster_annotations": lambda args: tools["get_cluster_annotations"](adata, species),
 
         "run_deseq2": _gate("run_deseq2", _deseq2_impl),
 
