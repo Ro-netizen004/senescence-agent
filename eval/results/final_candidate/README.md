@@ -1,19 +1,107 @@
-# Final Candidate Results
+# Paper Data Registry
 
-This directory is reserved for evaluation artifacts generated with the
-finalized agent and an explicitly recorded protocol.
+This is the single human-facing index for results being considered for the
+paper. Numerical files remain in their experiment packages; this file records
+what each result measures, where its evidence lives, and whether it is ready to
+cite. Do not cite an artifact marked preliminary as a final result.
 
-An experiment package should include:
+## Status key
 
-- full numerical result files;
-- the exact prompt and dataset identifier;
-- governed or ungoverned mode;
-- executed method, statistical unit, contrast direction, and covariates;
-- sample or cell counts;
-- inference, plausibility, and stability diagnostics when applicable;
-- run date and code revision;
-- a short README distinguishing primary data from interface captures.
+- **Final candidate:** packaged with protocol and provenance; still requires
+  manuscript-level review.
+- **Preliminary:** scientifically useful, but must be rerun or reconciled under
+  one frozen revision before publication.
+- **Historical:** retained for audit only and not eligible for paper claims.
 
-No result is approved for the paper merely because it appears here. Each
-package still requires a completeness and protocol review.
+## 1. Positive control: preservation of a real aging signal
 
+**Status: Final candidate.** This tests whether governance preserves power on a
+real biological contrast; it is not a gene-level ground-truth benchmark.
+
+| Endpoint | Governed | Ungoverned ablation |
+|---|---:|---:|
+| Dataset / cell type | TMS Spleen / B cell | TMS Spleen / B cell |
+| Contrast | 24m vs 3m | 24m vs 3m |
+| Statistical unit | 10 biological samples (4 vs 6) | 2,056 cells (808 vs 1,248) |
+| Method | Pseudobulk DESeq2 | Per-cell Wilcoxon |
+| Covariates actually used | sex | none |
+| Significant genes (FDR < 0.05) | 2,246 | 2,951 |
+| Significant genes in shared 5,514-gene universe | 1,472 | 2,951 |
+| Donor-stable governed discoveries | 1,995 / 2,246 (88.82%) | not assessed |
+
+Matched comparison: 1,167 genes were significant in both arms; effect direction
+agreed for 100% of those genes; all-gene Spearman correlation was 0.8861; top-100
+overlap was 11 genes. Ribosomal genes represented 1/100 governed versus 31/100
+ungoverned top-ranked genes. Ungoverned-only discoveries are method-dependent
+discoveries, not proven false positives.
+
+Evidence and exact provenance: [`positive_control/README.md`](positive_control/README.md),
+[`positive_control/comparison_summary.json`](positive_control/comparison_summary.json),
+and the governed/ungoverned CSV files in that package. Evaluated agent revision:
+`374ae5f26ab1fecfc6b05579bcc818052afa2388`.
+
+## 2. Paired null smoke test
+
+**Status: Final candidate smoke test, not the full null experiment.** Both arms
+used the same TMS Spleen B-cell allocation at seed 2000.
+
+| Endpoint | Governed | Ungoverned ablation |
+|---|---:|---:|
+| Null discoveries | 43 | 2,906 |
+| Inference state | `DESCRIPTIVE_ONLY` | not governed (`UNKNOWN` in harness) |
+| Licensed inferential claim | no | not applicable |
+| Result withheld by governance | yes | no |
+
+This single pair demonstrates the intended mechanism but cannot estimate a
+rate. Evidence, checksums, and revision metadata are in
+[`null_sweep/README.md`](null_sweep/README.md),
+[`null_sweep/raw_results_manifest.csv`](null_sweep/raw_results_manifest.csv),
+and [`null_sweep/protocol.json`](null_sweep/protocol.json).
+
+## 3. Governed multi-tissue TMS null pilot
+
+**Status: Preliminary.** These runs establish feasibility and describe the
+current TMS behavior. They are not yet one frozen, matched governed-versus-
+ungoverned paper sweep. The first four tissue artifacts also contain obsolete
+reply-overclaim scores from an overbroad text linter; those reply scores are
+excluded below. The inferential state, discovery, and withholding endpoints are
+not affected by that linter defect.
+
+| Tissue / cell type | Unique allocations | Mean null discoveries | Raw discovery rate | Licensed-claim rate | Result-withheld rate | State |
+|---|---:|---:|---:|---:|---:|---|
+| Kidney / epithelial cell of proximal tubule | 6 | 227.67 | 100% | 0% | 100% | 6/6 `DESCRIPTIVE_ONLY` |
+| Liver / hepatocyte | 8 | 30.12 | 100% | 0% | 100% | 8/8 `DESCRIPTIVE_ONLY` |
+| Spleen / B cell | 30 | 45.87 | 100% | 0% | 100% | 30/30 `DESCRIPTIVE_ONLY` |
+| Aorta / aortic endothelial cell | 4 | 164.25 | 100% | 0% | 100% | 4/4 `DESCRIPTIVE_ONLY` |
+| Limb muscle / skeletal muscle satellite cell | 30 | 156.40 | 100% | 0% | 100% | 30/30 `DESCRIPTIVE_ONLY` |
+| **Pooled** | **78** | **106.82** | **100%** | **0%** | **100%** | **78/78 `DESCRIPTIVE_ONLY`** |
+
+The request was 30 permutations per tissue. Kidney, Liver, and Aorta have only
+6, 8, and 4 distinct orientation-independent allocations under the registered
+age/sex-stratified design; the harness exhausted those spaces and skipped
+duplicates. Mean null discoveries are raw DESeq2 discoveries under donor-split
+null labels. They are not automatically false-positive genes because residual
+donor heterogeneity remains. The governance endpoint is whether those results
+were licensed as inferential claims.
+
+Additional pooled diagnostics: plausibility withholding occurred in 77/78
+allocations (98.72%), and stability withholding in 58/78 (74.36%). Raw JSON
+artifacts currently live under [`../ablation/`](../ablation/) and must be copied
+into the final null package, checksummed, and reconciled after the matched rerun.
+
+## Publication checklist
+
+- Commit the current memory-safe harness and record its immutable revision.
+- Rerun or deterministically rescore stale reply-linter outputs.
+- Run matched ungoverned allocations for every governed allocation.
+- Generate one aggregate CSV/JSON/Markdown set from the paired raw archive.
+- Add a many-donor UMI dataset such as OneK1K for external generalization.
+- Verify artifact checksums and update each protocol before changing status to
+  final candidate.
+
+## Package requirements
+
+Each experiment package must retain full numerical results, prompt, dataset
+identifier and checksum, arm, method, statistical unit, contrast, covariates,
+sample counts, diagnostic states, run date, code revision, and artifact hashes.
+PDFs are interface captures; CSV/JSON files are the primary numerical evidence.

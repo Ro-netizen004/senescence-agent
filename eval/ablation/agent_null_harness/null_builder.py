@@ -112,20 +112,27 @@ def _covariate_audit(sub, sample_col, group_col, covariate="null_batch"):
 
 
 def _usable_mice(sub, ct_col: str, sample_col: str, cell_type: str) -> list[str]:
-    import scanpy as sc  # noqa: F401 â€” ensure scanpy-backed obs types work
-
     cells = sub[sub.obs[ct_col].astype(str) == str(cell_type)]
     vc = cells.obs[sample_col].astype(str).value_counts()
     return sorted(vc[vc >= MIN_CELLS_PER_SAMPLE].index.tolist())
 
 
-def prepare_null_source(data_path: Path):
-    """Load and prepare the full dataset once for all allocations in a worker."""
+def prepare_null_source(data_path: Path, cell_type: str | None = None):
+    """Load once and optionally materialize one reusable cell-type subset."""
+    import gc
     import scanpy as sc
     from agent.pipeline import ensure_pipeline
 
     adata = sc.read_h5ad(str(data_path))
     ensure_pipeline(adata, "mouse")
+    if cell_type:
+        profile = adata.uns.get("dataset_profile") or {}
+        ct_col = profile.get("cell_type_column") or "cell_ontology_class"
+        subset = adata[adata.obs[ct_col].astype(str) == str(cell_type)].copy()
+        subset.uns["_null_source_cell_type"] = str(cell_type)
+        del adata
+        gc.collect()
+        return subset
     return adata
 
 
@@ -163,7 +170,12 @@ def build_null_adata(
         mice_ge = (counts >= MIN_CELLS_PER_SAMPLE).sum(axis=1)
         cell_type = mice_ge.sort_values(ascending=False).index[0]
 
-    sub = adata[adata.obs[ct_col].astype(str) == str(cell_type)].copy()
+    if adata.uns.get("_null_source_cell_type") == str(cell_type):
+        # The worker already owns an immutable materialized cell-type subset.
+        # A donor-specific copy is made below after allocation.
+        sub = adata
+    else:
+        sub = adata[adata.obs[ct_col].astype(str) == str(cell_type)].copy()
     mice = _usable_mice(sub, ct_col, sample_col, cell_type)
     if len(mice) < 4:
         raise ValueError(
@@ -271,6 +283,7 @@ def build_null_adata(
     elif design != "valid":
         raise ValueError(f"Unknown null design: {design}")
     sub.uns.pop("dataset_profile", None)
+    sub.uns.pop("_null_source_cell_type", None)
 
     meta = {
         "cell_type": str(cell_type),

@@ -2,7 +2,9 @@
 
 import os
 import sys
+import types
 import unittest
+from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
@@ -12,7 +14,7 @@ sys.path.insert(0, os.path.join(ROOT, "eval", "ablation", "agent_null_harness"))
 
 from null_builder import (
     FAKE_OLD, FAKE_YOUNG, NULL_GROUP_COLUMN, _canonical_allocation,
-    _covariate_audit, _stratified_split,
+    _covariate_audit, _stratified_split, build_null_adata,
 )
 
 
@@ -57,6 +59,41 @@ class TestStratifiedNullBuilder(unittest.TestCase):
         self.assertEqual(audit["n_samples"], 4)
         self.assertEqual(audit["table"], {"X": {"A": 2}, "Y": {"B": 2}})
         self.assertTrue(audit["perfect_separation"])
+
+    def test_materialized_cell_type_source_is_not_mutated(self):
+        import anndata as ad
+
+        samples = [f"m{i}" for i in range(4)]
+        obs = pd.DataFrame(
+            {
+                "cell_ontology_class": ["B cell"] * 80,
+                "sample_id": np.repeat(samples, 20),
+                "age": np.repeat(["3m", "3m", "24m", "24m"], 20),
+            }
+        )
+        source = ad.AnnData(X=np.ones((80, 2)), obs=obs)
+        source.uns["dataset_profile"] = {
+            "cell_type_column": "cell_ontology_class",
+            "sample_column": "sample_id",
+            "age_column": "age",
+        }
+        source.uns["_null_source_cell_type"] = "B cell"
+
+        tools_module = types.ModuleType("tools")
+        pseudobulk_module = types.ModuleType("tools.build_pseudobulk")
+        pseudobulk_module._get_sample_column = lambda _adata, suggested: suggested
+        with patch.dict(
+            sys.modules,
+            {"tools": tools_module, "tools.build_pseudobulk": pseudobulk_module},
+        ):
+            result, _ = build_null_adata(
+                None, "B cell", 7, mode="stratified", source_adata=source
+            )
+
+        self.assertIn("_null_source_cell_type", source.uns)
+        self.assertNotIn(NULL_GROUP_COLUMN, source.obs)
+        self.assertNotIn("_null_source_cell_type", result.uns)
+        self.assertEqual(set(result.obs[NULL_GROUP_COLUMN]), {FAKE_YOUNG, FAKE_OLD})
 
 
 if __name__ == "__main__":

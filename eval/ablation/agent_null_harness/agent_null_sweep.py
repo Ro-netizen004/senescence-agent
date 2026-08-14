@@ -455,7 +455,7 @@ def run_sweep(
     rows = []
     seen_allocations = set()
     duplicate_allocations = 0
-    source_adata = prepare_null_source(data_path)
+    source_adata = prepare_null_source(data_path, resolved_ct or cell_type)
 
     print(f"Dataset: {data_path.name}")
     print(f"Arm: {arm} | mode: {mode} | permutations: {n_perm}")

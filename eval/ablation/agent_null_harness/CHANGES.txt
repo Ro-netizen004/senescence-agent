@@ -872,3 +872,14 @@ UNGOVERNED FULL-RESULT EXPORT (added 2026-08-14)
      workers cap joblib CPU fan-out, restrict BLAS child threads, evict the
      cached AnnData after every permutation, and force garbage collection before
      constructing the next subset. This addresses the Liver sparse-copy OOM.
+177. Removed a second Liver memory multiplier: each worker now materializes its
+     requested cell type once and reuses that immutable source across seeds,
+     rather than copying the full hepatocyte population from the atlas before
+     every donor allocation. Donor-specific subsets and counts are unchanged.
+     Also removed an unused Scanpy import from donor enumeration so this hot
+     path does not initialize the full analysis stack during isolated tests.
+178. Replaced the final-candidate landing README with a common paper-data
+     registry. It now indexes the positive control, paired null smoke test, and
+     five-tissue governed pilot; records denominators and pooled endpoints; and
+     labels preliminary, stale-linter, provenance, and publication boundaries
+     so historical artifacts cannot be mistaken for final paper evidence.
