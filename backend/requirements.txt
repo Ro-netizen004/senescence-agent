@@ -5,7 +5,7 @@ python-multipart==0.0.28
 python-dotenv==1.2.2
 
 # LLM (agent + reports)
-google-generativeai>=0.8.3
+google-genai==2.18.1
 
 # Single-cell analysis
 anndata==0.11.4
@@ -17,7 +17,7 @@ igraph==1.0.0
 umap-learn==0.5.12
 
 # Differential expression (pseudobulk)
-pydeseq2>=0.4.4
+pydeseq2==0.5.4
 
 # Gene annotation / SenMayo
 mygene==3.2.2

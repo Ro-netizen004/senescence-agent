@@ -18,7 +18,7 @@ python eval/ablation/null_harness/run_null_sweep.py --n-perm 200 --top 3
 ```
 
 ## `agent_null_harness/` — Result 1b: null harness on the **real agent**
-- `null_builder.py` — constructs fake 3m/24m nulls (homogeneous or random split).
+- `null_builder.py` — constructs fake 3m/24m nulls (homogeneous, random, or age/sex-stratified donor split).
 - `agent_null_sweep.py` — runs `run_agent()` per permutation; scores DESeq2 +
   inference state (end-to-end, not isolated Wilcoxon/t-test).
 - `run_agent_null_sweep.py` — multi-tissue sweep; writes `agent_null_sweep_summary_*.csv/.md`.

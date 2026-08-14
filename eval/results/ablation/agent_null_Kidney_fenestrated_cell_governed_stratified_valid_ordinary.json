@@ -1,0 +1,2670 @@
+{
+  "dataset": "tabula-muris-senis-facs-processed-official-annotations-Kidney.h5ad",
+  "cell_type": "fenestrated cell",
+  "arm": "governed",
+  "mode": "stratified",
+  "design": "valid",
+  "prompt_style": "ordinary",
+  "prompt": "Which genes differ between fake_A and fake_B in fenestrated cell?",
+  "null_group_column": "null_group",
+  "null_groups": [
+    "fake_A",
+    "fake_B"
+  ],
+  "n_perm_requested": 1,
+  "n_perm_completed": 1,
+  "n_perm_ran_deseq2": 1,
+  "n_perm_blocked": 0,
+  "n_perm_routing_miss": 0,
+  "n_duplicate_allocations_skipped": 0,
+  "inference_state_counts": {
+    "DESCRIPTIVE_ONLY": 1
+  },
+  "mean_null_discoveries": 254.0,
+  "mean_fp_genes": 254.0,
+  "raw_discovery_rate": 1.0,
+  "raw_discovery_rate_ci95": [
+    0.2065,
+    1.0
+  ],
+  "licensed_claim_rate": 0.0,
+  "licensed_claim_rate_ci95": [
+    0.0,
+    0.7935
+  ],
+  "reply_overclaim_rate": 0.0,
+  "reply_overclaim_rate_ci95": [
+    0.0,
+    0.7935
+  ],
+  "plausibility_withheld_rate": 1.0,
+  "plausibility_withheld_rate_ci95": [
+    0.2065,
+    1.0
+  ],
+  "exploratory_null_discovery_rate": 0.0,
+  "exploratory_null_discovery_rate_ci95": [
+    0.0,
+    0.7935
+  ],
+  "false_discovery_rate": 0.0,
+  "exploratory_fp_rate": 0.0,
+  "diagnostics": {
+    "n_runs_with_diagnostics": 1,
+    "null_discovery_distribution": {
+      "n": 1,
+      "mean": 254.0,
+      "median": 254.0,
+      "q1": 254.0,
+      "q3": 254.0,
+      "min": 254.0,
+      "max": 254.0
+    },
+    "gene_overlap": {
+      "pairwise_jaccard": {
+        "n": 0,
+        "mean": null,
+        "median": null,
+        "q1": null,
+        "q3": null,
+        "min": null,
+        "max": null
+      },
+      "matrix": [
+        [
+          1.0
+        ]
+      ],
+      "matrix_note": null
+    },
+    "gene_recurrence_top100": [
+      {
+        "gene": "Bcar3",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Net1",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Myc",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Cep135",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Rac2",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Ep300",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Suv420h2",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Opn3",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Trmt2b",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Mcm6",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "5430411K18Rik",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Gpr150",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Sccpdh",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Cyp39a1",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Zdhhc24",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Atxn7l2",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Zrsr1",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Zfp740",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Tmod1",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Pbx3",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Tnfaip8",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "9130206I24Rik",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "0610009L18Rik",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Slc24a6",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Gm15708",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Rpap2",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Trdmt1",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Amot",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Map3k14",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Clcn6",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Otud6b",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Ube2e2",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Plcl2",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "9130017N09Rik",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Gpr155",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Gzf1",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Cenpj",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Porcn",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Chchd6",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Zfp119b",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "D17H6S56E-3",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Rhebl1",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "A330040F15Rik",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Dtwd2",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Eps8l2",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Pot1b",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Trps1",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Tmed6",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Med17",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Zfp958",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Ttc8",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Hsph1",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Rabggtb",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Slc29a3",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Ccbl1",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Trappc10",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Map2k6",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Lmbr1l",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "1110006O24Rik",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Gm11602",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Hmha1",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Calca",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Tigd3",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "D19Ertd386e",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Egfl8",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Mut",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Snhg5",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Dnajc25",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Alkbh1",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Tfpi2",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Cr2",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Bet1l",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Lipt2",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "1700001D01Rik",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Gtpbp6",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "AA388235",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Zfyve9",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Dhx37",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Xrcc5",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Rbm34",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "D2Ertd750e",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Selp",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Gm14322",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Rwdd2b",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Sik3",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "AI607873",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Zfp280d",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Ctss",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Mfsd8",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Spon1",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Nsdhl",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Zxdc",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Ubox5",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Rrm2",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Prim1",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Wdr20a",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Gas8",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Casc4",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Mrrf",
+        "runs": 1,
+        "rate": 1.0
+      },
+      {
+        "gene": "Wdr47",
+        "runs": 1,
+        "rate": 1.0
+      }
+    ],
+    "donor_prevalence": {
+      "distribution": {
+        "n": 254,
+        "mean": 4.0276,
+        "median": 4.0,
+        "q1": 3.0,
+        "q3": 5.0,
+        "min": 2.0,
+        "max": 6.0
+      },
+      "n_gene_run_results": 254,
+      "expressed_in_at_most_1_donor": 0,
+      "expressed_in_at_most_2_donors": 7
+    },
+    "library_sizes": {
+      "n": 6,
+      "mean": 42989320.1667,
+      "median": 41122878.0,
+      "q1": 32235729.25,
+      "q3": 48783313.25,
+      "min": 22383004.0,
+      "max": 72697023.0
+    },
+    "cell_counts_per_donor": {
+      "n": 6,
+      "mean": 28.0,
+      "median": 27.5,
+      "q1": 23.75,
+      "q3": 29.0,
+      "min": 21.0,
+      "max": 40.0
+    },
+    "influential_donor_profiles_top50": [
+      {
+        "perm": 0,
+        "sample_id": "24_61_M",
+        "group": "fake_A",
+        "library_size": 50811573,
+        "detected_genes": 9504,
+        "n_cells": 21,
+        "pca_distance": 130.648097
+      },
+      {
+        "perm": 0,
+        "sample_id": "3_38_F",
+        "group": "fake_A",
+        "library_size": 29798565,
+        "detected_genes": 10539,
+        "n_cells": 40,
+        "pca_distance": 126.980271
+      },
+      {
+        "perm": 0,
+        "sample_id": "3_11_M",
+        "group": "fake_B",
+        "library_size": 22383004,
+        "detected_genes": 10545,
+        "n_cells": 23,
+        "pca_distance": 116.616043
+      },
+      {
+        "perm": 0,
+        "sample_id": "24_58_M",
+        "group": "fake_B",
+        "library_size": 72697023,
+        "detected_genes": 9160,
+        "n_cells": 26,
+        "pca_distance": 104.341737
+      },
+      {
+        "perm": 0,
+        "sample_id": "24_60_M",
+        "group": "fake_A",
+        "library_size": 42698534,
+        "detected_genes": 11428,
+        "n_cells": 29,
+        "pca_distance": 39.592867
+      },
+      {
+        "perm": 0,
+        "sample_id": "24_59_M",
+        "group": "fake_B",
+        "library_size": 39547222,
+        "detected_genes": 10092,
+        "n_cells": 29,
+        "pca_distance": 32.701867
+      }
+    ],
+    "influence_metric": "PCA distance on log1p CPM pseudobulk profiles",
+    "allocation_balance": {
+      "max_stratum_difference_distribution": {
+        "n": 1,
+        "mean": 1.0,
+        "median": 1.0,
+        "q1": 1.0,
+        "q3": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "discovery_correlation": null
+    },
+    "library_size_group_ratio": {
+      "distribution": {
+        "n": 1,
+        "mean": 1.0918,
+        "median": 1.0918,
+        "q1": 1.0918,
+        "q3": 1.0918,
+        "min": 1.0918,
+        "max": 1.0918
+      },
+      "discovery_correlation": null
+    },
+    "excluded_donor_discovery_distribution": {
+      "18_46_F": {
+        "n": 1,
+        "mean": 254.0,
+        "median": 254.0,
+        "q1": 254.0,
+        "q3": 254.0,
+        "min": 254.0,
+        "max": 254.0
+      }
+    }
+  },
+  "truth": "Whole donors were assigned to constructed groups independently of the expression matrix, conditional on the selected allocation scheme. Genuine donor heterogeneity may remain, so significant genes are termed null discoveries.",
+  "permutations": [
+    {
+      "perm": 0,
+      "seed": 200,
+      "meta": {
+        "cell_type": "fenestrated cell",
+        "mode": "stratified",
+        "design": "valid",
+        "stratum": "stratified by real age and sex",
+        "null_group_column": "null_group",
+        "null_groups": [
+          "fake_A",
+          "fake_B"
+        ],
+        "real_age_column": "age",
+        "fake_young_mice": [
+          "24_60_M",
+          "24_61_M",
+          "3_38_F"
+        ],
+        "fake_old_mice": [
+          "24_58_M",
+          "24_59_M",
+          "3_11_M"
+        ],
+        "n_mice": 6,
+        "n_cells": 168,
+        "excluded_mice": [
+          "18_46_F"
+        ],
+        "stratum_counts": {
+          "('18m', 'F')": {
+            "eligible": 1,
+            "fake_young": 0,
+            "fake_old": 0,
+            "excluded": 1
+          },
+          "('24m', 'M')": {
+            "eligible": 4,
+            "fake_young": 2,
+            "fake_old": 2
+          },
+          "('3m', 'F')": {
+            "eligible": 1,
+            "fake_young": 1,
+            "fake_old": 0
+          },
+          "('3m', 'M')": {
+            "eligible": 1,
+            "fake_young": 0,
+            "fake_old": 1
+          }
+        },
+        "balance": {
+          "age": {
+            "18m": {
+              "fake_young": 0,
+              "fake_old": 0
+            },
+            "24m": {
+              "fake_young": 2,
+              "fake_old": 2
+            },
+            "3m": {
+              "fake_young": 1,
+              "fake_old": 1
+            }
+          },
+          "sex": {
+            "F": {
+              "fake_young": 1,
+              "fake_old": 0
+            },
+            "M": {
+              "fake_young": 2,
+              "fake_old": 3
+            }
+          }
+        },
+        "allocation_id": "24_58_M|24_59_M|3_11_M::24_60_M|24_61_M|3_38_F"
+      },
+      "skipped": false,
+      "ran_deseq2": true,
+      "blocked": false,
+      "n_sig": 254,
+      "inference_state": "DESCRIPTIVE_ONLY",
+      "false_discovery": false,
+      "raw_discovery": true,
+      "licensed_claim": false,
+      "exploratory_fp": false,
+      "plausibility_withheld": true,
+      "result_plausibility": {
+        "verdict": "suspect",
+        "n_significant": 254,
+        "n_extreme_lfc": 171,
+        "frac_extreme_lfc": 0.673,
+        "pct_up": 50.0,
+        "pct_down": 50.0,
+        "median_abs_log2fc": 9.66,
+        "extreme_lfc_threshold": 8.0,
+        "reasons": [
+          "the typical significant gene has |log2FC| = 9.7 (~810-fold); effect sizes this large across many genes are usually a low-count / library-size artifact, not real regulation",
+          "171/254 significant genes (67%) have |log2FC| > 8"
+        ]
+      },
+      "count_validation": {
+        "valid": true,
+        "source": "layers[counts]",
+        "n_nonzero": 324993,
+        "max_count": 5106821.0
+      },
+      "design_factors": [
+        "null_group"
+      ],
+      "covariates_used": [],
+      "covariates_dropped": [],
+      "evaluation_diagnostics": {
+        "significant_genes": [
+          "Cntd1",
+          "Chchd6",
+          "Egfl8",
+          "Prim1",
+          "Pot1b",
+          "Gm14322",
+          "Kctd18",
+          "Zkscan14",
+          "Ipo5",
+          "Arhgap44",
+          "Porcn",
+          "Slc2a4rg-ps",
+          "Wdr47",
+          "Polr3h",
+          "Pank1",
+          "Setdb1",
+          "Trps1",
+          "Trmt2b",
+          "Cenpj",
+          "1700040I03Rik",
+          "Nqo1",
+          "Il11ra1",
+          "Mrrf",
+          "Mcm6",
+          "Tfb2m",
+          "Kcnj8",
+          "Rpap2",
+          "Map3k14",
+          "Fut2",
+          "Dnajc25",
+          "Sik3",
+          "Ube2e2",
+          "1110006O24Rik",
+          "5430411K18Rik",
+          "Galt",
+          "Bcar3",
+          "St14",
+          "Sult2b1",
+          "Zfp280d",
+          "Cog1",
+          "Gpr150",
+          "Srgap1",
+          "Gm11602",
+          "Fkrp",
+          "Tmem62",
+          "Arl16",
+          "Cenpc1",
+          "Opa1",
+          "Abcb7",
+          "Alkbh1",
+          "Ppard",
+          "Mon1b",
+          "AU040320",
+          "Lmbr1l",
+          "A930013F10Rik",
+          "Cxcl10",
+          "Lman2l",
+          "Uck1",
+          "Vwa3a",
+          "Fut4",
+          "Zdhhc24",
+          "Net1",
+          "9130206I24Rik",
+          "Map2k6",
+          "Rnase4",
+          "Cep135",
+          "9130019O22Rik",
+          "Ncbp1",
+          "Tcte2",
+          "Selp",
+          "Il13ra1",
+          "Cr2",
+          "Abcc3",
+          "Ift172",
+          "Zbtb5",
+          "Lrrc8b",
+          "Fancb",
+          "Nsdhl",
+          "Spata7",
+          "D2Ertd750e",
+          "Bend3",
+          "Suv420h2",
+          "Trdmt1",
+          "Maml1",
+          "Asl",
+          "Mettl1",
+          "Otud6b",
+          "F420014N23Rik",
+          "Amot",
+          "Sccpdh",
+          "Impa2",
+          "Zfyve9",
+          "Ganc",
+          "Id4",
+          "Syt15",
+          "Serpina1d",
+          "Myc",
+          "4933439C10Rik",
+          "Zfp809",
+          "Mettl10",
+          "Mut",
+          "Clcn6",
+          "Mfsd8",
+          "Serpinf1",
+          "Zxdc",
+          "Fam135a",
+          "Iqgap2",
+          "Ccdc67",
+          "Extl2",
+          "AU022252",
+          "Fam161b",
+          "Gm10509",
+          "Wdr20a",
+          "Alg8",
+          "Pbx3",
+          "Gm6484",
+          "Zfp740",
+          "Bet1l",
+          "Chpf2",
+          "2610204G22Rik",
+          "Spc25",
+          "Dr1",
+          "Osbpl7",
+          "Zfp958",
+          "Fbp1",
+          "Dcaf15",
+          "Rac2",
+          "Bmf",
+          "Hsph1",
+          "Ep300",
+          "Tbc1d7",
+          "Mpg",
+          "Med17",
+          "Tnfaip8",
+          "Apeh",
+          "Ccbl1",
+          "Lsp1",
+          "1700054N08Rik",
+          "Ampd3",
+          "Dtwd2",
+          "Tnf",
+          "5830433M19Rik",
+          "Snhg6",
+          "Tagap",
+          "Gzf1",
+          "Wbscr25",
+          "Ubox5",
+          "Rrm2",
+          "Rabggtb",
+          "Adhfe1",
+          "Lrp3",
+          "Gm4944",
+          "Ctss",
+          "Dync2li1",
+          "Cyp39a1",
+          "1500001M20Rik",
+          "Rhebl1",
+          "Creb1",
+          "Stk3",
+          "Rwdd2b",
+          "Plcl2",
+          "4930402H24Rik",
+          "Calca",
+          "Med18",
+          "A330040F15Rik",
+          "Eps8l2",
+          "Ttc8",
+          "0610009L18Rik",
+          "1110008J03Rik",
+          "Dhx37",
+          "Lynx1",
+          "Trip12",
+          "Dusp14",
+          "Carm1",
+          "Cbll1",
+          "2410075B13Rik",
+          "Fam70b",
+          "Opn3",
+          "0610039K10Rik",
+          "Atxn7l2",
+          "Gm15708",
+          "Tigd3",
+          "Tmed6",
+          "Gm14403",
+          "Tmod1",
+          "Gpr155",
+          "Gstm4",
+          "Camk2a",
+          "Gas8",
+          "Wdr5b",
+          "Gnb5",
+          "Krt10",
+          "Gtpbp6",
+          "Tfpi2",
+          "Zrsr1",
+          "Zfp553",
+          "Rnu12",
+          "9130017N09Rik",
+          "Slc24a6",
+          "6720463M24Rik",
+          "Hnrnpl",
+          "Fbxo42",
+          "Slc10a4",
+          "Hmha1",
+          "Trappc10",
+          "Dok3",
+          "Efna5",
+          "Snx10",
+          "Dact1",
+          "Capn10",
+          "Vps8",
+          "Chn1",
+          "Tnfrsf25",
+          "Cdca2",
+          "Zfp60",
+          "E130311K13Rik",
+          "Plekhb1",
+          "Ttyh2",
+          "Zfp119b",
+          "Hddc3",
+          "1700001D01Rik",
+          "Rbm34",
+          "Zfp346",
+          "Syn2",
+          "Tprn",
+          "Arsb",
+          "Xrcc5",
+          "Cox18",
+          "Zfp316",
+          "Ccdc112",
+          "Lipt2",
+          "Farp1",
+          "Mapk8ip2",
+          "AA388235",
+          "Hspa1b",
+          "Clcf1",
+          "Stk35",
+          "1700011H14Rik",
+          "Casc4",
+          "AI607873",
+          "D19Ertd386e",
+          "Ptprcap",
+          "Capn5",
+          "Plekha8",
+          "Tmem154",
+          "Slc29a3",
+          "Tsga10",
+          "Spon1",
+          "Mrps18b",
+          "Hist2h4",
+          "D17H6S56E-3",
+          "1500003O03Rik",
+          "Snhg5",
+          "2310067B10Rik"
+        ],
+        "significant_gene_prevalence": [
+          {
+            "gene": "Cntd1",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Chchd6",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Egfl8",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "Prim1",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Pot1b",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Gm14322",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "Kctd18",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Zkscan14",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Ipo5",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Arhgap44",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "Porcn",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Slc2a4rg-ps",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Wdr47",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 2
+          },
+          {
+            "gene": "Polr3h",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Pank1",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Setdb1",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Trps1",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "Trmt2b",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "Cenpj",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "1700040I03Rik",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Nqo1",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "Il11ra1",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Mrrf",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Mcm6",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Tfb2m",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Kcnj8",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Rpap2",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Map3k14",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Fut2",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Dnajc25",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Sik3",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Ube2e2",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "1110006O24Rik",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "5430411K18Rik",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Galt",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Bcar3",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "St14",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Sult2b1",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Zfp280d",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Cog1",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Gpr150",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "Srgap1",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Gm11602",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Fkrp",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Tmem62",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Arl16",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Cenpc1",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Opa1",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Abcb7",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "Alkbh1",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Ppard",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Mon1b",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "AU040320",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Lmbr1l",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "A930013F10Rik",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Cxcl10",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Lman2l",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Uck1",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 2
+          },
+          {
+            "gene": "Vwa3a",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Fut4",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Zdhhc24",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "Net1",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "9130206I24Rik",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Map2k6",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Rnase4",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "Cep135",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "9130019O22Rik",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Ncbp1",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Tcte2",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Selp",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Il13ra1",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Cr2",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Abcc3",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "Ift172",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Zbtb5",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Lrrc8b",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Fancb",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Nsdhl",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "Spata7",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "D2Ertd750e",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Bend3",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Suv420h2",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Trdmt1",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "Maml1",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Asl",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Mettl1",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Otud6b",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "F420014N23Rik",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Amot",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Sccpdh",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Impa2",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Zfyve9",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Ganc",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "Id4",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Syt15",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Serpina1d",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Myc",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "4933439C10Rik",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Zfp809",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Mettl10",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Mut",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Clcn6",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Mfsd8",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Serpinf1",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "Zxdc",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Fam135a",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 2
+          },
+          {
+            "gene": "Iqgap2",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "Ccdc67",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Extl2",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "AU022252",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Fam161b",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Gm10509",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Wdr20a",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Alg8",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "Pbx3",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Gm6484",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Zfp740",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Bet1l",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Chpf2",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "2610204G22Rik",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Spc25",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Dr1",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Osbpl7",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Zfp958",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Fbp1",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Dcaf15",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Rac2",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 2
+          },
+          {
+            "gene": "Bmf",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Hsph1",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 2
+          },
+          {
+            "gene": "Ep300",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Tbc1d7",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "Mpg",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Med17",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Tnfaip8",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Apeh",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Ccbl1",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Lsp1",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 2
+          },
+          {
+            "gene": "1700054N08Rik",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Ampd3",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Dtwd2",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "Tnf",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "5830433M19Rik",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Snhg6",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Tagap",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 2
+          },
+          {
+            "gene": "Gzf1",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Wbscr25",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Ubox5",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 2
+          },
+          {
+            "gene": "Rrm2",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Rabggtb",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Adhfe1",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Lrp3",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Gm4944",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Ctss",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "Dync2li1",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 2
+          },
+          {
+            "gene": "Cyp39a1",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "1500001M20Rik",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 2
+          },
+          {
+            "gene": "Rhebl1",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 2
+          },
+          {
+            "gene": "Creb1",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Stk3",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Rwdd2b",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Plcl2",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "4930402H24Rik",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Calca",
+            "n_donors_expressed": 2,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Med18",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "A330040F15Rik",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Eps8l2",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Ttc8",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "0610009L18Rik",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "1110008J03Rik",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 2
+          },
+          {
+            "gene": "Dhx37",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 2
+          },
+          {
+            "gene": "Lynx1",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Trip12",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Dusp14",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Carm1",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Cbll1",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "2410075B13Rik",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 2
+          },
+          {
+            "gene": "Fam70b",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "Opn3",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 2
+          },
+          {
+            "gene": "0610039K10Rik",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Atxn7l2",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Gm15708",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 2
+          },
+          {
+            "gene": "Tigd3",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Tmed6",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Gm14403",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Tmod1",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Gpr155",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "Gstm4",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Camk2a",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 2
+          },
+          {
+            "gene": "Gas8",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "Wdr5b",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Gnb5",
+            "n_donors_expressed": 2,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 2
+          },
+          {
+            "gene": "Krt10",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Gtpbp6",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Tfpi2",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 2
+          },
+          {
+            "gene": "Zrsr1",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Zfp553",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 2
+          },
+          {
+            "gene": "Rnu12",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 2
+          },
+          {
+            "gene": "9130017N09Rik",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Slc24a6",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "6720463M24Rik",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Hnrnpl",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Fbxo42",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Slc10a4",
+            "n_donors_expressed": 2,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 2
+          },
+          {
+            "gene": "Hmha1",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 2
+          },
+          {
+            "gene": "Trappc10",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Dok3",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Efna5",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Snx10",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 2
+          },
+          {
+            "gene": "Dact1",
+            "n_donors_expressed": 2,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 2
+          },
+          {
+            "gene": "Capn10",
+            "n_donors_expressed": 2,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Vps8",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 2
+          },
+          {
+            "gene": "Chn1",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Tnfrsf25",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "Cdca2",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Zfp60",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "E130311K13Rik",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Plekhb1",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Ttyh2",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "Zfp119b",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Hddc3",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "1700001D01Rik",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Rbm34",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Zfp346",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Syn2",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "Tprn",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 2
+          },
+          {
+            "gene": "Arsb",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Xrcc5",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Cox18",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Zfp316",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Ccdc112",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Lipt2",
+            "n_donors_expressed": 2,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Farp1",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "Mapk8ip2",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "AA388235",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "Hspa1b",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Clcf1",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Stk35",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "1700011H14Rik",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Casc4",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "AI607873",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "D19Ertd386e",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 1,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Ptprcap",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Capn5",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Plekha8",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Tmem154",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "Slc29a3",
+            "n_donors_expressed": 4,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "Tsga10",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "Spon1",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 0
+          },
+          {
+            "gene": "Mrps18b",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Hist2h4",
+            "n_donors_expressed": 2,
+            "n_expressed_fake_A": 0,
+            "n_expressed_fake_B": 2
+          },
+          {
+            "gene": "D17H6S56E-3",
+            "n_donors_expressed": 3,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 1
+          },
+          {
+            "gene": "1500003O03Rik",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "Snhg5",
+            "n_donors_expressed": 5,
+            "n_expressed_fake_A": 2,
+            "n_expressed_fake_B": 3
+          },
+          {
+            "gene": "2310067B10Rik",
+            "n_donors_expressed": 6,
+            "n_expressed_fake_A": 3,
+            "n_expressed_fake_B": 3
+          }
+        ],
+        "donor_pseudobulk": [
+          {
+            "sample_id": "24_59_M",
+            "group": "fake_B",
+            "library_size": 39547222,
+            "detected_genes": 10092,
+            "n_cells": 29,
+            "pca_distance": 32.701867
+          },
+          {
+            "sample_id": "24_58_M",
+            "group": "fake_B",
+            "library_size": 72697023,
+            "detected_genes": 9160,
+            "n_cells": 26,
+            "pca_distance": 104.341737
+          },
+          {
+            "sample_id": "24_60_M",
+            "group": "fake_A",
+            "library_size": 42698534,
+            "detected_genes": 11428,
+            "n_cells": 29,
+            "pca_distance": 39.592867
+          },
+          {
+            "sample_id": "24_61_M",
+            "group": "fake_A",
+            "library_size": 50811573,
+            "detected_genes": 9504,
+            "n_cells": 21,
+            "pca_distance": 130.648097
+          },
+          {
+            "sample_id": "3_11_M",
+            "group": "fake_B",
+            "library_size": 22383004,
+            "detected_genes": 10545,
+            "n_cells": 23,
+            "pca_distance": 116.616043
+          },
+          {
+            "sample_id": "3_38_F",
+            "group": "fake_A",
+            "library_size": 29798565,
+            "detected_genes": 10539,
+            "n_cells": 40,
+            "pca_distance": 126.980271
+          }
+        ],
+        "influence_metric": "PCA distance on log1p CPM pseudobulk profiles"
+      },
+      "reply_overclaim": false,
+      "reply": "### Differential Expression (DESeq2)\n\n> \u26a0\ufe0f **These results look like a technical artifact, not real biology.** The test is statistically valid (design passed the admissibility check), but the effect sizes are implausible:\n> - the typical significant gene has |log2FC| = 9.7 (~810-fold); effect sizes this large across many genes are usually a low-count / library-size artifact, not real regulation\n> - 171/254 significant genes (67%) have |log2FC| > 8\n> \n> Typical fix: apply log2 fold-change shrinkage, filter low-count genes more strictly, and check for a library-size / batch difference between the groups before rerunning the analysis.\n\n**Gene-level results were withheld.** The design passed the minimum replicate checks, but the output failed the result-plausibility gate.\n\nSamples: 6 | Per-group: {'fake_A': 3, 'fake_B': 3}\n\n> No gene names, adjusted p-values, rankings, or result download are shown for a plausibility-failed analysis.\n\n[System] inference_state=DESCRIPTIVE_ONLY | interpretation_level=DESCRIPTIVE_ONLY | forbidden=[no_p_value, no_causality, no_biological_mechanism, no_hypothesis]\n\n[System] Contrast: differential expression on fenestrated cell by null_group (fake_A vs fake_B).",
+      "claim_violations": [],
+      "n_samples": 6,
+      "samples_per_age": {
+        "fake_A": 3,
+        "fake_B": 3
+      },
+      "error": null
+    }
+  ]
+}

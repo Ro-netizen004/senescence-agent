@@ -342,9 +342,35 @@ def _render_deseq2(schema: dict) -> str:
         lines.append(
             "> \n> Typical fix: apply log2 fold-change shrinkage, filter low-count genes "
             "more strictly, and check for a library-size / batch difference between the "
-            "groups before trusting these genes."
+            "groups before rerunning the analysis."
         )
-        lines.append("")
+        lines.extend([
+            "",
+            "**Gene-level results were withheld.** The design passed the minimum "
+            "replicate checks, but the output failed the result-plausibility gate.",
+            "",
+            f"Samples: {pop.get('n_samples', 'NA')} | Per-group: {pop.get('samples_per_age', 'NA')}",
+            "",
+            "> No gene names, adjusted p-values, rankings, or result download are shown "
+            "for a plausibility-failed analysis.",
+        ])
+        return "\n".join(lines)
+
+    stability = schema.get("replicate_stability") or {}
+    if stability.get("verdict") in {"unstable", "insufficient_evidence", "assessment_failed"}:
+        lines.extend([
+            "> **Inferential interpretation was withheld because donor stability was not established.**",
+            f"> Stability verdict: `{stability.get('verdict')}`. "
+            f"Stable significant genes: {stability.get('n_stable_genes', 'NA')} / "
+            f"{stability.get('n_significant_genes', 'NA')}.",
+            "",
+            "**Gene-level results were withheld.** Significant genes must retain their "
+            "direction and effect under leave-one-donor-out sensitivity before they can "
+            "support an inferential conclusion.",
+            "",
+            f"Samples: {pop.get('n_samples', 'NA')} | Per-group: {pop.get('samples_per_age', 'NA')}",
+        ])
+        return "\n".join(lines)
 
     if state == InferenceState.NOT_SIGNIFICANT.value or n_sig == 0:
         lines.append(f"**No genes** passed FDR < 0.05 for {cell_type} ({oldest} vs {youngest}).")

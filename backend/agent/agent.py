@@ -3,7 +3,8 @@ import runtime_io  # noqa: F401  — reconfigures stdout/stderr to UTF-8 on impo
 import os
 import json
 import scanpy as sc
-import google.generativeai as genai
+from google import genai
+from google.genai import types
  
 from dotenv import load_dotenv
  
@@ -25,6 +26,7 @@ from agent.intent_router import (
 )
 from agent.workflows import run_workflow, WORKFLOWS
 from agent.intent_extractor import extract_intent, validate_and_route
+from agent.analysis_planner import plan_route
 from agent.governance import governance_enabled
 from agent.system_prompt import SYSTEM_PROMPT
 from dataset_paths import resolve_dataset_path
@@ -37,7 +39,6 @@ from agent.scientific_validation import wrap_result_for_llm
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "../../.env"))
  
 MODEL = os.getenv("GEMINI_MODEL", "gemini-flash-latest")
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 DEFAULT_AGENT_ITERATIONS = int(os.getenv("DEFAULT_AGENT_ITERATIONS", "3"))
 FULL_PIPELINE_AGENT_ITERATIONS = int(os.getenv("FULL_PIPELINE_AGENT_ITERATIONS", "5"))
@@ -84,9 +85,11 @@ def _wants_multi_step(message: str) -> bool:
     return message.count(",") >= 2
 
 
-def _run_workflow_from_route(decision, tool_map: dict, message: str) -> dict:
+def _run_workflow_from_route(
+    decision, tool_map: dict, message: str, analysis_plan: dict | None = None
+) -> dict:
     workflow = WORKFLOWS[decision.workflow_id]
-    return run_workflow(
+    response = run_workflow(
         workflow,
         tool_map,
         message,
@@ -98,6 +101,9 @@ def _run_workflow_from_route(decision, tool_map: dict, message: str) -> dict:
         arg_overrides=decision.tool_args,
         reply_suffix=decision.reply_suffix,
     )
+    if analysis_plan is not None:
+        response["analysis_plan"] = analysis_plan
+    return response
 
 
 def _plot_basename(path) -> str:
@@ -306,7 +312,10 @@ def run_agent(
             return {"reply": decision.concept_reply, "plots": [], "tool_calls": []}
 
         if decision.workflow_id and decision.workflow_id in WORKFLOWS:
-            return _run_workflow_from_route(decision, tool_map, message)
+            decision, analysis_plan = plan_route(message, adata, decision)
+            return _run_workflow_from_route(
+                decision, tool_map, message, analysis_plan=analysis_plan
+            )
 
         # ── Tier 2: LLM structured-intent extraction + deterministic validation ──
         # The LLM proposes a structured intent; the validator confirms it against
@@ -315,7 +324,10 @@ def run_agent(
         intent = extract_intent(message, adata)
         routed = validate_and_route(intent, adata)
         if routed is not None and routed.workflow_id in WORKFLOWS:
-            return _run_workflow_from_route(routed, tool_map, message)
+            routed, analysis_plan = plan_route(message, adata, routed)
+            return _run_workflow_from_route(
+                routed, tool_map, message, analysis_plan=analysis_plan
+            )
 
     system_instruction = SYSTEM_PROMPT
     if not session_history:
@@ -326,16 +338,16 @@ def run_agent(
         )
 
     # ── Gemini client ─────────────────────────────────────────────────
-    model = genai.GenerativeModel(
-        model_name=MODEL,
+    client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+    config = types.GenerateContentConfig(
         tools=TOOLS,
         system_instruction=system_instruction,
-        generation_config=genai.GenerationConfig(temperature=0)
+        temperature=0,
     )
  
     # Convert history and start chat
     gemini_history = _to_gemini_history(session_history)
-    chat = model.start_chat(history=gemini_history)
+    chat = client.chats.create(model=MODEL, config=config, history=gemini_history)
  
     plots = []
     tool_calls_log = []
@@ -355,8 +367,12 @@ def run_agent(
         parts = candidate.content.parts
  
         # Check for text-only final answer
-        tool_call_parts = [p for p in parts if hasattr(p, "function_call") and p.function_call.name]
-        text_parts = [p for p in parts if hasattr(p, "text") and p.text]
+        tool_call_parts = [
+            p for p in parts
+            if getattr(p, "function_call", None)
+            and getattr(p.function_call, "name", None)
+        ]
+        text_parts = [p for p in parts if getattr(p, "text", None)]
  
         if not tool_call_parts:
             if tool_calls_log:
@@ -445,11 +461,9 @@ def run_agent(
             # hand it the raw numbers so it can narrate them unguarded.
             llm_payload = result if not governed else wrap_result_for_llm(name, result, args)
             function_responses.append(
-                genai.protos.Part(
-                    function_response=genai.protos.FunctionResponse(
-                        name=name,
-                        response=json.loads(json.dumps(llm_payload, default=str)),
-                    )
+                types.Part.from_function_response(
+                    name=name,
+                    response=json.loads(json.dumps(llm_payload, default=str)),
                 )
             )
 

@@ -1,4 +1,8 @@
+import os
+import sys
 import unittest
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from agent.inference_state import (
     InferenceState,
@@ -6,10 +10,44 @@ from agent.inference_state import (
     assign_inference_state,
     build_state_record,
     _deseq2_low_power,
+    apply_inference_state,
 )
 
 
 class TestDeseq2InferenceState(unittest.TestCase):
+    def test_unstable_replicate_effect_downgrades_significant_result(self):
+        result = {
+            "n_significant_fdr_0_05": 4,
+            "n_samples": 8,
+            "samples_per_age": {"A": 4, "B": 4},
+            "results": [{"gene": "X", "padj": 0.01}],
+            "result_plausibility": {"verdict": "ok"},
+            "replicate_stability": {"verdict": "unstable"},
+        }
+        self.assertEqual(
+            assign_inference_state("run_deseq2", result),
+            InferenceState.DESCRIPTIVE_ONLY,
+        )
+        record = build_state_record("run_deseq2", result)
+        self.assertIn("replicate_instability", record["validity_flags"])
+        self.assertFalse(record["validity_gate_passed"])
+
+    def test_cluster_marker_de_is_explicitly_descriptive_and_circular(self):
+        result = {
+            "top_markers": [{"gene": "X", "pvals_adj": 0.001}],
+            "n_significant": 1,
+        }
+        governed = apply_inference_state("differential_expression", result, {})
+        self.assertEqual(governed["analysis_scope"], "descriptive_marker_discovery")
+        self.assertFalse(governed["inferentially_licensed"])
+        self.assertIn("circular_inference_risk", governed["validity_flags"])
+        self.assertIn("cell_unit_not_inferential", governed["validity_flags"])
+        self.assertEqual(
+            governed["inference_state"]["allowed_interpretation_level"],
+            InterpretationLevel.DESCRIPTIVE_ONLY.value,
+        )
+        self.assertIsNone(governed["inference_state"]["conclusion"])
+
     def test_two_by_two_is_low_power_even_with_significant_genes(self):
         result = {
             "n_significant_fdr_0_05": 380,

@@ -1,0 +1,2 @@
+tissue,cell_type,arm,n_perm,ran_deseq2,mean_null_discoveries,plausibility_withheld_rate,inference_state_counts,raw_discovery_rate,licensed_claim_rate,reply_overclaim_rate,routing_miss
+Kidney,epithelial cell of proximal tubule,governed,6,6,203.17,1.0,"{""DESCRIPTIVE_ONLY"": 6}",1.0,0.0,0.0,0

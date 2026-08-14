@@ -6,7 +6,8 @@ import uuid
 from datetime import datetime
 from typing import Any, Iterable, Optional
 
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
 
@@ -137,14 +138,6 @@ def generate_report(
     if not REPORT_API_KEY:
         return "Report generation failed: REPORT_GEMINI_API_KEY or GEMINI_API_KEY is not configured."
 
-    genai.configure(api_key=REPORT_API_KEY)
-
-    model = genai.GenerativeModel(
-        model_name=REPORT_MODEL,
-        system_instruction=REPORT_SYSTEM_PROMPT,
-        generation_config=genai.GenerationConfig(temperature=0.1),
-    )
-
     user_section = (
         f"## User questions (context only)\n{user_questions}"
         if user_questions
@@ -175,7 +168,15 @@ Required sections:
 {tool_log}
 """
 
-    response = model.generate_content(prompt)
+    client = genai.Client(api_key=REPORT_API_KEY)
+    response = client.models.generate_content(
+        model=REPORT_MODEL,
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            system_instruction=REPORT_SYSTEM_PROMPT,
+            temperature=0.1,
+        ),
+    )
     return (response.text or "").strip() or "Report generation completed, but the model returned an empty report."
 
 

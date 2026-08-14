@@ -4,9 +4,14 @@ import os
 import sys
 import unittest
 
+import anndata as ad
+import numpy as np
+import pandas as pd
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from agent.intent_router import (
+    route,
     _is_bare_pvalue_request,
     _wants_cluster_annotations,
     _wants_explicit_senescence_test,
@@ -73,6 +78,55 @@ class TestDeterministicRouting(unittest.TestCase):
             )
         )
 
+
+    def test_ordinary_named_non_age_groups_override_age_fallback(self):
+        obs = pd.DataFrame({
+            "cell_ontology_class": ["T cell"] * 4,
+            "age": ["3m", "24m", "3m", "24m"],
+            "null_group": ["fake_A", "fake_B", "fake_A", "fake_B"],
+        }, index=[f"cell_{i}" for i in range(4)])
+        adata = ad.AnnData(X=np.ones((4, 2)), obs=obs)
+        adata.uns["dataset_profile"] = {
+            "cell_type_column": "cell_ontology_class",
+            "age_column": "age",
+            "primary_group_column": "age",
+            "group_columns": [
+                {"column": "age", "values": ["3m", "24m"], "n_levels": 2},
+                {"column": "null_group", "values": ["fake_A", "fake_B"], "n_levels": 2},
+            ],
+        }
+        decision = route("Which genes differ between fake_A and fake_B in T cell?", adata)
+        args = decision.tool_args["run_deseq2"]
+        self.assertEqual(args["group_column"], "null_group")
+        self.assertEqual(args["reference_group"], "fake_A")
+        self.assertEqual(args["comparison_group"], "fake_B")
+
+    def test_named_age_groups_follow_prompt_order_not_profile_order(self):
+        obs = pd.DataFrame({
+            "cell_ontology_class": ["B cell"] * 4,
+            "age": ["3m", "24m", "3m", "24m"],
+        }, index=[f"cell_{i}" for i in range(4)])
+        adata = ad.AnnData(X=np.ones((4, 2)), obs=obs)
+        adata.uns["dataset_profile"] = {
+            "cell_type_column": "cell_ontology_class",
+            "age_column": "age",
+            "primary_group_column": "comparison_group",
+            # Deliberately profile-sorted in the opposite order to the prompt.
+            "group_columns": [
+                {"column": "age", "values": ["24m", "3m"], "n_levels": 2},
+                {"column": "comparison_group", "values": ["group_1", "group_2"]},
+            ],
+            "deseq2_covariates": ["sex"],
+        }
+        prompt = (
+            "Run differential expression on B cell between 3m and 24m "
+            "using age as the grouping variable."
+        )
+        decision = route(prompt, adata)
+        args = decision.tool_args["run_deseq2"]
+        self.assertEqual(args["group_column"], "age")
+        self.assertEqual(args["reference_group"], "3m")
+        self.assertEqual(args["comparison_group"], "24m")
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,57 @@
+{
+  "dataset": "tabula-muris-senis-facs-processed-official-annotations-Kidney.h5ad",
+  "cell_type": "fenestrated cell",
+  "arm": "governed",
+  "mode": "homogeneous",
+  "design": "one_sample_per_group",
+  "prompt_style": "explicit",
+  "prompt": "Run differential expression on fenestrated cell between 3m and 24m",
+  "n_perm_requested": 1,
+  "n_perm_completed": 1,
+  "n_perm_ran_deseq2": 0,
+  "n_perm_blocked": 1,
+  "n_perm_routing_miss": 0,
+  "n_duplicate_allocations_skipped": 0,
+  "mean_fp_genes": null,
+  "raw_discovery_rate": null,
+  "licensed_claim_rate": null,
+  "reply_overclaim_rate": 0.0,
+  "false_discovery_rate": null,
+  "exploratory_fp_rate": null,
+  "truth": "Fake labels were assigned independently of expression; no systematic group effect was introduced.",
+  "permutations": [
+    {
+      "perm": 0,
+      "seed": 0,
+      "meta": {
+        "cell_type": "fenestrated cell",
+        "mode": "homogeneous",
+        "design": "one_sample_per_group",
+        "stratum": "24m / sex M",
+        "fake_young_mice": [
+          "24_58_M",
+          "24_60_M"
+        ],
+        "fake_old_mice": [
+          "24_59_M",
+          "24_61_M"
+        ],
+        "n_mice": 4,
+        "n_cells": 105,
+        "allocation_id": "24_58_M|24_60_M::24_59_M|24_61_M"
+      },
+      "skipped": false,
+      "ran_deseq2": false,
+      "blocked": true,
+      "n_sig": null,
+      "inference_state": "BLOCKED",
+      "false_discovery": false,
+      "raw_discovery": false,
+      "licensed_claim": false,
+      "reply_overclaim": false,
+      "reply": "### Inference not run - inadmissible for this dataset\n\nThe requested analysis (`run_deseq2`) was **not executed** because the data design does not support a valid statistical inference here:\n\n- groups ['3m', '24m'] have < 2 biological replicates with >= 20 cells (usable counts={'3m': 1, '24m': 1}). No between-replicate variance can be estimated; a per-cell test here would be pseudoreplication.\n\n> Biological replicates per group: {'3m': 1, '24m': 1}\n\n> This is an admissibility guard: a result would have been statistically invalid (e.g. pseudoreplication), so no p-value was produced.\n\n[System] Contrast: differential expression on fenestrated cell by age (3m vs 24m).",
+      "claim_violations": [],
+      "error": "This inference is inadmissible given the data design and was not run. insufficient_replicates: groups ['3m', '24m'] have < 2 biological replicates with >= 20 cells (usable counts={'3m': 1, '24m': 1}). No between-replicate variance can be estimated; a per-cell test here would be pseudoreplication."
+    }
+  ]
+}

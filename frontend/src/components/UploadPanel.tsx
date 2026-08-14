@@ -103,7 +103,7 @@ export default function UploadPanel({
           Reading results
         </h3>
         <p className="mt-1.5 text-[11px] leading-5 text-slate-500">
-          Replies are governed: claims are limited to what the statistics support.
+          The executed method, statistical unit, and inference mode are recorded with each result.
         </p>
         <dl className="mt-3 space-y-2.5">
           {[

@@ -4,7 +4,7 @@ from fastapi import FastAPI, UploadFile, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional
 import os
 import uuid
 import shutil
@@ -16,7 +16,7 @@ from agent.cache import cache_adata, get_adata
 from agent.pipeline import ensure_pipeline
 from agent.column_roles import build_column_roles, apply_column_overrides
 from dataset_paths import persist_upload, resolve_dataset_path, ensure_uploads_dir
-from tools.dataset_info import build_dataset_summary
+from tools.dataset_info import build_dataset_preview, build_dataset_summary
 
 app = FastAPI()
 
@@ -76,6 +76,8 @@ class ColumnOverrideRequest(BaseModel):
     sample_column: Optional[str] = None
     primary_group_column: Optional[str] = None
     cell_type_column: Optional[str] = None
+    deseq2_covariates: Optional[List[str]] = None
+    contrast_aliases: Optional[Dict[str, List[str]]] = None
     # Custom grouping: {"column": "condition", "groups": {"control": [...], "senescent": [...]}}
     grouping: Optional[dict] = None
 
@@ -259,6 +261,15 @@ async def dataset_info(file_id: str, species: str = "mouse"):
     summary = build_dataset_summary(adata, species)
     cache_adata(file_id, adata)
     return summary
+
+
+@app.get("/dataset/{file_id}/preview")
+async def dataset_preview(file_id: str, species: str = "mouse", rows: int = 20):
+    """Return a small observation table and gene-name preview for the dashboard."""
+    if rows < 1 or rows > 100:
+        raise HTTPException(status_code=400, detail="rows must be between 1 and 100")
+    adata = _load_and_profile(file_id, species)
+    return build_dataset_preview(adata, row_limit=rows)
 
 
 @app.get("/dataset/{file_id}/columns")

@@ -1,8 +1,8 @@
-from google.generativeai.types import FunctionDeclaration, Tool
+from google.genai import types
 
-TOOLS = Tool(function_declarations=[
+TOOLS = [types.Tool(function_declarations=[
 
-    FunctionDeclaration(
+    types.FunctionDeclaration(
         name="generate_umap",
         description="Generate 2D UMAP visualization of cell clusters.",
         parameters={
@@ -11,7 +11,7 @@ TOOLS = Tool(function_declarations=[
         }
     ),
 
-    FunctionDeclaration(
+    types.FunctionDeclaration(
         name="find_senescence_markers",
         description=(
             "Checks which SenMayo senescence genes are present in the dataset. "
@@ -23,7 +23,7 @@ TOOLS = Tool(function_declarations=[
         }
     ),
 
-    FunctionDeclaration(
+    types.FunctionDeclaration(
         name="senescence_score",
         description=(
             "Scores each cell using the SenMayo 125-gene signature. "
@@ -36,7 +36,7 @@ TOOLS = Tool(function_declarations=[
         }
     ),
 
-    FunctionDeclaration(
+    types.FunctionDeclaration(
         name="get_cluster_annotations",
         description=(
             "Returns the cell type of each Leiden cluster. Uses the dataset's own "
@@ -51,7 +51,7 @@ TOOLS = Tool(function_declarations=[
         }
     ),
 
-    FunctionDeclaration(
+    types.FunctionDeclaration(
         name="run_deseq2",
         description=(
             "Performs gene-level differential expression using pseudobulk + DESeq2 for one "
@@ -89,7 +89,7 @@ TOOLS = Tool(function_declarations=[
         }
     ),
 
-    FunctionDeclaration(
+    types.FunctionDeclaration(
         name="test_senescence_difference",
         description=(
             "Statistical test for SenMayo score change between two age groups in one cell type. "
@@ -120,12 +120,17 @@ TOOLS = Tool(function_declarations=[
                     "type": "string",
                     "description": "Sample/donor column (default: sample_id)",
                 },
+                "covariates": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Optional sample-level adjustment columns, e.g. pool, sex, batch",
+                },
             },
             "required": ["cell_type"],
         },
     ),
 
-    FunctionDeclaration(
+    types.FunctionDeclaration(
         name="compare_across_age",
         description=(
             "Analyzes senescence across age groups with cell-type stratification. "
@@ -163,4 +168,4 @@ TOOLS = Tool(function_declarations=[
         }
     ),
 
-])
+])]

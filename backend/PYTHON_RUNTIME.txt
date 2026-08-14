@@ -1,0 +1,8 @@
+Supported Python runtime: 3.11.x
+
+The paper evaluation environment must be created with Python 3.11. Python 3.10
+reaches end of life in October 2026 and must not be used for final frozen runs.
+
+Reference environment created and verified on Python 3.11.9. Use the maintained
+Google GenAI SDK pinned in requirements.txt. The legacy google-generativeai SDK
+is not part of the paper environment.

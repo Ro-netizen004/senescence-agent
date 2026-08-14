@@ -1,0 +1,53 @@
+{
+  "experiment": "tms_spleen_b_cell_positive_control",
+  "status": "final_candidate_protocol_review_required",
+  "contrast": {
+    "cell_type": "B cell",
+    "group_column": "age",
+    "reference_group": "3m",
+    "comparison_group": "24m"
+  },
+  "governed": {
+    "method": "pseudobulk_deseq2",
+    "statistical_unit": "biological_sample",
+    "n_samples": 10,
+    "samples_per_group": {"24m": 4, "3m": 6},
+    "covariates_used": ["sex"],
+    "design_factors": ["sex", "age"],
+    "genes_in_result_table": 15631,
+    "genes_with_finite_padj": 12041,
+    "significant_genes_fdr_0_05": 2246,
+    "stable_significant_genes": 1995,
+    "stable_gene_fraction": 0.8882,
+    "inference_state": "SIGNIFICANT_INFERENTIAL",
+    "plausibility_verdict": "ok"
+  },
+  "ungoverned": {
+    "method": "per_cell_wilcoxon",
+    "statistical_unit": "cell",
+    "n_cells": 2056,
+    "cells_per_group": {"24m": 808, "3m": 1248},
+    "covariates_used": [],
+    "genes_tested": 5514,
+    "significant_genes_fdr_0_05": 2951,
+    "significant_fraction": 0.5351831701
+  },
+  "matched_gene_comparison": {
+    "shared_genes": 5514,
+    "governed_significant_among_shared": 1472,
+    "governed_significant_fraction_among_shared": 0.2669568371,
+    "significant_in_both": 1167,
+    "ungoverned_significant_also_governed_fraction": 0.3954591664,
+    "governed_shared_significant_also_ungoverned_fraction": 0.7927989130,
+    "all_significant_set_jaccard": 0.2895781638,
+    "direction_agreement_all_shared": 0.8623503808,
+    "direction_agreement_jointly_significant": 1.0,
+    "spearman_log2fc_all_shared": 0.8860814632,
+    "spearman_log2fc_jointly_significant": 0.8015513928,
+    "pearson_log2fc_all_shared": 0.7825995885,
+    "top_100_overlap": 11,
+    "ribosomal_genes_in_top_100": {"governed": 1, "ungoverned": 31}
+  },
+  "interpretation_boundary": "Positive control for signal preservation, not gene-level ground-truth accuracy. Ungoverned-only genes are not proven false positives."
+}
+

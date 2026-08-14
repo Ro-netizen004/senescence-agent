@@ -1,8 +1,8 @@
 """
 Construct null datasets for agent-level evaluation.
 
-Truth = 0 differentially expressed genes: whole mice are randomly relabeled
-into fake age groups within one cell type (Squair et al. 2021 construction).
+Whole biological samples are randomly assigned to explicit fake groups within
+one cell type. Real donor metadata are preserved for balance auditing.
 """
 
 from __future__ import annotations
@@ -13,8 +13,9 @@ from pathlib import Path
 import numpy as np
 
 MIN_CELLS_PER_SAMPLE = 20
-FAKE_YOUNG = "3m"
-FAKE_OLD = "24m"
+NULL_GROUP_COLUMN = "null_group"
+FAKE_YOUNG = "fake_A"
+FAKE_OLD = "fake_B"
 
 
 def _mouse_sex(mouse_id: str) -> str:
@@ -22,12 +23,110 @@ def _mouse_sex(mouse_id: str) -> str:
     return suffix if suffix in ("M", "F") else "?"
 
 
+def _canonical_allocation(group_a, group_b) -> str:
+    """Orientation-invariant ID: A/B and B/A are the same null partition."""
+    a = "|".join(sorted(group_a))
+    b = "|".join(sorted(group_b))
+    return "::".join(sorted((a, b)))
+
+
+def _stratified_split(mice, strata_by_mouse, rng):
+    """Balanced split within strata, with equal final group sizes.
+
+    Each stratum differs by at most one donor between groups. If the total donor
+    count is odd, one randomly selected donor from an odd stratum is excluded so
+    the fake groups remain the same size.
+    """
+    strata = defaultdict(list)
+    for mouse in mice:
+        strata[strata_by_mouse[mouse]].append(mouse)
+
+    group_a, group_b, odd_leftovers = set(), set(), []
+    stratum_counts = {}
+    for key in sorted(strata, key=str):
+        perm = list(rng.permutation(strata[key]))
+        paired = len(perm) - (len(perm) % 2)
+        half = paired // 2
+        left, right = perm[:half], perm[half:paired]
+        if bool(rng.integers(0, 2)):
+            left, right = right, left
+        group_a.update(left)
+        group_b.update(right)
+        if len(perm) % 2:
+            odd_leftovers.append((key, perm[-1]))
+        stratum_counts[str(key)] = {"eligible": len(perm), "fake_young": half, "fake_old": half}
+
+    excluded = []
+    if len(odd_leftovers) % 2:
+        drop_i = int(rng.integers(0, len(odd_leftovers)))
+        key, mouse = odd_leftovers.pop(drop_i)
+        excluded.append(mouse)
+        stratum_counts[str(key)]["excluded"] = 1
+
+    if odd_leftovers:
+        order = rng.permutation(len(odd_leftovers))
+        odd_leftovers = [odd_leftovers[int(i)] for i in order]
+    for i, (key, mouse) in enumerate(odd_leftovers):
+        target = group_a if i % 2 == 0 else group_b
+        label = "fake_young" if i % 2 == 0 else "fake_old"
+        target.add(mouse)
+        stratum_counts[str(key)][label] += 1
+
+    if len(group_a) != len(group_b):
+        raise RuntimeError("Stratified allocator produced unequal fake groups")
+    return group_a, group_b, excluded, stratum_counts
+
+
+def _balance_table(group_a, group_b, mouse_age, mouse_sex):
+    table = {}
+    for covariate, values in (("age", mouse_age), ("sex", mouse_sex)):
+        levels = sorted(set(values.values()))
+        table[covariate] = {
+            level: {
+                "fake_young": sum(values[m] == level for m in group_a),
+                "fake_old": sum(values[m] == level for m in group_b),
+            }
+            for level in levels
+        }
+    return table
+
+
+def _covariate_audit(sub, sample_col, group_col, covariate="null_batch"):
+    """Donor-level cross-tab and association strength saved with each allocation."""
+    if covariate not in sub.obs.columns:
+        return None
+    donor = sub.obs[[sample_col, group_col, covariate]].astype(str).drop_duplicates()
+    counts = donor.groupby([covariate, group_col]).size()
+    table = {}
+    for (level, group), n in counts.items():
+        table.setdefault(str(level), {})[str(group)] = int(n)
+    n = int(len(donor))
+    purity = sum(max(level.values()) for level in table.values()) / n if n else None
+    return {
+        "covariate": covariate,
+        "table": table,
+        "n_samples": n,
+        "purity": round(float(purity), 4) if purity is not None else None,
+        "perfect_separation": len(table) > 1 and all(len(level) == 1 for level in table.values()),
+    }
+
+
 def _usable_mice(sub, ct_col: str, sample_col: str, cell_type: str) -> list[str]:
-    import scanpy as sc  # noqa: F401 — ensure scanpy-backed obs types work
+    import scanpy as sc  # noqa: F401 â€” ensure scanpy-backed obs types work
 
     cells = sub[sub.obs[ct_col].astype(str) == str(cell_type)]
     vc = cells.obs[sample_col].astype(str).value_counts()
     return sorted(vc[vc >= MIN_CELLS_PER_SAMPLE].index.tolist())
+
+
+def prepare_null_source(data_path: Path):
+    """Load and prepare the full dataset once for all allocations in a worker."""
+    import scanpy as sc
+    from agent.pipeline import ensure_pipeline
+
+    adata = sc.read_h5ad(str(data_path))
+    ensure_pipeline(adata, "mouse")
+    return adata
 
 
 def build_null_adata(
@@ -36,23 +135,23 @@ def build_null_adata(
     seed: int,
     *,
     mode: str = "homogeneous",
+    design: str = "valid",
+    source_adata=None,
 ):
     """
-    Build a one-cell-type AnnData object with fake 3m/24m labels.
+    Build a one-cell-type AnnData object with fake_A/fake_B donor labels.
 
     Parameters
     ----------
     mode:
-        ``homogeneous`` — split mice from the largest same-age-and-sex stratum
+        ``homogeneous`` â€” split mice from the largest same-age-and-sex stratum
         (paired-transcripts style; removes real age/sex signal).
-        ``random`` — split all usable mice at random (null-harness style).
+        ``random`` â€” split all usable mice at random (null-harness style).
+        ``stratified`` â€” use all possible mice while balancing real age and sex.
     """
-    import scanpy as sc
-    from agent.pipeline import ensure_pipeline
     from tools.build_pseudobulk import _get_sample_column
 
-    adata = sc.read_h5ad(str(data_path))
-    ensure_pipeline(adata, "mouse")
+    adata = source_adata if source_adata is not None else prepare_null_source(data_path)
 
     profile = adata.uns.get("dataset_profile") or {}
     ct_col = profile.get("cell_type_column") or "cell_ontology_class"
@@ -111,10 +210,22 @@ def build_null_adata(
             stratum_label = f"{mouse_age[pool[0]]} / mixed sex"
 
     rng = np.random.default_rng(seed)
-    perm = list(rng.permutation(pool))
-    half = len(perm) // 2
-    grp_young = set(perm[:half])
-    grp_old = set(perm[half:2 * half])
+    excluded_mice = []
+    stratum_counts = None
+    if mode == "stratified":
+        strata_by_mouse = {m: (mouse_age[m], mouse_sex[m]) for m in mice}
+        grp_young, grp_old, excluded_mice, stratum_counts = _stratified_split(
+            mice, strata_by_mouse, rng
+        )
+        stratum_label = "stratified by real age and sex"
+    elif mode in ("homogeneous", "random"):
+        perm = list(rng.permutation(pool))
+        half = len(perm) // 2
+        grp_young = set(perm[:half])
+        grp_old = set(perm[half:2 * half])
+        excluded_mice = sorted(set(pool) - grp_young - grp_old)
+    else:
+        raise ValueError(f"Unknown null mode: {mode}")
 
     sub = sub[sub.obs[sample_col].astype(str).isin(grp_young | grp_old)].copy()
     fake_age = np.where(
@@ -122,16 +233,64 @@ def build_null_adata(
         FAKE_YOUNG,
         FAKE_OLD,
     )
-    sub.obs[age_col] = fake_age
+    # Preserve real age. The agent and DESeq2 compare this dedicated null factor.
+    sub.obs[NULL_GROUP_COLUMN] = fake_age
+    design_details = {}
+    if design == "one_sample_per_group":
+        sub.obs[sample_col] = np.where(fake_age == FAKE_YOUNG, "young_sample", "old_sample")
+    elif design == "per_cell_sample":
+        sub.obs[sample_col] = [f"cell_{i}" for i in range(sub.n_obs)]
+    elif design == "confounded":
+        # Perfect confound (easy recall case): a batch covariate aligned 1:1 with
+        # the fake group -> perfectly separates the two groups -> gate MUST block.
+        # Uses DISTINCT labels (batch_X/batch_Y) so it does not collide with the
+        # null_group values and derail the agent's contrast routing.
+        sub.obs["null_batch"] = np.where(fake_age == FAKE_YOUNG, "batch_X", "batch_Y")
+    elif design == "confounded_partial":
+        # Harder confound: aligned with the fake groups for all but one donor, so
+        # separation is IMPERFECT. The perfect-separation gate is expected NOT to
+        # block this -> probes the detection boundary (a partial confound the
+        # current gate misses is an honest, reportable limitation).
+        mice_arr = sub.obs[sample_col].astype(str).values
+        flip = sorted(grp_young)[0]
+        design_details["flipped_donor"] = flip
+        batch = np.where(fake_age == FAKE_YOUNG, "batch_X", "batch_Y")
+        sub.obs["null_batch"] = np.where(mice_arr == flip, "batch_Y", batch)
+    elif design == "covariate_balanced":
+        # Specificity control (must NOT block): a covariate that is PRESENT but
+        # balanced across the fake groups (each level appears in both). A gate
+        # that blocks this is over-refusing.
+        cov_rng = np.random.default_rng(seed + 7919)
+        batch_map = {}
+        for grp in (grp_young, grp_old):
+            perm = list(cov_rng.permutation(sorted(grp)))
+            for i, m in enumerate(perm):
+                batch_map[m] = "batch1" if i < len(perm) // 2 else "batch2"
+        mice_arr = sub.obs[sample_col].astype(str).values
+        sub.obs["null_batch"] = [batch_map.get(m, "batch1") for m in mice_arr]
+    elif design != "valid":
+        raise ValueError(f"Unknown null design: {design}")
     sub.uns.pop("dataset_profile", None)
 
     meta = {
         "cell_type": str(cell_type),
         "mode": mode,
+        "design": design,
         "stratum": stratum_label,
+        "null_group_column": NULL_GROUP_COLUMN,
+        "null_groups": [FAKE_YOUNG, FAKE_OLD],
+        "real_age_column": age_col,
         "fake_young_mice": sorted(grp_young),
         "fake_old_mice": sorted(grp_old),
         "n_mice": len(grp_young | grp_old),
         "n_cells": int(sub.n_obs),
+        "excluded_mice": sorted(excluded_mice),
+        "stratum_counts": stratum_counts,
+        "balance": _balance_table(grp_young, grp_old, mouse_age, mouse_sex),
+        "allocation_id": _canonical_allocation(grp_young, grp_old),
+        "design_details": design_details,
+        "confound_audit": _covariate_audit(
+            sub, sample_col, NULL_GROUP_COLUMN
+        ),
     }
     return sub, meta

@@ -1,0 +1,35 @@
+{
+  "experiment": "final_paired_agent_null_sweep",
+  "status": "planned_not_run",
+  "seed_file": "seeds.txt",
+  "n_seeds_per_tissue_arm": 30,
+  "paired_arms": ["governed", "ungoverned"],
+  "null_construction": {
+    "mode": "stratified",
+    "design": "valid",
+    "prompt_style": "ordinary",
+    "allocation_unit": "biological_donor",
+    "pairing_rule": "identical donor allocation for both arms"
+  },
+  "planned_tissue_cell_types": [
+    {"tissue": "Kidney", "cell_type": "epithelial cell of proximal tubule"},
+    {"tissue": "Liver", "cell_type": "hepatocyte"},
+    {"tissue": "Spleen", "cell_type": "B cell"},
+    {"tissue": "Aorta", "cell_type": "aortic endothelial cell"},
+    {"tissue": "Limb_Muscle", "cell_type": "skeletal muscle satellite cell"}
+  ],
+  "raw_output_directory": "raw",
+  "raw_outputs_committed_to_git": false,
+  "required_manifest": "raw_results_manifest.csv",
+  "code": {
+    "revision": null,
+    "working_tree_dirty": null,
+    "frozen": false
+  },
+  "notes": [
+    "Freeze the code revision before execution.",
+    "Record all failures; do not silently exclude or replace seeds.",
+    "Archive raw outputs externally and verify hashes before local deletion."
+  ]
+}
+

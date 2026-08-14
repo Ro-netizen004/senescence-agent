@@ -1,0 +1,71 @@
+{
+  "dataset": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+  "cell_type": "B cell",
+  "arm": "governed",
+  "mode": "random",
+  "design": "valid",
+  "prompt_style": "ordinary",
+  "prompt": "Which genes differ between 3m and 24m in B cell?",
+  "n_perm_requested": 1,
+  "n_perm_completed": 1,
+  "n_perm_ran_deseq2": 1,
+  "n_perm_blocked": 0,
+  "n_perm_routing_miss": 0,
+  "n_duplicate_allocations_skipped": 0,
+  "mean_fp_genes": 49.0,
+  "raw_discovery_rate": 1.0,
+  "licensed_claim_rate": 0.0,
+  "reply_overclaim_rate": 0.0,
+  "false_discovery_rate": 0.0,
+  "exploratory_fp_rate": 0.0,
+  "truth": "Fake labels were assigned independently of expression; no systematic group effect was introduced.",
+  "permutations": [
+    {
+      "perm": 0,
+      "seed": 0,
+      "meta": {
+        "cell_type": "B cell",
+        "mode": "random",
+        "design": "valid",
+        "stratum": "random split",
+        "fake_young_mice": [
+          "18_53_M",
+          "24_59_M",
+          "24_60_M",
+          "3_10_M",
+          "3_39_F",
+          "3_9_M"
+        ],
+        "fake_old_mice": [
+          "18_45_M",
+          "24_58_M",
+          "24_61_M",
+          "3_11_M",
+          "3_38_F",
+          "3_8_M"
+        ],
+        "n_mice": 12,
+        "n_cells": 2598,
+        "allocation_id": "18_53_M|24_59_M|24_60_M|3_10_M|3_39_F|3_9_M::18_45_M|24_58_M|24_61_M|3_11_M|3_38_F|3_8_M"
+      },
+      "skipped": false,
+      "ran_deseq2": true,
+      "blocked": false,
+      "n_sig": 49,
+      "inference_state": "DESCRIPTIVE_ONLY",
+      "false_discovery": false,
+      "raw_discovery": true,
+      "licensed_claim": false,
+      "exploratory_fp": false,
+      "reply_overclaim": false,
+      "reply": "### Differential Expression (DESeq2)\n\n> \u26a0\ufe0f **These results look like a technical artifact, not real biology.** The test is statistically valid (design passed the admissibility check), but the effect sizes are implausible:\n> - the typical significant gene has |log2FC| = 6.9 (~118-fold); effect sizes this large across many genes are usually a low-count / library-size artifact, not real regulation\n> - 15/49 significant genes (31%) have |log2FC| > 8\n> \n> Typical fix: apply log2 fold-change shrinkage, filter low-count genes more strictly, and check for a library-size / batch difference between the groups before rerunning the analysis.\n\n**Gene-level results were withheld.** The design passed the minimum replicate checks, but the output failed the result-plausibility gate.\n\nSamples: 12 | Per-group: {'24m': 6, '3m': 6}\n\n> No gene names, adjusted p-values, rankings, or result download are shown for a plausibility-failed analysis.\n\n[System] inference_state=DESCRIPTIVE_ONLY | interpretation_level=DESCRIPTIVE_ONLY | forbidden=[no_p_value, no_causality, no_biological_mechanism, no_hypothesis]\n\n[System] Routed via structured intent: deseq2 (B cell, 3m vs 24m).",
+      "claim_violations": [],
+      "n_samples": 12,
+      "samples_per_age": {
+        "24m": 6,
+        "3m": 6
+      },
+      "error": null
+    }
+  ]
+}

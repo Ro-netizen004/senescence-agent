@@ -1,6 +1,7 @@
 import { useState, type ChangeEvent, type KeyboardEvent } from "react";
 import UploadPanel from "./components/UploadPanel";
 import ColumnRoles from "./components/ColumnRoles";
+import DatasetPreview from "./components/DatasetPreview";
 import ChatPanel from "./components/ChatPanel";
 import Plots from "./components/Plots";
 import { API_BASE } from "./config";
@@ -29,6 +30,7 @@ export default function App() {
   const [history, setHistory] = useState<Message[]>([]);
   const [plots, setPlots] = useState<Plot[]>([]);
   const [lastToolCalls, setLastToolCalls] = useState<ToolCallLog[]>([]);
+  const [lastAnalysisPlan, setLastAnalysisPlan] = useState<unknown>(null);
   const [sessionToolRuns, setSessionToolRuns] = useState<ToolCallLog[]>([]);
   const [loading, setLoading] = useState(false);
   const [reportLoading, setReportLoading] = useState(false);
@@ -59,6 +61,7 @@ export default function App() {
       setHistory([]);
       setPlots([]);
       setLastToolCalls([]);
+      setLastAnalysisPlan(null);
       setSessionToolRuns([]);
       setError("");
     } catch (err: unknown) {
@@ -101,6 +104,7 @@ export default function App() {
 
       const toolCalls: ToolCallLog[] = data.tool_calls || [];
       setLastToolCalls(toolCalls);
+      setLastAnalysisPlan(data.analysis_plan ?? null);
       if (toolCalls.length) {
         setSessionToolRuns((prev) => [...prev, ...toolCalls]);
       }
@@ -185,6 +189,7 @@ export default function App() {
     setHistory([]);
     setPlots([]);
     setLastToolCalls([]);
+    setLastAnalysisPlan(null);
     setSessionToolRuns([]);
     setSessionId(crypto.randomUUID());
     setFileId("");
@@ -204,14 +209,17 @@ export default function App() {
               </h1>
             </div>
             <p className="max-w-xl text-sm leading-6 text-slate-600">
-              Upload a dataset, ask questions, and browse generated plots in a scientific chat interface with guarded interpretation and reproducible outputs.
+              Upload a dataset, ask questions, and browse generated plots with explicit methods, statistical units, and reproducible outputs.
             </p>
           </div>
         </div>
 
         {fileId ? (
           <div className="mb-6">
-            <ColumnRoles fileId={fileId} species={species} apiBase={API_BASE} />
+            <div className="flex flex-col gap-4">
+              <ColumnRoles fileId={fileId} species={species} apiBase={API_BASE} />
+              <DatasetPreview fileId={fileId} fileName={fileName} species={species} apiBase={API_BASE} />
+            </div>
           </div>
         ) : null}
 
@@ -233,6 +241,7 @@ export default function App() {
             fileName={fileName}
             error={error}
             lastToolCalls={lastToolCalls}
+            analysisPlan={lastAnalysisPlan}
             sessionToolRunCount={sessionToolRuns.length}
             setMessage={setMessage}
             onSend={sendMessage}

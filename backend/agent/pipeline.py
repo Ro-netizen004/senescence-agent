@@ -286,3 +286,14 @@ def ensure_pipeline(adata, species: str) -> None:
         state["cluster"] = True
 
     adata.uns["pipeline_state"] = state
+    adata.uns["qc_provenance"] = {
+        "basic_cell_gene_filtering": not already_normalized,
+        "author_preprocessed_input": already_normalized,
+        "mitochondrial_filtering_by_agent": False,
+        "doublet_detection_by_agent": False,
+        "ambient_rna_correction_by_agent": False,
+        "note": (
+            "Author preprocessing was reused where present. The agent does not "
+            "claim doublet detection or ambient-RNA correction."
+        ),
+    }

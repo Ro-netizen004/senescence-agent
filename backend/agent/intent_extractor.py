@@ -18,7 +18,8 @@ import os
 import json
 from typing import Optional
 
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from dotenv import load_dotenv
 
 from agent.intent_router import (
@@ -30,8 +31,6 @@ from agent.workflows import WORKFLOWS
 
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "../../.env"))
 _MODEL = os.getenv("GEMINI_MODEL", "gemini-flash-latest")
-if os.getenv("GEMINI_API_KEY"):
-    genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 # Workflows the extractor is allowed to propose (must exist in WORKFLOWS).
 _ROUTABLE_WORKFLOWS = (
@@ -103,13 +102,6 @@ def extract_intent(message: str, adata) -> dict:
     if not os.getenv("GEMINI_API_KEY"):
         return {}
     try:
-        model = genai.GenerativeModel(
-            model_name=_MODEL,
-            generation_config=genai.GenerationConfig(
-                temperature=0,
-                response_mime_type="application/json",
-            ),
-        )
         prompt = (
             f"{_INTENT_SCHEMA_HINT}\n\n"
             f"{_dataset_context(adata)}\n"
@@ -117,7 +109,15 @@ def extract_intent(message: str, adata) -> dict:
         )
         from agent.rate_limit import throttle
         throttle()
-        resp = model.generate_content(prompt)
+        client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+        resp = client.models.generate_content(
+            model=_MODEL,
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                temperature=0,
+                response_mime_type="application/json",
+            ),
+        )
         return _parse_json(resp.text)
     except Exception as e:  # network, quota, parse — all non-fatal
         print(f"intent extraction failed: {e}")

@@ -1,5 +1,6 @@
 # Python virtual environment
 venv/
+venv*/
 env/
 paper/
 presentation/
@@ -31,6 +32,14 @@ data/gse226225/
 
 # Generated outputs
 backend/outputs/
+
+# Raw evaluation runs stay local or in a versioned research archive. Keep
+# protocols, seed lists, manifests, and aggregate summaries in Git.
+eval/results/ablation/*seed*.json
+eval/results/ablation/*seed*.log
+eval/results/**/raw/
+eval/results/**/*.zip
+eval/results/**/*.tar.zst
 
 # OS files
 .DS_Store

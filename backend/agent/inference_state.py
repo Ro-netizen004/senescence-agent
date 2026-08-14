@@ -122,6 +122,13 @@ def _plausibility_suspect(result: dict) -> bool:
     return plaus.get("verdict") == "suspect"
 
 
+def _replicate_stability_failed(result: dict) -> bool:
+    stability = result.get("replicate_stability") or {}
+    return stability.get("verdict") in {
+        "unstable", "insufficient_evidence", "assessment_failed"
+    }
+
+
 def _deseq2_low_power(result: dict) -> tuple[bool, list[str]]:
     """Match test_senescence_difference: <3 replicates/group is exploratory only."""
     reasons: list[str] = []
@@ -199,6 +206,8 @@ def assign_inference_state(tool_name: str, result: dict) -> InferenceState:
             # of a technical artifact (library-size / low-count imbalance). This is
             # not a valid inferential conclusion — downgrade to descriptive so no
             # finding is licensed, even though the design passed admissibility.
+            return InferenceState.DESCRIPTIVE_ONLY
+        if _replicate_stability_failed(result):
             return InferenceState.DESCRIPTIVE_ONLY
         return InferenceState.SIGNIFICANT_INFERENTIAL
 
@@ -294,6 +303,12 @@ def _validity_flags(tool_name: str, result: dict) -> list[str]:
     if _plausibility_suspect(result):
         flags.append("technical_artifact_risk")
 
+    stability_verdict = (result.get("replicate_stability") or {}).get("verdict")
+    if stability_verdict == "unstable":
+        flags.append("replicate_instability")
+    elif stability_verdict in {"insufficient_evidence", "assessment_failed"}:
+        flags.append("replicate_stability_not_established")
+
     # Uncorrected multiple testing: many per-feature p-values without adjusted p.
     rows = result.get("results") or result.get("top_markers")
     if isinstance(rows, list) and rows:
@@ -314,4 +329,8 @@ def apply_inference_state(
         return result
     out = dict(result)
     out["inference_state"] = build_state_record(tool_name, out, args)
+    if tool_name in _CIRCULAR_INFERENCE_TOOLS:
+        out["analysis_scope"] = "descriptive_marker_discovery"
+        out["inferentially_licensed"] = False
+        out["validity_flags"] = list(out["inference_state"].get("validity_flags") or [])
     return out

@@ -2,8 +2,10 @@ import React, { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Components } from "react-markdown";
+import { Download } from "lucide-react";
 import type { ToolCallLog } from "../App";
 import { API_BASE } from "../config";
+import AnalysisAudit from "./AnalysisAudit";
 
 /* ── Restrained scientific Markdown renderer ─────────────────────────── */
 
@@ -275,6 +277,7 @@ interface Props {
   fileName: string;
   error: string;
   lastToolCalls: ToolCallLog[];
+  analysisPlan: unknown;
   sessionToolRunCount: number;
   setMessage: (v: string) => void;
   onSend: () => void;
@@ -297,11 +300,19 @@ export default function ChatPanel({
   onGenerateReport,
   onKeyDown,
   lastToolCalls,
+  analysisPlan,
   sessionToolRunCount,
   onReset,
   onSuggestedPrompt,
 }: Props) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const downloadArtifacts = lastToolCalls.flatMap((call) => {
+    const result = call.result;
+    if (!result || typeof result !== "object") return [];
+    const url = (result as Record<string, unknown>).download_url;
+    if (typeof url !== "string" || !url.startsWith("/plots/")) return [];
+    return [{ url, tool: call.name }];
+  });
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -458,6 +469,15 @@ export default function ChatPanel({
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Tools:</span>
             {lastToolCalls.map((t, i) => {
+              const result = t.result && typeof t.result === "object"
+                ? t.result as Record<string, unknown>
+                : {};
+              const method = result.method;
+              const toolLabel = method === "per_cell_wilcoxon"
+                ? "per-cell Wilcoxon"
+                : method === "pseudobulk_deseq2"
+                  ? "pseudobulk DESeq2"
+                  : t.name.replace(/_/g, " ");
               const toolColors: Record<string, string> = {
                 find_senescence_markers: "bg-sky-50 text-sky-700 border-sky-200",
                 senescence_score: "bg-rose-50 text-rose-700 border-rose-200",
@@ -473,12 +493,32 @@ export default function ChatPanel({
                   key={`${t.name}-${i}`}
                   className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${color}`}
                 >
-                  {t.name.replace(/_/g, " ")}
+                  {toolLabel}
                 </span>
               );
             })}
           </div>
+          {downloadArtifacts.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-2 border-t border-slate-200/70 pt-2">
+              {downloadArtifacts.map((artifact, index) => (
+                <a
+                  key={`${artifact.url}-${index}`}
+                  href={`${API_BASE}${artifact.url}`}
+                  download
+                  title={`Download full ${artifact.tool.replace(/_/g, " ")} results`}
+                  className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-indigo-600 hover:text-indigo-800"
+                >
+                  <Download size={13} aria-hidden="true" />
+                  Download full results (CSV)
+                </a>
+              ))}
+            </div>
+          )}
         </div>
+      )}
+
+      {!loading && (
+        <AnalysisAudit toolCalls={lastToolCalls} analysisPlan={analysisPlan} />
       )}
 
       {/* ── ERROR ───────────────────────────────────────────────────── */}

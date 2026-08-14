@@ -2,6 +2,8 @@ import re
 import numpy as np
 import pandas as pd
 
+from agent.design_validation import validate_factor_design
+
 from pydeseq2.dds import DeseqDataSet
 from pydeseq2.ds import DeseqStats
 
@@ -13,6 +15,90 @@ _IMPLAUSIBLE_MEDIAN_LFC = 5.0  # typical hit > 32-fold => effect sizes look tech
 _EXTREME_FRAC_WARN = 0.30      # >30% of hits extreme => suspect
 _DIRECTION_SKEW_WARN = 0.90    # >90% of hits one direction => systematic difference
 _MIN_SIG_FOR_CHECK = 20        # too few hits to judge skew/fraction reliably
+
+_STABILITY_MIN_SAMPLES_PER_GROUP = 4
+_STABILITY_MIN_STABLE_GENE_FRACTION = 0.80
+_STABILITY_MIN_EFFECT_RETENTION = 0.50
+
+
+def assess_replicate_stability(
+    count_df,
+    meta_df,
+    results_df,
+    group_column,
+    reference_group,
+    comparison_group,
+) -> dict:
+    """Leave-one-donor-out effect stability for FDR-significant genes.
+
+    This is a deterministic sensitivity analysis, not a second significance
+    test. Effects are comparison-minus-reference differences on log2(CPM+1)
+    pseudobulk profiles. Each donor is removed once without refitting DESeq2.
+    """
+    sig = results_df[
+        results_df["padj"].fillna(1.0) < 0.05
+    ] if "padj" in results_df.columns else results_df.iloc[0:0]
+    genes = [g for g in sig.index if g in count_df.columns]
+    groups = meta_df[group_column].astype(str)
+    ref, comp = str(reference_group), str(comparison_group)
+    contrast_samples = groups.index[groups.isin([ref, comp])]
+    all_counts = count_df.loc[contrast_samples]
+    counts = all_counts.loc[:, genes]
+    groups = groups.loc[contrast_samples]
+    per_group = {g: int((groups == g).sum()) for g in (ref, comp)}
+    base = {
+        "method": "leave-one-donor-out log2(CPM+1) effect stability",
+        "n_significant_genes": len(genes),
+        "samples_per_group": per_group,
+        "thresholds": {
+            "minimum_samples_per_group": _STABILITY_MIN_SAMPLES_PER_GROUP,
+            "minimum_stable_gene_fraction": _STABILITY_MIN_STABLE_GENE_FRACTION,
+            "minimum_effect_retention": _STABILITY_MIN_EFFECT_RETENTION,
+            "direction_required_in_every_omission": True,
+        },
+    }
+    if not genes:
+        return base | {"verdict": "not_applicable", "reason": "no_significant_genes"}
+    if min(per_group.values()) < _STABILITY_MIN_SAMPLES_PER_GROUP:
+        return base | {
+            "verdict": "insufficient_evidence",
+            "reason": "fewer_than_4_samples_in_at_least_one_group",
+        }
+
+    library_sizes = all_counts.sum(axis=1).replace(0, np.nan)
+    log_cpm = np.log2(counts.div(library_sizes, axis=0) * 1e6 + 1).fillna(0.0)
+
+    def effect(frame, labels):
+        return frame.loc[labels == comp].mean(axis=0) - frame.loc[labels == ref].mean(axis=0)
+
+    full_effect = effect(log_cpm, groups)
+    omitted_effects = []
+    for sample in log_cpm.index:
+        keep = log_cpm.index != sample
+        omitted_effects.append(effect(log_cpm.loc[keep], groups.loc[keep]))
+    loo = pd.DataFrame(omitted_effects, index=[str(s) for s in log_cpm.index])
+
+    direction_stable = ((np.sign(loo) == np.sign(full_effect)).all(axis=0)) & (full_effect != 0)
+    denominator = full_effect.abs().replace(0, np.nan)
+    min_retention = loo.abs().min(axis=0).div(denominator).fillna(0.0)
+    stable = direction_stable & (min_retention >= _STABILITY_MIN_EFFECT_RETENTION)
+    details = []
+    for gene in genes:
+        details.append({
+            "gene": str(gene),
+            "full_log2cpm_effect": round(float(full_effect[gene]), 6),
+            "direction_stable": bool(direction_stable[gene]),
+            "minimum_effect_retention": round(float(min_retention[gene]), 4),
+            "stable": bool(stable[gene]),
+        })
+    stable_fraction = float(stable.mean()) if len(stable) else 0.0
+    return base | {
+        "verdict": "stable" if stable_fraction >= _STABILITY_MIN_STABLE_GENE_FRACTION else "unstable",
+        "n_stable_genes": int(stable.sum()),
+        "stable_gene_fraction": round(stable_fraction, 4),
+        "median_minimum_effect_retention": round(float(min_retention.median()), 4),
+        "genes": details,
+    }
 
 
 def assess_de_plausibility(results_df) -> dict:
@@ -85,6 +171,7 @@ def run_deseq2_pseudobulk(
     design=None,
     reference_age=None,
     comparison_age=None,
+    covariates=None,
 ):
     """
     Pseudobulk DESeq2 between two groups of a grouping variable.
@@ -153,6 +240,9 @@ def run_deseq2_pseudobulk(
     count_df = count_df.loc[keep_samples]
     meta_df = meta_df.loc[keep_samples]
 
+    covariates = list(dict.fromkeys(covariates or []))
+    design_validation = validate_factor_design(meta_df, group_column, covariates)
+
     # =========================
     # Drop low-count genes (standard pyDESeq2 practice) — avoids testing
     # tens of thousands of all-zero genes, which is slow and inflates FDR.
@@ -161,12 +251,29 @@ def run_deseq2_pseudobulk(
     count_df = count_df.loc[:, gene_totals >= 10]
 
     # =========================
-    # Build DESeq2 dataset
+    # Build DESeq2 dataset with optional sample-level adjustment covariates.
     # =========================
+    design_factors = []
+    covariates_used = []
+    covariates_dropped = []
+    for i, covariate in enumerate(covariates):
+        if covariate not in meta_df.columns:
+            raise ValueError(f"Covariate '{covariate}' missing from pseudobulk metadata")
+        if meta_df[covariate].isna().any():
+            raise ValueError(f"Covariate '{covariate}' contains missing sample values")
+        if meta_df[covariate].astype(str).nunique() < 2:
+            covariates_dropped.append({"column": covariate, "reason": "invariant"})
+            continue
+        safe = f"_covariate_{i}"
+        meta_df[safe] = meta_df[covariate]
+        design_factors.append(safe)
+        covariates_used.append(covariate)
+    design_factors.append("_group")
+
     dds = DeseqDataSet(
         counts=count_df,
         metadata=meta_df,
-        design_factors="_group"
+        design_factors=design_factors,
     )
 
     dds.deseq2()
@@ -188,6 +295,10 @@ def run_deseq2_pseudobulk(
         "group_column": group_column,
         "reference_group": ref_label,
         "comparison_group": comp_label,
+        "design_factors": covariates_used + [group_column],
+        "covariates_used": covariates_used,
+        "covariates_dropped": covariates_dropped,
+        "design_validation": design_validation,
         # Legacy keys (kept so existing callers/volcano labels keep working).
         "youngest_group": ref_label,
         "oldest_group": comp_label,

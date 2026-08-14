@@ -221,6 +221,7 @@ def _wants_deseq2(message: str) -> bool:
             "differential expression",
             "differential analysis",
             "differentially expressed",
+            "genes differ",
         )
     )
 
@@ -412,6 +413,7 @@ def route(message: str, adata) -> RouteDecision:
                     "group_column": parsed["group_column"],
                     "reference_group": parsed["reference_group"],
                     "comparison_group": parsed["comparison_group"],
+                    "covariates": list(profile.get("deseq2_covariates") or []),
                 }},
                 reply_suffix=(
                     f"[System] Contrast: differential expression on {parsed['cell_type']} "
@@ -419,9 +421,43 @@ def route(message: str, adata) -> RouteDecision:
                     f"({parsed['reference_group']} vs {parsed['comparison_group']})."
                 ),
             )
-        # 2) Auto-run when the contrast is unambiguous: an age grouping (youngest
-        #    vs oldest) or a grouping variable with exactly two levels.
+        # 2) Resolve two group values explicitly named in ordinary language.
+        # This must precede age fallback: a dataset can contain a real age column
+        # while the user explicitly requests a different factor such as null_group.
         cell_type = _infer_cell_type_for_test(message, adata)
+        message_lower = message.lower()
+        named_pairs = []
+        for group in profile.get("group_columns") or []:
+            mentioned = [
+                str(value) for value in (group.get("values") or [])
+                if str(value).lower() in message_lower
+            ]
+            if len(mentioned) == 2:
+                # The user's order defines reference then comparison. Dataset
+                # profile values may be lexicographically sorted (24m before
+                # 3m), which must never reverse the requested contrast.
+                mentioned.sort(key=lambda value: message_lower.find(value.lower()))
+                named_pairs.append((group["column"], mentioned[0], mentioned[1]))
+        if cell_type and len(named_pairs) == 1:
+            group_column, ref, comp = named_pairs[0]
+            args = {
+                "cell_type": cell_type,
+                "group_column": group_column,
+                "reference_group": ref,
+                "comparison_group": comp,
+                "covariates": list(profile.get("deseq2_covariates") or []),
+            }
+            return RouteDecision(
+                workflow_id="deseq2",
+                tool_args={"run_deseq2": args},
+                reply_suffix=(
+                    f"[System] Contrast: differential expression on {cell_type} "
+                    f"by {group_column} ({ref} vs {comp})."
+                ),
+            )
+
+        # 3) Auto-run when the contrast is unambiguous: an age grouping (youngest
+        #    vs oldest) or a grouping variable with exactly two levels.
         has_age = bool(profile.get("age_column")) or _has_two_age_tokens(message)
         primary = profile.get("primary_group_column")
         primary_gc = next(
@@ -443,6 +479,7 @@ def route(message: str, adata) -> RouteDecision:
                     "comparison_group": vals[1],
                 }
                 conf = f"by {primary} ({vals[0]} vs {vals[1]})"
+            args["covariates"] = list(profile.get("deseq2_covariates") or [])
             return RouteDecision(
                 workflow_id="deseq2",
                 tool_args={"run_deseq2": args},

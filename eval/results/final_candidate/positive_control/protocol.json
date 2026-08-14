@@ -1,0 +1,33 @@
+{
+  "experiment_id": "tms_spleen_b_cell_3m_vs_24m_positive_control",
+  "packaged_date": "2026-08-14",
+  "dataset": {
+    "filename": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "size_bytes": 129309558,
+    "sha256": "ea3ebbb6d68e9c69238eb276eb0f3454fa404e2505bd18daea5d6dac7a69f309"
+  },
+  "roles": {
+    "cell_type_column": "cell_ontology_class",
+    "sample_column": "sample_id",
+    "group_column": "age"
+  },
+  "contrast": {
+    "cell_type": "B cell",
+    "reference_group": "3m",
+    "comparison_group": "24m"
+  },
+  "software": {
+    "python": "3.11.9",
+    "scanpy": "1.11.5",
+    "anndata": "0.11.4",
+    "scipy": "1.15.3",
+    "pydeseq2": "0.5.4"
+  },
+  "code": {
+    "base_commit": "4dde3b41c0cc84ecac1ff11138c710f059c8eeb7",
+    "working_tree_dirty_at_packaging": true,
+    "publication_revision_frozen": false
+  },
+  "arm_difference_note": "Prompts were not text-identical. Governed covariate adjustment came from the dashboard; ungoverned explicitly requested sex adjustment but executed no covariates."
+}
+

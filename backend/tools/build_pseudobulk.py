@@ -40,27 +40,52 @@ def _get_sample_column(adata, sample_column):
     )
 
 
+def validate_count_matrix(X, source: str) -> dict:
+    """Verify that a matrix is suitable for count-based DESeq2 inference."""
+    values = X.data if sp.issparse(X) else np.asarray(X).ravel()
+    if values.size == 0:
+        return {"valid": False, "source": source, "reason": "count matrix is empty"}
+    if not np.isfinite(values).all():
+        return {"valid": False, "source": source, "reason": "counts contain NaN or infinity"}
+    if np.min(values) < 0:
+        return {"valid": False, "source": source, "reason": "counts contain negative values"}
+    max_fractional_error = float(np.max(np.abs(values - np.rint(values))))
+    if max_fractional_error > 1e-6:
+        return {
+            "valid": False,
+            "source": source,
+            "reason": "matrix contains non-integer values and appears normalized or transformed",
+            "max_fractional_error": max_fractional_error,
+        }
+    return {
+        "valid": True,
+        "source": source,
+        "n_nonzero": int(np.count_nonzero(values)),
+        "max_count": float(np.max(values)),
+    }
+
+
 def _extract_counts_matrix(adata):
-    """
-    Robust extraction priority:
-    1. adata.layers['counts']
-    2. adata.raw.X
-    3. adata.X
-    """
-
+    """Return verified raw counts. Never fall back to normalized ``adata.X``."""
+    candidates = []
     if "counts" in adata.layers:
-        X = adata.layers["counts"]
-        genes = adata.var_names
-        return X, genes
-
+        candidates.append((adata.layers["counts"], adata.var_names, "layers[counts]"))
     if adata.raw is not None:
-        X = adata.raw.X
-        genes = adata.raw.var_names
-        return X, genes
+        candidates.append((adata.raw.X, adata.raw.var_names, "raw.X"))
 
-    X = adata.X
-    genes = adata.var_names
-    return X, genes
+    failures = []
+    for X, genes, source in candidates:
+        check = validate_count_matrix(X, source)
+        if check["valid"]:
+            return X, genes, check
+        failures.append(check)
+
+    detail = "; ".join(f"{f['source']}: {f['reason']}" for f in failures)
+    if not detail:
+        detail = "neither layers['counts'] nor adata.raw.X is available"
+    raise ValueError(
+        "DESeq2 requires verified raw nonnegative integer counts; " + detail
+    )
 
 
 def build_pseudobulk_matrix(
@@ -69,6 +94,7 @@ def build_pseudobulk_matrix(
     sample_column="sample_id",
     group_column="age",
     age_column=None,
+    covariates=None,
 ):
     """
     Aggregate cells of one cell type into per-sample pseudobulk counts, carrying
@@ -106,7 +132,7 @@ def build_pseudobulk_matrix(
     # =========================
     # Extract counts safely
     # =========================
-    X, genes = _extract_counts_matrix(ad)
+    X, genes, count_validation = _extract_counts_matrix(ad)
 
     # =========================
     # Drop samples with too few cells of this cell type
@@ -140,8 +166,9 @@ def build_pseudobulk_matrix(
             sub_counts = X[ad.obs_names.get_indexer(idx), :]
             bulk = sub_counts.sum(axis=0)
 
-        # IMPORTANT: integer counts for DESeq2
-        bulk = np.asarray(bulk).astype(int)
+        # Counts were validated before aggregation. Never coerce normalized
+        # values to integers, which would create invalid DESeq2 input.
+        bulk = np.rint(np.asarray(bulk)).astype(np.int64)
 
         df_list.append(pd.Series(bulk, index=genes, name=str(sample)))
 
@@ -156,11 +183,27 @@ def build_pseudobulk_matrix(
     # =========================
     # Metadata alignment
     # =========================
-    meta = (
-        ad.obs[[sample_column, group_column]]
-        .drop_duplicates()
-        .set_index(sample_column)
-        .loc[count_df.index]
-    )
+    covariates = list(dict.fromkeys(covariates or []))
+    metadata_columns = [group_column] + covariates
+    missing = [c for c in metadata_columns if c not in ad.obs.columns]
+    if missing:
+        raise ValueError(f"Requested sample covariate column(s) not found: {missing}")
 
+    sample_meta = ad.obs[[sample_column] + metadata_columns].copy()
+    inconsistent = []
+    for col in metadata_columns:
+        per_sample_levels = sample_meta.groupby(sample_column, observed=True)[col].nunique(dropna=False)
+        if not per_sample_levels.empty and per_sample_levels.max() > 1:
+            inconsistent.append(col)
+    if inconsistent:
+        raise ValueError(
+            f"Covariate/group columns vary within biological samples: {inconsistent}. "
+            "DESeq2 metadata must have one value per sample."
+        )
+
+    meta = sample_meta.drop_duplicates(subset=[sample_column]).set_index(sample_column).loc[count_df.index]
+    meta.attrs["count_validation"] = count_validation
+    meta.attrs["sample_cell_counts"] = {
+        str(sample): int(sample_sizes.get(str(sample), 0)) for sample in count_df.index
+    }
     return count_df, meta

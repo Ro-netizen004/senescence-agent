@@ -1,6 +1,39 @@
 """Lightweight dataset summary for agent context and /dataset/info API."""
 
-from tools.gene_utils import SENESCENCE_GENES, SENESCENCE_GENES_MOUSE
+def _json_value(value):
+    if value is None:
+        return None
+    try:
+        if value != value:  # NaN / NaT
+            return None
+    except (TypeError, ValueError):
+        pass
+    if hasattr(value, "item"):
+        value = value.item()
+    if isinstance(value, (str, int, float, bool)) or value is None:
+        return value
+    return str(value)
+
+
+def build_dataset_preview(adata, row_limit: int = 20, gene_limit: int = 50) -> dict:
+    """Return a bounded metadata preview; never serialize the expression matrix."""
+    row_limit = max(1, min(int(row_limit), 100))
+    gene_limit = max(1, min(int(gene_limit), 200))
+    obs = adata.obs.iloc[:row_limit]
+    rows = []
+    for index, record in obs.iterrows():
+        row = {"cell_id": str(index)}
+        row.update({str(column): _json_value(value) for column, value in record.items()})
+        rows.append(row)
+    return {
+        "n_cells": int(adata.n_obs),
+        "n_genes": int(adata.n_vars),
+        "columns": ["cell_id"] + [str(c) for c in obs.columns],
+        "rows": rows,
+        "genes": [str(g) for g in adata.var_names[:gene_limit]],
+        "row_limit": row_limit,
+        "gene_limit": gene_limit,
+    }
 
 
 def build_dataset_summary(adata, species: str = "mouse") -> dict:
@@ -34,6 +67,9 @@ def build_dataset_summary(adata, species: str = "mouse") -> dict:
             adata.obs[sample_col].astype(str).unique().tolist()
         )[:30]
 
+    # Gene-panel loading may perform ortholog resolution. Keep it out of
+    # module import so lightweight preview endpoints remain local and fast.
+    from tools.gene_utils import SENESCENCE_GENES, SENESCENCE_GENES_MOUSE
     genes = SENESCENCE_GENES_MOUSE if species == "mouse" else SENESCENCE_GENES
     found = [g for g in genes if g in adata.var_names]
     summary["senmayo_genes_found"] = len(found)
@@ -48,6 +84,8 @@ def build_dataset_summary(adata, species: str = "mouse") -> dict:
 
     if "metadata_status" in adata.uns:
         summary["metadata_status"] = adata.uns["metadata_status"]
+    if "qc_provenance" in adata.uns:
+        summary["qc_provenance"] = adata.uns["qc_provenance"]
 
     return summary
 

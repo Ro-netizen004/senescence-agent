@@ -1,0 +1,12 @@
+GOVERNED
+Run differential expression on B cell between 3m and 24m using age as the grouping variable.
+
+Dashboard covariate selection: sex
+Executed design: sex + age
+
+UNGOVERNED ABLATION
+Run differential expression on B cell between 3m and 24m using age as the grouping variable, adjusting for sex.
+
+Executed method: per-cell Wilcoxon
+Executed covariates: none
+

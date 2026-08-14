@@ -15,6 +15,9 @@ interface RolesData {
   primary_group_column: string | null;
   group_options: string[];
   sample_options: string[];
+  covariate_options: string[];
+  deseq2_covariates: string[];
+  derived_columns?: Record<string, { source?: string }>;
   n_cells: number;
   result?: { ok: boolean; errors: string[]; warnings: string[] };
 }
@@ -27,6 +30,8 @@ interface Props {
 
 type Assign = "A" | "B" | "";
 
+const MIN_DESEQ2_REPLICATES = 3;
+
 export default function ColumnRoles({ fileId, species, apiBase }: Props) {
   const [data, setData] = useState<RolesData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -36,6 +41,7 @@ export default function ColumnRoles({ fileId, species, apiBase }: Props) {
   const [cellTypeCol, setCellTypeCol] = useState("");
   const [sampleCol, setSampleCol] = useState("");
   const [groupCol, setGroupCol] = useState("");
+  const [covariates, setCovariates] = useState<string[]>([]);
 
   // Custom group builder (neutral defaults — the meaning depends on the dataset)
   const [aName, setAName] = useState("group_1");
@@ -79,6 +85,8 @@ export default function ColumnRoles({ fileId, species, apiBase }: Props) {
     setCellTypeCol(d.cell_type_column || "");
     setSampleCol(d.sample_column || "");
     setGroupCol(d.primary_group_column || "");
+    const eligible = new Set(d.covariate_options || []);
+    setCovariates((d.deseq2_covariates || []).filter((column) => eligible.has(column)));
   }
 
   const groupInfo = useMemo(
@@ -108,7 +116,10 @@ export default function ColumnRoles({ fileId, species, apiBase }: Props) {
       .reduce((sum, v) => sum + (samplesPerValue[v] || 0), 0);
   const aCount = countFor("A");
   const bCount = countFor("B");
-  const customTestable = aCount >= 2 && bCount >= 2;
+  const customTestable =
+    aCount >= MIN_DESEQ2_REPLICATES && bCount >= MIN_DESEQ2_REPLICATES;
+  const smallestGroup = Math.min(aCount, bCount);
+  const powerLabel = smallestGroup >= 5 ? "better supported" : "low power";
 
   async function post(body: Record<string, unknown>) {
     setSaving(true);
@@ -138,6 +149,7 @@ export default function ColumnRoles({ fileId, species, apiBase }: Props) {
       sample_column: sampleCol || null,
       cell_type_column: cellTypeCol || null,
       primary_group_column: needsCustom ? null : groupCol || null,
+      deseq2_covariates: covariates,
     });
   }
 
@@ -151,6 +163,7 @@ export default function ColumnRoles({ fileId, species, apiBase }: Props) {
       sample_column: sampleCol || null,
       cell_type_column: cellTypeCol || null,
       grouping: { column: groupCol, groups },
+      deseq2_covariates: covariates,
     });
   }
 
@@ -227,6 +240,34 @@ export default function ColumnRoles({ fileId, species, apiBase }: Props) {
                       : "—"}
                   </td>
                 </tr>
+                <tr>
+                  <td className="py-2.5 pr-4 font-medium text-slate-700">
+                    Adjust for<span className="block text-[11px] font-normal text-slate-400">DESeq2 covariates</span>
+                  </td>
+                  <td className="py-2.5 pr-4" colSpan={2}>
+                    {data.covariate_options.length ? (
+                      <div className="flex flex-wrap gap-x-4 gap-y-2">
+                        {data.covariate_options.map((column) => (
+                          <label key={column} className="inline-flex cursor-pointer items-center gap-2 text-xs text-slate-700">
+                            <input
+                              type="checkbox"
+                              checked={covariates.includes(column)}
+                              onChange={() => setCovariates((current) =>
+                                current.includes(column)
+                                  ? current.filter((item) => item !== column)
+                                  : [...current, column]
+                              )}
+                              className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-200"
+                            />
+                            {column}
+                          </label>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-xs text-slate-400">No eligible sample-level covariates detected</span>
+                    )}
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -280,17 +321,23 @@ export default function ColumnRoles({ fileId, species, apiBase }: Props) {
                 </table>
               </div>
 
-              <div className="mt-2 flex items-center gap-3 text-[11px]">
-                <span className={aCount >= 2 ? "text-slate-500" : "text-amber-600"}>
-                  {aName}: {aCount} sample{aCount === 1 ? "" : "s"}
+              <div className="mt-2 flex flex-wrap items-center gap-3 text-[11px]">
+                <span className={aCount >= MIN_DESEQ2_REPLICATES ? "text-slate-500" : "text-amber-700"}>
+                  {aName}: {aCount} biological sample{aCount === 1 ? "" : "s"}
                 </span>
-                <span className={bCount >= 2 ? "text-slate-500" : "text-amber-600"}>
-                  {bName}: {bCount} sample{bCount === 1 ? "" : "s"}
+                <span className={bCount >= MIN_DESEQ2_REPLICATES ? "text-slate-500" : "text-amber-700"}>
+                  {bName}: {bCount} biological sample{bCount === 1 ? "" : "s"}
                 </span>
-                <span className={customTestable ? "font-medium text-emerald-600" : "text-amber-600"}>
-                  {customTestable ? "✓ testable" : "needs ≥2 samples per group"}
+                <span className={customTestable ? "font-medium text-emerald-700" : "font-medium text-amber-700"}>
+                  {customTestable
+                    ? `Dataset-level DESeq2 eligible (${powerLabel})`
+                    : `DESeq2 needs at least ${MIN_DESEQ2_REPLICATES} per group`}
                 </span>
               </div>
+              <p className="mt-1.5 text-[11px] leading-4 text-slate-500">
+                Final eligibility is checked again for the requested cell type after samples with too few cells are removed.
+              </p>
+
 
               <button
                 onClick={applyCustomGroups}

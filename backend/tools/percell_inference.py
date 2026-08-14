@@ -12,6 +12,9 @@ AGENT_GOVERNANCE=off (see agent.governance).
 
 from __future__ import annotations
 
+import csv
+from pathlib import Path
+
 import numpy as np
 from scipy.stats import mannwhitneyu
 
@@ -94,18 +97,36 @@ def differential_expression_percell(
     log2fc = np.asarray(log2fc).ravel()
 
     order = np.argsort(padj)
-    rows = []
-    for i in order[:100]:
-        rows.append({
+    all_rows = []
+    for i in order:
+        all_rows.append({
             "gene": str(genes[i]),
             "log2FoldChange": round(float(log2fc[i]), 4),
             "pvalue": float(pvals[i]),
             "padj": float(padj[i]),
         })
 
+    download_url = None
+    try:
+        from tools.config import OUTPUT_DIR
+
+        output_path = Path(OUTPUT_DIR) / "percell_results.csv"
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with output_path.open("w", newline="", encoding="utf-8") as handle:
+            writer = csv.DictWriter(
+                handle,
+                fieldnames=("gene", "log2FoldChange", "pvalue", "padj"),
+            )
+            writer.writeheader()
+            writer.writerows(all_rows)
+        download_url = "/plots/percell_results.csv"
+    except Exception as exc:
+        print(f"per-cell CSV export failed: {exc}")
+
     n_sig = int((padj < 0.05).sum())
-    return {
+    result = {
         "status": "ok",
+        "governance_mode": "ungoverned_ablation",
         "method": "per_cell_wilcoxon",
         "cell_type": resolved,
         "reference_age": ref,
@@ -115,9 +136,12 @@ def differential_expression_percell(
         "n_cells": {"reference": n_ref, "comparison": n_comp},
         "n_genes_tested": n_genes,
         "n_significant_fdr_0_05": n_sig,
-        "results": rows,
+        "results": all_rows[:100],
         "statistical_unit": "cell",
     }
+    if download_url:
+        result["download_url"] = download_url
+    return result
 
 
 def test_senescence_difference_percell(

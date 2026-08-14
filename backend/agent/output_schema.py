@@ -187,6 +187,13 @@ def _build_output_schema_inner(
         n_sig_total = result.get("n_significant_fdr_0_05")
         if n_sig_total is None:
             n_sig_total = len(sig)
+        plausibility = result.get("result_plausibility") or {}
+        stability = result.get("replicate_stability") or {}
+        suspect = plausibility.get("verdict") == "suspect"
+        stability_failed = stability.get("verdict") in {
+            "unstable", "insufficient_evidence", "assessment_failed"
+        }
+        withheld = suspect or stability_failed
         return {
             "headline": "",
             "stat_result": {
@@ -204,18 +211,27 @@ def _build_output_schema_inner(
             },
             "allowed_interpretation_level": inf.get("allowed_interpretation_level"),
             "inference_state": state.value,
-            "key_observations": [
-                f"{n_sig_total} gene(s) with padj < 0.05"
-                if sig
-                else "0 genes with padj < 0.05"
-            ],
+            "key_observations": (
+                [
+                    "Gene-level results withheld because replicate stability was not established"
+                    if stability_failed
+                    else "Gene-level results withheld because the plausibility gate failed"
+                ]
+                if withheld
+                else [
+                    f"{n_sig_total} gene(s) with padj < 0.05"
+                    if sig else "0 genes with padj < 0.05"
+                ]
+            ),
             "forbidden_inference_flags": inf.get("forbidden_inference_flags", []),
             "interpretation": "not permitted",
             "metrics": {
-                "top_genes": rows[:100],
+                "top_genes": [] if withheld else rows[:100],
             },
-            "result_plausibility": result.get("result_plausibility"),
-            "download_url": result.get("download_url"),
+            "result_plausibility": plausibility,
+            "replicate_stability": stability,
+            "result_withheld": withheld,
+            "download_url": None if withheld else result.get("download_url"),
             "tool": tool_name,
         }
 

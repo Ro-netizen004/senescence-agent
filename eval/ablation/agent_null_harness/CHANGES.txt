@@ -1,0 +1,833 @@
+Agent null sweep corrections
+Date: 2026-08-11
+
+1. Separated raw statistical discovery, agent-licensed inference, and reply overclaiming.
+2. Kept false_discovery_rate only as a backward-compatible licensed-claim alias.
+3. Fixed routing-miss accounting so misses are not filtered before counting.
+4. Saved rendered replies and claim-linter violations for every completed run.
+5. Added one-sample, per-cell-sample, and confounded designs for refusal tests.
+6. Added explicit, ordinary, leading, and pseudoreplication-pressure prompts.
+7. Deduplicated identical labeled mouse allocations and records duplicates skipped.
+8. Reworded the null truth statement to describe random assignment precisely.
+9. Removed global warning suppression.
+10. Added focused unit tests for the corrected scoring semantics.
+11. Updated the multi-tissue driver to expose the new design and prompt controls and report raw, licensed, reply, macro, and micro metrics.
+12. Added design and prompt style to output filenames so scenario runs cannot overwrite one another.
+
+13. Replaced the remaining stale console claim that the constructed null has exactly zero DE genes.
+
+14. Strengthened the production admissibility gate: DESeq2 now requires at least three usable biological replicates per group. The sample-level SenMayo score test may still run with two per group but is marked low-power.
+15. Added regression tests for the tool-specific replicate thresholds.
+16. Strengthened the output firewall for plausibility-failed DESeq2 runs. The strict schema and renderer now withhold gene names, adjusted p-values, rankings, and CSV download links, exposing only diagnostic reasons and sample counts.
+17. Added a regression test ensuring suspect DE results cannot leak through the renderer.
+18. Added stratified null mode, balancing whole donors within real age-by-sex strata while keeping fake groups equal-sized.
+19. Added per-run balance tables, stratum counts, and excluded-donor records.
+20. Canonicalized allocation IDs so label-reversed partitions are deduplicated.
+21. Added allocator regression tests for balance, donor retention, odd totals, and reversal deduplication.
+22. Added a raw-count firewall: DESeq2 requires finite, nonnegative, integer-valued counts and never falls back to adata.X.
+23. Removed silent integer coercion of normalized expression before pseudobulk DE.
+24. Added optional sample-level covariates to pseudobulk metadata and DESeq2 designs.
+25. DE outputs record count provenance, design factors, covariates used, and invariant covariates dropped.
+26. Added explicit QC provenance and no longer implies doublet or ambient-RNA correction was performed.
+27. Added regression tests for count and covariate validation.
+28. Added a dashboard selector for sample-level DESeq2 covariates beside the comparison-group controls.
+29. Saved selected covariates in the dataset profile and applied them automatically to governed and deterministic DESeq2 routes.
+30. Filtered the selector to sample-consistent metadata and added validation/tests for invalid cell-level covariates.
+31. Added a bounded uploaded-data preview endpoint with JSON-safe observation rows and gene names.
+32. Added a collapsible dashboard data table showing dataset dimensions, the first 20 cells, metadata, and a gene preview.
+33. Aligned the dashboard custom-group eligibility label with the governed DESeq2 minimum of three biological samples per group.
+34. Marked dashboard counts as preliminary dataset-level eligibility and disclosed the final cell-type-specific sample filtering check.
+35. Made dataset gene-panel loading lazy so the upload preview and its validation do not trigger network-backed ortholog resolution at import time.
+36. Preserved real age and moved constructed assignments to null_group with fake_A/fake_B labels.
+37. Added null mode to single- and multi-tissue filenames to prevent result overwrites.
+38. Added plausibility-withheld rate, full inference-state counts, and per-run count/design/covariate provenance.
+39. Added Wilson 95% confidence intervals for all primary rates.
+40. Replaced paper-facing false-positive-gene wording with null-discovery terminology and clarified residual donor heterogeneity.
+41. Fixed deterministic ordinary-language routing so explicitly named non-age groups take precedence over the dataset's age fallback.
+42. Added evaluation-only full significant-gene sets, donor prevalence, pseudobulk library sizes, cell counts, and PCA-distance influence screens.
+43. Added cross-permutation discovery distributions, Jaccard overlap matrices, gene recurrence, balance/library correlations, and excluded-donor summaries.
+44. Kept diagnostic gene sets behind AGENT_EVAL_DIAGNOSTICS so plausibility-withheld genes remain unavailable in production replies and reports.
+45. Added seed and requested permutation count to all single- and multi-tissue result filenames so repeated configurations cannot overwrite paper runs.
+46. Added confounded_partial and covariate_balanced null designs, turning the single perfect-copy confound into a confounding challenge suite with recall, a detection boundary, and a specificity arm.
+47. confounded_partial applies an imperfect covariate (one fake_A donor carries the fake_B batch), probing the perfect-separation gate's detection boundary; covariate_balanced applies a present-but-balanced covariate as a specificity control the gate must not block.
+48. Fixed a naming collision that silently disabled confounding tests: the confound covariate reused fake_A/fake_B labels (identical to null_group), so the resolver could not disambiguate and fell back to a real-age contrast, which then blocked on insufficient replicates rather than confounding. Confound designs now use distinct batch_X/batch_Y labels, keeping routing on the fake null_group.
+49. Validated the confounding gate on the corrected designs (verify the block REASON, not just the BLOCKED state): confounded -> BLOCKED with a confounded_contrast reason citing null_batch (recall); covariate_balanced -> runs, not blocked (specificity, no over-refusal); confounded_partial -> runs but is downgraded to DESCRIPTIVE_ONLY with zero licensed claims (the perfect-separation gate misses partial confounds; defense-in-depth withholds the claim regardless).
+50. Retracted two earlier premature "confounding gate works" reads that had checked only the BLOCKED state; both were insufficient-replicates blocks on a mis-routed real-age contrast.
+
+CONSOLIDATED IMPLEMENTATION RECORD
+Updated: 2026-08-13
+
+Purpose
+-------
+These changes turn the agent null sweep from a thin refusal check into an
+end-to-end evaluation of routing, statistical admissibility, pseudobulk DESeq2,
+result plausibility, inference licensing, output withholding, and reply-level
+overclaiming. They also align the dashboard with the same scientific rules.
+
+1. Evaluation accounting and scenarios
+--------------------------------------
+- Separated raw null discoveries from licensed claims and reply overclaims.
+- Preserved blocked runs, routing misses, duplicate attempts, rendered replies,
+  and claim-linter violations with explicit denominators.
+- Added valid, one-sample-per-group, per-cell-sample, and confounded designs.
+- Added ordinary, explicit, leading, and pseudoreplication-pressure prompts.
+- Added governed and ungoverned controls to the single- and multi-tissue runners.
+
+Why: a method can emit significant genes while the governed agent correctly
+refuses to license or communicate them. These are distinct paper endpoints.
+
+Primary files:
+- eval/ablation/agent_null_harness/agent_null_sweep.py
+- eval/ablation/agent_null_harness/run_agent_null_sweep.py
+- eval/ablation/agent_null_harness/null_builder.py
+
+2. Biological-replicate governance
+----------------------------------
+- DESeq2 requires at least three usable biological samples per group.
+- Samples must contribute at least 20 cells of the requested cell type.
+- Per-cell identifiers, one-sample groups, missing replicate units, and invalid
+  group definitions are blocked before inference.
+- The dashboard now uses the same three-sample threshold and labels its result
+  as preliminary dataset-level eligibility. Final eligibility is recalculated
+  after cell-type-specific filtering.
+
+Why: cells from one donor are not independent biological replicates, and a
+dataset-level donor count can overstate the donors usable for a specific cell type.
+
+Primary files:
+- backend/agent/admissibility.py
+- frontend/src/components/ColumnRoles.tsx
+
+3. Raw-count integrity
+----------------------
+- DESeq2 accepts only finite, nonnegative, integer-valued matrices.
+- Count extraction checks layers['counts'] and then raw.X.
+- Normalized adata.X is never silently treated as raw counts.
+- Removed silent truncation of fractional normalized values to integers.
+- Every run records count validation and count-source provenance.
+
+Why: DESeq2's likelihood assumes raw counts. Rounding normalized expression does
+not reconstruct counts and can produce invalid dispersion and fold-change estimates.
+
+Primary files:
+- backend/tools/build_pseudobulk.py
+- backend/agent/admissibility.py
+- backend/agent/tool_router.py
+
+4. Covariate-aware pseudobulk DESeq2
+-----------------------------------
+- Added optional sample-level DESeq2 covariates.
+- Validates that each covariate has one value per biological sample.
+- Rejects missing or cell-varying covariates.
+- Drops invariant covariates and records why they were dropped.
+- Records the actual design factors and covariates used.
+- Added a dashboard checkbox selector for eligible sample-level columns.
+- Dashboard selections are stored in the dataset profile and inherited by both
+  governed and deterministic DESeq2 routes.
+
+Why: stratified allocation reduces imbalance, while covariate adjustment models
+remaining sample-level structure. Blind automatic adjustment is avoided.
+
+Primary files:
+- backend/tools/run_deseq2.py
+- backend/tools/build_pseudobulk.py
+- backend/agent/tool_schema.py
+- backend/agent/tool_router.py
+- backend/agent/column_roles.py
+- backend/main.py
+- frontend/src/components/ColumnRoles.tsx
+
+5. Result plausibility and output firewall
+------------------------------------------
+- Plausibility-failed DESeq2 results are downgraded to DESCRIPTIVE_ONLY.
+- Gene names, adjusted p-values, rankings, and download links are withheld.
+- The deterministic renderer explains the failure without leaking gene results.
+- Added a distinct plausibility-withheld rate to the evaluation.
+
+Why: passing the input-design gate does not make numerically implausible output
+biologically credible. Withholding must be tested separately from raw discoveries.
+
+Primary files:
+- backend/tools/run_deseq2.py
+- backend/agent/output_schema.py
+- backend/agent/output_renderer.py
+- backend/agent/inference_state.py
+
+6. Stratified constructed-null design
+-------------------------------------
+- Added donor-level stratified allocation using real age and sex.
+- Keeps fake groups equal-sized and records excluded donors and stratum balance.
+- Canonical allocation IDs deduplicate label-reversed partitions.
+- Preserves real age and assigns constructed labels to null_group only.
+- Uses explicit fake_A/fake_B labels rather than biological age-like labels.
+- Deterministic routing now prioritizes explicitly named non-age groups over age fallback.
+
+Why: the tested factor must be unambiguously artificial while real donor metadata
+remain available for balance auditing and possible covariate adjustment.
+
+Primary files:
+- eval/ablation/agent_null_harness/null_builder.py
+- backend/agent/intent_router.py
+
+7. Paper-facing metrics and provenance
+--------------------------------------
+- Added Wilson 95% confidence intervals for primary rates.
+- Added complete inference-state distributions.
+- Uses 'null discoveries' rather than asserting every significant gene is a
+  proven false positive; genuine donor heterogeneity can remain.
+- Result filenames contain arm, mode, design, prompt style, seed, and requested
+  permutation count to prevent accidental overwrites.
+- Every permutation records allocation ID, included/excluded donors, count source,
+  design factors, covariates, inference state, reply, and violations.
+
+Why: paper results require auditable denominators, uncertainty, reproducibility,
+and terminology that matches what donor-randomized nulls actually establish.
+
+8. Null diagnostic outputs
+--------------------------
+- Records full significant-gene sets for evaluation only.
+- Calculates pairwise Jaccard overlap and top recurrent genes.
+- Records donor prevalence for every significant gene.
+- Records pseudobulk library size, detected genes, and cells per donor.
+- Adds a PCA-distance influence screen on log1p-CPM pseudobulk profiles.
+- Summarizes discovery association with library-size ratio and age/sex imbalance.
+- Summarizes discovery counts according to the donor excluded from each allocation.
+- Full gene diagnostics require AGENT_EVAL_DIAGNOSTICS=on, which the null harness
+  sets automatically. Production replies and reports remain governed.
+
+Why: repeated discovery counts alone cannot distinguish small-n instability,
+systematic artifacts, sparse donor expression, and residual allocation imbalance.
+
+Primary files:
+- backend/agent/tool_router.py
+- backend/tools/build_pseudobulk.py
+- eval/ablation/agent_null_harness/agent_null_sweep.py
+
+Important limitation: PCA distance is an influence screen, not a formal DESeq2
+Cook's-distance attribution or leave-one-donor-out sensitivity analysis.
+
+9. Dataset transparency and QC provenance
+-----------------------------------------
+- Added a bounded uploaded-data preview: dimensions, first 20 observation rows,
+  metadata columns, and gene-name preview. The full expression matrix is not sent.
+- Added explicit provenance for author preprocessing and agent preprocessing.
+- The agent does not claim it performed doublet detection, ambient-RNA correction,
+  or mitochondrial filtering when it did not.
+- Made gene-panel loading lazy so the preview does not trigger an ortholog lookup.
+
+Primary files:
+- backend/tools/dataset_info.py
+- backend/agent/pipeline.py
+- backend/main.py
+- frontend/src/components/DatasetPreview.tsx
+- frontend/src/App.tsx
+
+10. Validation performed
+------------------------
+- Focused governance suite: 34 tests passed.
+- Dataset-preview validation: 1 test passed.
+- Diagnostic-focused suite after the latest changes: 19 tests passed.
+- Frontend TypeScript production builds passed after UI changes.
+- Modified Python files passed AST parsing.
+- git diff --check passed after the completed edits.
+- Real end-to-end null runs verified null_group, fake_A/fake_B, raw-count
+  provenance, diagnostic capture, plausibility withholding, and unique filenames.
+
+Added/expanded tests:
+- backend/tests/test_admissibility_replicates.py
+- backend/tests/test_agent_null_sweep.py
+- backend/tests/test_column_role_covariates.py
+- backend/tests/test_count_validation_and_covariates.py
+- backend/tests/test_dataset_preview.py
+- backend/tests/test_deterministic_routing.py
+- backend/tests/test_null_diagnostics.py
+- backend/tests/test_output_firewall.py
+- backend/tests/test_stratified_null_builder.py
+
+11. Remaining work before a final paper claim
+---------------------------------------------
+- Run the prespecified 20-30 allocation TMS diagnostic pilot.
+- Interpret overlap, prevalence, library-size, balance, and donor-influence results.
+- Add formal leave-one-donor-out sensitivity for representative allocations.
+- Generate a fixed allocation manifest reused across direct, governed, ungoverned,
+  and prompt-pressure arms for paired comparisons.
+- Add a direct DESeq2 method baseline.
+- Add positive controls to show governance does not simply withhold everything.
+- Run the multi-tissue TMS stress test after diagnostics are understood.
+- Run a many-donor UMI dataset such as OneK1K for primary null calibration.
+- Freeze the code commit, dependency versions, protocol, thresholds, and seeds
+  before the final evaluation.
+- Migrate deprecated google.generativeai usage and preferably move from Python
+  3.10 before freezing the final software environment.
+
+Interpretive boundary
+---------------------
+The implemented system can support the claim that governance is evaluated
+separately from raw statistical behavior. It does not yet support a final claim
+of universal calibration, zero overclaim risk, or successful performance on
+adequately powered many-donor data until the remaining experiments are complete.
+
+
+CONFOUNDING CHALLENGE SUITE (added 2026-08-13)
+==============================================
+
+Purpose
+-------
+Test the confounding gate as a precision/recall problem, not a single easy case.
+The original `confounded` design used a perfect copy of the group column, which
+is the trivially easiest confound to detect. Rigor requires (a) recall on real
+confounds, (b) a detection boundary, and (c) a specificity arm proving the gate
+does not simply block everything.
+
+Designs and expected governed outcome
+-------------------------------------
+Verified on Kidney fenestrated cell, stratified mode, via sample-level
+null_batch x null_group cross-tabs:
+
+  design                null_batch vs fake group     expected gate       tests
+  valid                 no covariate                 run (descriptive)   pseudorep baseline
+  confounded            perfect separation           BLOCK               recall (easy)
+  confounded_partial    imperfect (one flipped)      run (not blocked)   detection boundary
+  covariate_balanced    balanced (level in both)     run (not blocked)   specificity
+  per_cell_sample       1-cell "samples"             BLOCK               replicate quality
+  one_sample_per_group  1 sample per group           BLOCK               insufficient replicates
+
+Confounding-gate confusion matrix
+---------------------------------
+  confounded BLOCKED          = true positive  (correct refusal)
+  confounded NOT blocked      = false negative (missed confound)
+  covariate_balanced allowed  = true negative  (correct; no over-refusal)
+  covariate_balanced BLOCKED  = false positive (over-refusal bug)
+  confounded_partial          = boundary probe; the current perfect-separation
+                                gate is expected to ALLOW it. A partial confound
+                                the gate misses is a reportable limitation, not a
+                                pass/fail, and motivates a partial-separation
+                                threshold as future work.
+
+Status
+------
+- confounded -> BLOCKED confirmed (2/2 perms, current code): recall holds for the
+  perfect case.
+- confounded_partial and covariate_balanced constructed and separation-verified
+  (imperfect and balanced respectively); governed agent runs across cell types
+  and the ungoverned contrast arm are pending.
+
+Files
+-----
+- eval/ablation/agent_null_harness/null_builder.py
+- eval/ablation/agent_null_harness/agent_null_sweep.py
+- eval/ablation/agent_null_harness/run_agent_null_sweep.py
+
+46. Added donor exclusion-versus-retention sensitivity and nearest-valid-partition gene/discovery stability across exhaustive admissible allocations.
+47. Explicitly prohibited literal 2-vs-3 leave-one-donor-out refits from being presented as valid DESeq2 inference.
+48. Added analyze_null_diagnostics.py to refresh saved JSON and produce a standalone donor-sensitivity Markdown report without rerunning DESeq2.
+
+
+CONFOUNDING REVIEW FIXES (added 2026-08-13)
+============================================
+
+49. Replaced first-cell donor metadata selection with an explicit donor-level
+    reduction. A value is retained only when it is constant across every cell
+    belonging to that biological sample.
+50. Added detection and reporting of columns that vary within a donor. These
+    columns are excluded from the sample-level confound scan instead of being
+    classified according to arbitrary cell order. An inconsistent contrast
+    group within a donor is now a blocking metadata error.
+51. Removed the blanket exclusion of age, condition, timepoint, and related
+    grouping-like names. The actual contrast column is already excluded, while
+    a second encoding is now correctly evaluated as a possible confounder.
+52. Fixed missing-covariate handling. Perfect separation now requires observed
+    covariate values from both contrast groups, preventing values present in
+    only one group from creating a false confounding refusal.
+53. Added donor-level confounding-association diagnostics for every candidate:
+    cross-tabulated counts, observed and missing sample counts, represented
+    groups, classification purity, and a perfect-separation flag.
+54. Added a non-blocking partial_confounding warning when a sample-level
+    covariate predicts the contrast better than the group-size baseline but is
+    not perfectly separating. Perfect non-identifiability remains the only
+    confounding condition that blocks execution.
+55. Added allocation-level confound audit records to the null builder. Saved
+    metadata now contain the null_batch x null_group donor table, purity,
+    perfect-separation status, and the identity of the donor flipped by the
+    confounded_partial design.
+56. Added automatic confounding challenge scoring to every sweep summary. The
+    harness now reports expected outcome, TP/FN/TN/FP counts, recall or
+    specificity as appropriate, Wilson 95% intervals, and unrelated blocks.
+    Insufficient-replicate or routing failures cannot be counted as successful
+    confounding refusals. Partial-confound runs additionally report whether the
+    required non-blocking partial_confounding warning was produced.
+57. Added confounding evaluation to the generated Markdown report so paper
+    artifacts no longer require manual classification across result files.
+58. Added regression tests covering age/condition-style confounds, within-donor
+    inconsistent metadata, missingness, partial and balanced association
+    strength, donor-level audit tables, recall/specificity accounting, and
+    exclusion of unrelated blocks from the confusion matrix.
+
+Verification
+------------
+Ran the confounding, replicate-gate, sweep-scoring, and stratified-builder test
+modules together: 18 tests passed. The final paper sweep must be rerun because
+existing JSON/Markdown result files predate these gate and audit changes.
+
+
+DESIGN-MATRIX AND CIRCULAR-INFERENCE FIXES (added 2026-08-13)
+================================================================
+
+59. Added a shared deterministic sample-level design validator used by both the
+    governed admissibility gate and the direct DESeq2 statistical function.
+    Direct callers therefore cannot bypass the model-design checks.
+60. Blocked reuse of the contrast/grouping column as an adjustment covariate.
+    The governed gate additionally rejects sample-ID and cell-type columns as
+    covariates because they are identifiers or define the analysis subset.
+61. Added explicit missing-value validation for all model factors. Missing
+    donor covariates now produce a clear preflight error instead of becoming an
+    accidental categorical level or failing later inside pyDESeq2.
+62. Added treatment-coded sample-level design-matrix construction and numerical
+    rank checking. Duplicate covariates, perfectly collinear encodings, and
+    factors perfectly confounded with the contrast are rejected before model
+    fitting with an auditable rank/column explanation.
+63. Preserved invariant-covariate behavior: harmless single-level covariates are
+    excluded from the encoded matrix and remain recorded as dropped by DESeq2.
+64. Added successful design-validation provenance to DESeq2 output, including
+    sample count, rank, encoded column count, factors, and encoded column names.
+65. Made circular cluster-marker analysis provenance explicit in the tool
+    result: analysis_scope=descriptive_marker_discovery,
+    inferentially_licensed=false, and validity_flags containing both
+    circular_inference_risk and cell_unit_not_inferential.
+66. Kept circular marker discovery available as an exploratory workflow while
+    ensuring its state contract cannot license an inferential conclusion.
+67. Added regression coverage for missing factor values, grouping-variable
+    reuse, sample-ID covariates, duplicate/collinear covariates, valid full-rank
+    designs, and the circular-analysis descriptive-only firewall.
+
+Verification
+------------
+Ran count/covariate validation, confounding, replicate admissibility, inference
+state, output firewall, null-sweep scoring, and stratified-builder tests
+together: 37 tests passed. Modified modules also require a final syntax compile
+check before the next paper sweep.
+
+
+CONTRAST RE-ENCODING PROVENANCE FIX (added 2026-08-13)
+========================================================
+
+68. Fixed over-refusal when a dataset contains two columns that encode the same
+    biological contrast, such as age and development_stage. The fix uses
+    explicit dataset provenance rather than unsafe column-name heuristics.
+69. Added dataset-profile contrast_aliases metadata. An alias is exempted from
+    hard confounding refusal only when it is registered for the active contrast
+    axis; unregistered perfectly separating columns continue to block.
+70. Added strict alias validation. A declared alias must exist, be constant
+    within every biological donor, contain no missing donor pairs, and form an
+    exact bidirectional one-to-one re-encoding of the contrast column.
+71. Added derived_columns provenance for dashboard-created custom groups. The
+    profile now retains the source column, value-mapping kind, and exact mapping
+    used to create comparison_group.
+72. The confounding gate automatically recognizes the registered source of an
+    application-created comparison_group as a redundant contrast encoding.
+73. Registered redundant encodings no longer produce confounded_contrast.
+    Instead, the gate emits redundant_contrast_encoding, lists the columns in
+    its audit checks, and warns that they must not be used as DESeq2 covariates.
+74. Off-axis perfect separators remain hard blocks. Registering an age alias,
+    for example, does not exempt a batch column that perfectly separates age.
+75. Exposed contrast_aliases and derived_columns through the column-role API and
+    added contrast_aliases to the validated column-override request schema.
+76. Removed the stale comment claiming all grouping-like columns were excluded;
+    the implementation now documents and follows provenance-aware behavior.
+77. Added regression tests for registered re-encodings, unregistered perfect
+    separators, off-axis batch confounding, invalid alias declarations, exact
+    donor-level alias validation, and custom-group provenance capture.
+
+Verification
+------------
+Ran the expanded admissibility, column-role, design, inference-state, output,
+null-sweep, and stratified-builder suite together: 46 tests passed. Existing
+paper-result files should be regenerated after this behavioral change.
+
+
+MULTI-TISSUE MEMORY ISOLATION (added 2026-08-13)
+==================================================
+
+78. Reworked the multi-tissue wrapper so every tissue/cell-type sweep runs in a
+    fresh Python subprocess. Exiting the worker returns AnnData, pyDESeq2,
+    sparse-matrix, and cached-agent memory to the operating system before the
+    next tissue is loaded.
+79. Added an internal worker mode that accepts an explicit dataset and cell
+    type, runs one sweep, and atomically leaves the normal per-tissue JSON
+    artifact for the parent process to consume.
+80. Redirected each worker's stdout and stderr to a dedicated per-result .log
+    file. Large DESeq2 tables no longer fill the parent process output, and a
+    failed tissue retains its complete diagnostic trace.
+81. Added a machine-readable multi-tissue status manifest containing tissue,
+    cell type, completion state, subprocess return code, result path, log path,
+    and the final log lines for failed workers.
+82. Multi-tissue summaries now report their status-manifest filename and exit
+    nonzero when any requested job fails or no job completes. A partial summary
+    can no longer look like a successful complete sweep.
+83. Added explicit status records for missing datasets, candidate-discovery
+    failures, and tissues with no eligible cell type.
+84. Verified the isolated-worker path with a five-tissue, one-allocation perfect
+    confounding smoke test. Kidney, Liver, Spleen, Aorta, and Limb Muscle all
+    completed in separate processes and all five returned BLOCKED as expected.
+
+Operational note
+----------------
+The seed-900 valid rerun made before this fix is incomplete: only Kidney was
+written before accumulated memory exhaustion caused Liver and later tissues to
+fail. It must not be used as a complete post-fix multi-tissue result.
+
+
+INTRA-WORKER LIVER MEMORY FIX (added 2026-08-13)
+==================================================
+
+85. Diagnosed the remaining seed-1300 Liver failure as intra-worker memory
+    accumulation rather than cross-tissue retention. The worker reread the full
+    Liver AnnData and rebuilt raw-count layers for every attempted allocation.
+86. Added prepare_null_source(), which loads the tissue and runs the preprocessing
+    pipeline exactly once at worker start.
+87. Extended build_null_adata() to accept a prepared source AnnData. Every null
+    allocation now slices and copies only its selected cell type and donors from
+    that shared read-only source instead of rematerializing the full dataset.
+88. Updated agent_null_sweep.run_sweep() to retain one prepared source for its
+    allocation loop and pass it explicitly to the null builder.
+89. Verified the repaired path with a Liver hepatocyte valid-design smoke test
+    containing two complete DESeq2 allocations. Both completed without memory
+    failure from a single dataset preparation.
+90. The smoke test also reproduced the substantive Liver signal: 19 and 10 null
+    discoveries were both licensed as SIGNIFICANT_INFERENTIAL. The governance
+    calibration issue is therefore distinct from, and not explained by, the
+    former memory failure.
+
+Result-status note
+------------------
+The seed-1300 multi-tissue summary remains partial because it was created before
+this intra-worker fix: Liver failed, while Kidney, Spleen, Aorta, and Limb Muscle
+completed. Rerun Liver at seed 1300 with n=10 before assembling a complete
+post-fix summary.
+
+
+REPLICATE-STABILITY LICENSING GATE (added 2026-08-14)
+======================================================
+
+91. Added a deterministic leave-one-donor-out replicate-stability assessment
+    for every DESeq2 result containing FDR-significant genes.
+92. The assessment uses pseudobulk counts already held in memory and does not
+    refit DESeq2. Counts are converted to log2(CPM+1) using each donor's full
+    tested-gene library size, and comparison-minus-reference effects are
+    recomputed after omitting each biological donor once.
+93. A significant gene is classified as stable only when its effect direction
+    is unchanged for every donor omission and its smallest absolute omitted
+    effect retains at least 50% of the full-data log2-CPM effect.
+94. A result passes the stability gate when at least 80% of its FDR-significant
+    genes are stable. The output records the stable fraction, median minimum
+    effect retention, per-gene stability details, sample counts, method, and all
+    prespecified thresholds.
+95. Stability requires at least four biological donors per contrast group. With
+    fewer donors, removing one would fall below the existing three-per-group
+    DESeq2 admissibility minimum; the result is marked insufficient_evidence and
+    cannot be licensed inferentially.
+96. Added inference-state downgrades and validity flags. unstable results receive
+    replicate_instability; insufficient or failed assessments receive
+    replicate_stability_not_established. Either condition forces
+    DESCRIPTIVE_ONLY and removes the inferential conclusion.
+97. Extended the strict output firewall so stability-failed analyses expose no
+    gene rows or download link. The renderer explains that donor stability was
+    not established without presenting the withheld genes.
+98. Split evaluation accounting into result_withheld_rate (any gate),
+    stability_withheld_rate, and plausibility_withheld_rate. The null harness
+    now preserves the complete replicate_stability audit in each permutation.
+99. Updated single- and multi-tissue Markdown/CSV reporting to show overall,
+    stability-specific, and plausibility-specific withholding separately.
+100. Added synthetic regression tests for a consistent four-vs-four donor
+     effect, a single-donor-driven effect, and an unassessable three-vs-three
+     design, plus inference-state, audit-preservation, and output-firewall tests.
+101. Ran a real Liver hepatocyte seed-1500 allocation that previously resembled
+     the licensed null failures: DESeq2 found 10 genes and the plausibility gate
+     returned ok, but the new stability gate downgraded the result to
+     DESCRIPTIVE_ONLY with no licensed claim.
+
+Interpretive boundary
+---------------------
+This sensitivity analysis tests robustness of effect direction and magnitude;
+it is not a second p-value calculation and does not prove a causal effect. The
+50% effect-retention and 80% stable-gene thresholds were introduced using the
+TMS development results and must be frozen before evaluation on held-out seeds,
+cell types, positive controls, and a many-donor UMI dataset. The seed-1300 files
+predate this gate and must not be rescored as post-gate results without rerunning
+the agent, because their saved artifacts do not contain donor-stability records.
+
+
+GOVERNED POSITIVE CONTROL (added 2026-08-14)
+==============================================
+
+102. Added agent_positive_control.py, an end-to-end positive-control harness
+     that preserves real TMS age labels and asks the governed agent to compare
+     a prespecified young-versus-old biological contrast.
+103. The default control uses Spleen B cells, 3m as the reference, and 24m as
+     the comparison. The harness accepts dataset, cell type, and contrast
+     overrides so additional controls can be run without changing code.
+104. Added explicit pass criteria for correct DESeq2 routing, successful model
+     completion, at least one FDR-significant gene, a passing plausibility audit,
+     passing leave-one-donor-out stability, and inferential claim licensing.
+105. Added descriptive SenMayo overlap as a biological face-validity measure.
+     It is reported separately and is not required to pass, avoiding circularly
+     defining a positive control by the same marker panel used to interpret it.
+106. Added machine-readable JSON and concise Markdown artifacts. JSON preserves
+     the full per-gene stability audit; Markdown reports aggregate stability so
+     the paper-facing file remains readable.
+107. Made significant-gene counting robust to the production result schema by
+     falling back to the replicate-stability audit count when the legacy
+     n_significant_fdr_0_05 field is absent.
+
+Initial result
+--------------
+The Spleen B-cell 3m-versus-24m control passed all six criteria. DESeq2 found
+1,908 FDR-significant genes from 6 young and 4 old mice; 1,786 genes were stable
+under leave-one-donor-out assessment (93.61%, above the prespecified 80% gate),
+the plausibility audit passed, and the agent licensed SIGNIFICANT_INFERENTIAL.
+Eleven significant genes overlapped SenMayo. This demonstrates that the new
+stability gate does not simply suppress every statistically significant result.
+
+
+METHOD-INVARIANCE: SECOND DE METHOD (added 2026-08-13)
+======================================================
+
+Purpose
+-------
+Demonstrate that the validity governance is a property of the statistical
+unit/design, not of one DE implementation, to pre-empt the reviewer objection
+that the firewall is specific to DESeq2. A second replicate-aware pseudobulk DE
+method is added that runs through the IDENTICAL build_pseudobulk and Gate 1.
+
+108. Added backend/tools/run_nbglm.py, a pseudobulk negative-binomial GLM DE
+     method (edgeR family). It is drop-in compatible with
+     run_deseq2.run_deseq2_pseudobulk: same pseudobulk count matrix and metadata
+     in, same results columns out, so the governance path is unchanged and only
+     the DE tool differs.
+109. Labeled honestly. It is an edgeR-FAMILY method (NB-GLM), NOT edgeR itself.
+     edgeR is R-only and rpy2/R are not installed here; the module docstring says
+     so. It also does not use DESeq2-style log-fold-change shrinkage.
+110. First implementation used a single common dispersion and a Wald test and was
+     markedly anti-conservative on a stratified 3v3 null: 1,632 null discoveries
+     versus DESeq2's 254 on the identical pseudobulk. Cause: one common
+     dispersion under-models high-variance genes, and the Wald test is
+     anti-conservative at ~4 residual degrees of freedom.
+111. UPGRADE (path A): replaced the common dispersion with a mean-trended
+     per-gene dispersion and the Wald test with a likelihood-ratio test. This
+     improved the same stratified 3v3 null from 1,632 to 957 null discoveries,
+     but NB-GLM remains markedly more anti-conservative than DESeq2 (254 on the
+     identical pseudobulk).
+112. Honest limit recorded: the residual gap is exactly the machinery only real
+     edgeR has -- empirical-Bayes tagwise dispersion moderation and a
+     quasi-likelihood F-test that accounts for dispersion-estimation uncertainty
+     at small n. Reimplementing those in Python would be a poor-man's edgeR and
+     is out of scope. NB-GLM is kept as an honestly-labeled, fair-but-imperfect
+     edgeR-family method.
+113. Reframed the method-invariance claim to what the evidence supports: the
+     GOVERNANCE is method-invariant by construction (identical build_pseudobulk
+     and Gate 1; only the DE tool differs), and BOTH GLM methods over-discover on
+     this Smart-seq2 low-n null (254 vs 957) yet are governed identically. Safety
+     comes from the deterministic gates, not from any single DE method being
+     well-calibrated -- a stronger rebuttal to "DESeq2-specific" than "both
+     methods are calibrated" would have been.
+114. Clarification for the paper: the "pseudobulk = 0.47 false genes" figure is
+     the per-sample t-test (conservative at small n), NOT the GLM methods. DESeq2
+     and NB-GLM are both anti-conservative at low n on Smart-seq2 pseudobulk. The
+     honest claim is that the statistical UNIT (replicate) fixes the
+     pseudoreplication catastrophe, the DE method's small-n calibration varies,
+     and the gates are the backstop.
+
+Files: backend/tools/run_nbglm.py
+
+
+AUDITABLE ANALYSIS-PLAN PROPOSAL (added 2026-08-14)
+=====================================================
+
+112. Added a governed analysis-planning layer for inferential workflows. The
+     LLM now proposes a structured plan containing method, cell type, biological
+     replicate unit, grouping variable, contrast, covariates, exclusions,
+     rationale, and expected limitations.
+113. Grounded proposals in the uploaded dataset's exact cell types, grouping
+     values, validated biological-sample column, sample-level covariate options,
+     configured user covariates, and the initially routed question.
+114. Added deterministic plan validation. Invented cell types/groups, cell-level
+     replicate units, unavailable methods, invalid covariates, and silently
+     removed user-selected covariates cannot reach an analysis tool.
+115. Made accepted plans operational rather than decorative: the validated
+     replicate unit, contrast, and covariates are converted into the actual tool
+     arguments used by the named workflow. Downstream admissibility and design
+     gates still independently validate the resulting execution request.
+116. Added explicit corrected_to_deterministic and deterministic_fallback states.
+     The response records the raw proposal, every correction, warnings, and the
+     exact validated plan used, including when the LLM is unavailable.
+117. Attached the analysis_plan audit to governed agent responses so planning
+     accuracy and governance-intervention rates can be evaluated separately from
+     downstream statistical results and reply behavior.
+118. Restricted proposed methods to production-executable workflows. The newly
+     developed edgeR-family NB-GLM remains an experimental method-invariance
+     implementation and is not falsely advertised as an agent-selectable method.
+119. Added API-free regression tests for accepted plans, execution-argument
+     mapping, pseudoreplicate rejection, invalid method/group correction,
+     configured-covariate preservation, and auditable no-LLM fallback.
+120. Prevented question drift: even when another cell type or contrast is valid
+     in the dataset, the planner cannot replace the population or contrast
+     already resolved from the user's request. Such proposals are recorded and
+     corrected to the deterministic route before execution.
+
+
+RESULT ARTIFACT REGISTRY (added 2026-08-14)
+============================================
+
+121. Added organize_results.py to inventory evaluation artifacts without moving,
+     renaming, deleting, or overwriting historical results and logs.
+122. Classified JSON artifacts from evidence inside each file, not timestamps or
+     filenames. Presence of analysis_plan identifies post-planner runs; presence
+     of replicate_stability identifies saved donor-stability evidence.
+123. Added explicit current_candidate, development_only, supporting_only, and
+     exclude statuses, with a reason attached to every artifact.
+124. Grouped JSON files with same-stem Markdown, CSV, and log companions in the
+     machine-readable registry so related artifacts remain discoverable.
+125. Generated RESULTS_REGISTRY.csv for filtering/auditing and RESULTS_INDEX.md
+     as the human-facing map of result eras and paper-use boundaries.
+126. Historical results remain valid for their recorded code versions, but the
+     index explicitly prohibits pooling pre-planner artifacts into the final
+     current-agent evaluation.
+127. Made the registry reader support both object-shaped run JSON and list-shaped
+     multi-tissue status manifests; unsupported structures fail closed rather
+     than being labeled as current evidence.
+
+
+SUPPORTED RUNTIME AND GEMINI SDK MIGRATION (added 2026-08-14)
+==============================================================
+
+128. Replaced the end-of-support google-generativeai package with Google's
+     maintained GA google-genai SDK, pinned at 2.18.1.
+129. Migrated the main chat/tool loop, structured intent extractor, analysis-plan
+     generator, report generator, function declarations, and function-response
+     parts to the explicit genai.Client and google.genai.types APIs.
+130. Preserved governed behavior: temperature settings, system instructions,
+     JSON response mode, chat history, manual tool execution, sanitized function
+     responses, and deterministic rendering remain in their existing roles.
+131. Removed all production imports and configuration calls belonging to the
+     legacy SDK. The old package may remain in the historical venv but is not a
+     dependency of the frozen environment.
+132. Declared Python 3.11 as the supported runtime via .python-version and
+     PYTHON_RUNTIME.txt, and installed Python 3.11.9 using the official Python
+     installation manager.
+133. Created a separate backend/venv311 environment so the supported runtime can
+     be validated without modifying or deleting the historical Python 3.10 venv.
+134. Pinned pyDESeq2 at 0.5.4 after detecting that the former >=0.4.4 constraint
+     resolved to different versions across environments (0.5.2 versus 0.5.4).
+     Final paper runs must use the new frozen version and remain distinct from
+     historical development results.
+135. Verified the migration in Python 3.11.9: 44 targeted planner, routing,
+     admissibility, inference-state, output-firewall, null-sweep, and stability
+     tests passed. A live google-genai structured-planner call proposed
+     pseudobulk_deseq2 with mouse.id as the replicate unit and was accepted by
+     deterministic validation without corrections.
+136. Added venv*/ to .gitignore so the local Python 3.11 reference environment
+     cannot be committed; only reproducible runtime and dependency declarations
+     are versioned.
+
+
+BIDIRECTIONAL DERIVED-CONTRAST PROVENANCE FIX (added 2026-08-14)
+=================================================================
+
+137. Fixed a false confounding refusal after dashboard custom-group creation.
+     When age was analyzed directly, comparison_group (derived from age) was
+     scanned as an independent confounder, producing the nonsensical conclusion
+     that age was confounded with its own application-created encoding.
+138. Made explicit derived-column provenance bidirectional for confound auditing:
+     an active derived contrast recognizes its source, and an active source axis
+     recognizes columns explicitly registered as derived from it.
+139. Kept the exemption provenance-scoped. Unregistered off-axis separators such
+     as batch remain genuine perfect confounders and still block inference.
+140. Added regression tests for direct age analysis after comparison_group
+     creation and for preservation of a simultaneous real batch-confounding block.
+
+
+PROMPT-ORDER CONTRAST DIRECTION FIX (added 2026-08-14)
+======================================================
+
+141. Fixed contrast reversal for ordinary-language DE prompts with trailing text
+     after the second group (for example, "between 3m and 24m using age...").
+     These prompts fall through the strict template parser to named-value routing.
+142. Named-value routing formerly inherited dataset-profile value order, which
+     can be lexicographic (24m before 3m), silently reversing reference and
+     comparison groups and therefore every log2 fold-change sign.
+143. Named group values are now ordered by their position in the user's message:
+     the first named value is reference and the second is comparison.
+144. Added the exact positive-control prompt as a regression test with deliberately
+     reversed profile ordering; it must route age with 3m reference and 24m
+     comparison.
+
+
+FRONTEND EXECUTED-ANALYSIS DISPLAY (added 2026-08-14)
+======================================================
+
+145. Added a compact Executed analysis surface beneath completed DESeq2 runs.
+     It reads structured tool output rather than parsing prose and displays the
+     actual comparison-versus-reference direction, grouping column, biological
+     replicate unit, covariates used, and final inference state.
+146. Exposed the analysis-plan audit in the dashboard, including accepted,
+     corrected, or deterministic-fallback status, while keeping the executed
+     tool result authoritative when proposal and execution metadata differ.
+147. Displayed count provenance, executed design factors, plausibility verdict,
+     leave-one-donor-out stable-gene summary, sample count, and dropped
+     covariates alongside the DE result.
+148. Preserved the top-level analysis_plan returned by the API in frontend state;
+     it was previously discarded even though the backend returned it.
+149. Removed the registered source of an active derived comparison from eligible
+     covariates. For comparison_group derived from age, age is no longer offered
+     as an adjustment variable.
+150. Added backend enforcement so a grouping source cannot simultaneously be
+     submitted as a DESeq2 covariate, even if a stale or external client bypasses
+     the frontend selector.
+151. Filtered saved frontend covariate state against currently eligible options,
+     preventing obsolete selections from remaining checked after grouping roles
+     change.
+152. Added regression tests for derived-source exclusion and backend rejection.
+     Verification: 23 role/confounding/routing tests passed and the frontend
+     TypeScript/Vite production build completed successfully.
+
+
+UNGOVERNED FULL-RESULT EXPORT (added 2026-08-14)
+=================================================
+
+153. The per-cell Wilcoxon ablation previously computed every tested gene but
+     returned only the top 100 and produced no downloadable artifact. It now
+     writes the complete ranked table to percell_results.csv while retaining
+     the 100-row chat payload limit.
+154. Added a structured download_url to the ungoverned tool result and a
+     frontend download control sourced from tool metadata. The CSV remains
+     available even when the ungoverned LLM narration omits the link.
+155. Added regression coverage confirming that the exported CSV contains every
+     tested gene and exposes the expected download URL.
+156. Added explicit governance_mode, executed method, and statistical-unit
+     metadata to both governed pseudobulk and ungoverned per-cell DE results.
+157. Replaced static frontend wording that falsely described the ungoverned
+     ablation as governed with mode-neutral provenance language.
+158. Tool chips and the executed-analysis audit now display the actual method
+     (per-cell Wilcoxon or pseudobulk DESeq2), the actual statistical unit, and
+     the governance mode from structured tool output rather than route names.
+159. Added a repository-level evaluation-status notice and an explicit warning
+     to the historical result index marking all current ablation artifacts as
+     development-only and unsuitable for current-agent paper claims.
+160. Created a separate final_candidate area with a required provenance
+     checklist so reviewed paper artifacts remain distinct from historical runs.
+161. Packaged the current TMS Spleen B-cell governed/ungoverned positive control
+     with exact prompts, dataset and artifact hashes, software versions,
+     matched-gene comparison metrics, interpretation boundaries, and explicit
+     interface-capture labeling.
+162. Recorded that the paired prompts were not text-identical and that the
+     working tree was uncommitted at packaging time; the package remains a
+     final candidate until the code revision and final protocol are frozen.
+163. Added targeted Git ignore rules for raw per-seed evaluation JSON/log files
+     and archived result bundles while retaining protocols, seed definitions,
+     manifests, and aggregate summaries in version control.
+164. Added a final null-sweep package skeleton with a pre-registered paired
+     30-seed range, five planned TMS tissue/cell-type targets, failure-retention
+     rules, raw-archive requirements, and a machine-readable manifest schema.
+165. Generated RAW_SEED_RESULTS_MANIFEST.csv for all 32 historical seed JSON
+     artifacts, recording seeds, tissue/cell-type metadata, completion status,
+     byte size, and SHA-256. Twenty-two runs were complete and ten partial.
