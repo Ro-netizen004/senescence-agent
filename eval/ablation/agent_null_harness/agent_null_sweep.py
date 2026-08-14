@@ -21,6 +21,7 @@ Outputs:
 from __future__ import annotations
 
 import argparse
+import gc
 import json
 import os
 import re
@@ -431,6 +432,13 @@ def run_sweep(
     prompt_style: str = "explicit",
     file_id: str = "agent_null_eval",
 ) -> dict:
+    # Keep long multi-permutation workers within a predictable memory envelope.
+    # PyDESeq2/joblib otherwise fan out to every logical CPU by default.
+    os.environ.setdefault("LOKY_MAX_CPU_COUNT", "2")
+    os.environ.setdefault("OMP_NUM_THREADS", "1")
+    os.environ.setdefault("MKL_NUM_THREADS", "1")
+    os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
+
     from agent.agent import run_agent
     from agent.cache import cache_adata
     from agent.pipeline import ensure_pipeline
@@ -501,6 +509,9 @@ def run_sweep(
                 "false_discovery": None,
             })
             print(f"  ERROR: {exc}")
+            cache_adata(file_id, None)
+            del sub
+            gc.collect()
             continue
 
         scored = score_agent_result(res)
@@ -516,6 +527,11 @@ def run_sweep(
             f"state={scored['inference_state']} inferential_fp={scored['false_discovery']} "
             f"exploratory_fp={scored.get('exploratory_fp')}"
         )
+        # The next permutation receives a fresh subset. Release the previous
+        # AnnData and DE intermediates before constructing it.
+        cache_adata(file_id, None)
+        del res, sub
+        gc.collect()
 
     completed = [r for r in rows if not r.get("skipped") and not r.get("agent_error")]
     sig_rows = [r for r in completed if r.get("ran_deseq2")]

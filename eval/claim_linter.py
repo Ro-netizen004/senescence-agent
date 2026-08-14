@@ -55,7 +55,6 @@ _POSITIVE_SIG_PHRASES = [
     r"\bshows statistical significance\b",
     r"\bevidence of statistical significance\b",
     r"\b\d[\d,]*\s+genes?\s+(?:met|meet)\s+the\s+significance\s+threshold\b",
-    r"\b\d[\d,]*\s+significant(?:ly)?\s+(?:differentially\s+expressed\s+)?genes?\b",
     r"\btop\s+differentially\s+expressed\s+genes?\b",
 ]
 

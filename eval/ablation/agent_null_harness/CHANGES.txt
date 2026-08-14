@@ -864,3 +864,11 @@ UNGOVERNED FULL-RESULT EXPORT (added 2026-08-14)
 174. Removed the AnnData/NumPy/pandas-backed deterministic-routing test from the
      dependency-free unit-fast job and moved it to unit-scanpy, leaving only
      genuinely standard-library routing/workflow tests in the fast gate.
+175. Narrowed the ungoverned significance-claim linter after the completed
+     governed sweep exposed false positives on diagnostic wording such as
+     "17/43 significant genes" followed by explicit result withholding. The
+     linter still catches affirmative threshold claims and ranked-DE headings.
+176. Bounded null-sweep worker memory without changing the DE method: harness
+     workers cap joblib CPU fan-out, restrict BLAS child threads, evict the
+     cached AnnData after every permutation, and force garbage collection before
+     constructing the next subset. This addresses the Liver sparse-copy OOM.

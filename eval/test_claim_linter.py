@@ -36,6 +36,21 @@ class TestSignificanceDetection(unittest.TestCase):
             )
         )
 
+    def test_allows_withheld_diagnostic_significant_gene_count(self):
+        reply = (
+            "17/43 significant genes have |log2FC| > 8. "
+            "Gene-level results were withheld because the output failed the "
+            "result-plausibility gate."
+        )
+        self.assertFalse(has_positive_significance_claim(reply))
+
+    def test_catches_threshold_claim_and_ranked_de_heading(self):
+        reply = (
+            "A total of 2,906 genes met the significance threshold. "
+            "Top Differentially Expressed Genes (by adjusted p-value)"
+        )
+        self.assertTrue(has_positive_significance_claim(reply))
+
 
 class TestPValueDetection(unittest.TestCase):
     def test_allows_disclaimer(self):
