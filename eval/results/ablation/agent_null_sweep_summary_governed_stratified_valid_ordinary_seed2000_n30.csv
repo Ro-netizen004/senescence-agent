@@ -1,0 +1,5 @@
+tissue,cell_type,arm,n_perm,ran_deseq2,mean_null_discoveries,plausibility_withheld_rate,stability_withheld_rate,result_withheld_rate,inference_state_counts,raw_discovery_rate,licensed_claim_rate,reply_overclaim_rate,routing_miss
+Kidney,epithelial cell of proximal tubule,governed,6,6,227.67,1.0,1.0,1.0,"{""DESCRIPTIVE_ONLY"": 6}",1.0,0.0,1.0,0
+Spleen,B cell,governed,30,30,45.87,0.9667,0.7333,1.0,"{""DESCRIPTIVE_ONLY"": 30}",1.0,0.0,0.8667,0
+Aorta,aortic endothelial cell,governed,4,4,164.25,1.0,1.0,1.0,"{""DESCRIPTIVE_ONLY"": 4}",1.0,0.0,1.0,0
+Limb_Muscle,skeletal muscle satellite cell,governed,30,30,156.4,1.0,0.6,1.0,"{""DESCRIPTIVE_ONLY"": 30}",1.0,0.0,1.0,0

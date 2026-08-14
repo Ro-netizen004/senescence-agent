@@ -858,3 +858,9 @@ UNGOVERNED FULL-RESULT EXPORT (added 2026-08-14)
 172. Marked the paired smoke test passed and the final 30-seed, five-tissue
      sweep ready to run. The superseded pre-fix ungoverned score remains recorded
      as invalidated diagnostic history and is excluded from the final manifest.
+173. Fixed both GitHub Actions jobs after the Python 3.11 migration: CI no longer
+     forces the unsupported 3.10 runtime, and pip caching is enabled for the
+     scientific dependency job.
+174. Removed the AnnData/NumPy/pandas-backed deterministic-routing test from the
+     dependency-free unit-fast job and moved it to unit-scanpy, leaving only
+     genuinely standard-library routing/workflow tests in the fast gate.
