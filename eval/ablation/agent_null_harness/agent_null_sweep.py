@@ -521,14 +521,15 @@ def run_sweep(
     sig_rows = [r for r in completed if r.get("ran_deseq2")]
 
     raw_successes = sum(bool(r.get("raw_discovery")) for r in sig_rows)
-    licensed_successes = sum(bool(r.get("licensed_claim")) for r in sig_rows)
+    licensed_rows = [r for r in sig_rows if r.get("inference_state") is not None]
+    licensed_successes = sum(bool(r.get("licensed_claim")) for r in licensed_rows)
     reply_successes = sum(bool(r.get("reply_overclaim")) for r in completed)
     withheld_successes = sum(bool(r.get("result_withheld")) for r in sig_rows)
     plausibility_successes = sum(bool(r.get("plausibility_withheld")) for r in sig_rows)
     stability_successes = sum(bool(r.get("stability_withheld")) for r in sig_rows)
     exploratory_successes = sum(bool(r.get("exploratory_fp")) for r in sig_rows)
     raw_rate, raw_ci = _rate(raw_successes, len(sig_rows))
-    licensed_rate, licensed_ci = _rate(licensed_successes, len(sig_rows))
+    licensed_rate, licensed_ci = _rate(licensed_successes, len(licensed_rows))
     reply_rate, reply_ci = _rate(reply_successes, len(completed))
     withheld_rate, withheld_ci = _rate(withheld_successes, len(sig_rows))
     plausibility_rate, plausibility_ci = _rate(plausibility_successes, len(sig_rows))
@@ -567,6 +568,7 @@ def run_sweep(
         "raw_discovery_rate_ci95": raw_ci,
         "licensed_claim_rate": licensed_rate,
         "licensed_claim_rate_ci95": licensed_ci,
+        "n_license_evaluable": len(licensed_rows),
         "reply_overclaim_rate": reply_rate,
         "reply_overclaim_rate_ci95": reply_ci,
         "result_withheld_rate": withheld_rate,

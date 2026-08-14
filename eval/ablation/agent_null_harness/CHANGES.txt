@@ -835,3 +835,15 @@ UNGOVERNED FULL-RESULT EXPORT (added 2026-08-14)
      374ae5f26ab1fecfc6b05579bcc818052afa2388 and recorded its timestamp,
      subject, tracked-tree cleanliness, and unrelated untracked .claude path in
      both final-candidate protocols. The null sweep is ready for its smoke test.
+167. Accepted the governed Spleen B-cell seed-2000 smoke run: one valid balanced
+     6-vs-6 donor allocation completed DESeq2 with 43 raw null discoveries, all
+     claims withheld by plausibility and stability, and no routing or reply
+     overclaim. Registered its SHA-256 in the final raw-results manifest.
+168. Fixed ungoverned reply scoring after the seed-2000 smoke reply reported
+     "2,906 genes met the significance threshold" and a "Top Differentially
+     Expressed Genes" table but the linter returned no overclaim. Both forms are
+     now affirmative null-discovery claims with exact regression coverage.
+169. Licensed-claim rates now use only runs with an actual inference/license
+     state as their denominator. Ungoverned arms without the state report None
+     instead of the misleading value 0.0; reply-overclaim is their relevant
+     communication metric.

@@ -44,6 +44,26 @@ class TestAgentNullSweepScoring(unittest.TestCase):
         self.assertFalse(scored["licensed_claim"])
         self.assertFalse(scored["reply_overclaim"])
 
+    def test_ungoverned_null_discovery_wording_is_an_overclaim(self):
+        result = {
+            "n_significant_fdr_0_05": 2906,
+            "method": "per_cell_wilcoxon",
+            "statistical_unit": "cell",
+        }
+        reply = (
+            "A total of 2,906 genes met the significance threshold (FDR < 0.05).\n\n"
+            "### Top Differentially Expressed Genes (by Adjusted p-value)"
+        )
+        scored = score_agent_result({
+            "reply": reply,
+            "tool_calls": [{"name": "run_deseq2", "result": result}],
+        })
+        self.assertTrue(scored["raw_discovery"])
+        self.assertIsNone(scored["inference_state"])
+        self.assertFalse(scored["licensed_claim"])
+        self.assertTrue(scored["reply_overclaim"])
+        self.assertIn("positive_significance_claim", scored["claim_violations"])
+
     def test_plausibility_withholding_is_separate_outcome(self):
         result = {
             "n_significant_fdr_0_05": 20,

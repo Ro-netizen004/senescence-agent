@@ -1,6 +1,6 @@
 {
   "experiment": "final_paired_agent_null_sweep",
-  "status": "frozen_ready_for_smoke_test",
+  "status": "scoring_fix_pending_commit_and_ungoverned_rerun",
   "seed_file": "seeds.txt",
   "n_seeds_per_tissue_arm": 30,
   "paired_arms": ["governed", "ungoverned"],
@@ -21,6 +21,30 @@
   "raw_output_directory": "raw",
   "raw_outputs_committed_to_git": false,
   "required_manifest": "raw_results_manifest.csv",
+  "smoke_test": {
+    "seed": 2000,
+    "tissue": "Spleen",
+    "cell_type": "B cell",
+    "governed_status": "passed",
+    "ungoverned_status": "diagnostic_only_invalidated_by_reply_scoring_bug",
+    "governed_result": {
+      "completed_runs": 1,
+      "raw_null_discoveries": 43,
+      "inference_state": "DESCRIPTIVE_ONLY",
+      "licensed_claim": false,
+      "reply_overclaim": false,
+      "plausibility_withheld": true,
+      "stability_withheld": true
+    },
+    "ungoverned_diagnostic_result": {
+      "completed_runs": 1,
+      "raw_null_discoveries": 2906,
+      "reported_reply_overclaim_before_fix": false,
+      "expected_reply_overclaim_after_fix": true,
+      "accepted_into_final_manifest": false,
+      "reason": "Claim linter failed to recognize 'genes met the significance threshold' and 'Top Differentially Expressed Genes' as affirmative null-discovery claims."
+    }
+  },
   "code": {
     "revision": "374ae5f26ab1fecfc6b05579bcc818052afa2388",
     "commit_timestamp": "2026-08-14T14:41:00-04:00",
