@@ -74,11 +74,14 @@ terms are `ungoverned-only discoveries` or `method-dependent discoveries`.
 - `protocol.json` records execution and environment provenance.
 - `SHA256SUMS.txt` provides artifact integrity hashes.
 
-## Reproducibility limitation
+## Code revision
 
-The repository base commit at packaging time was
-`4dde3b41c0cc84ecac1ff11138c710f059c8eeb7`, but the working tree contained
-uncommitted agent-development changes. The package is therefore a final
-candidate, not yet a frozen publication artifact. Before publication, commit or
-tag the finalized code and update `protocol.json` with that immutable revision.
+The evaluated implementation is frozen at commit
+`374ae5f26ab1fecfc6b05579bcc818052afa2388` (`feat: finalize governed DE
+evaluation and result provenance`, committed 2026-08-14). Tracked files were
+clean immediately after the commit; the unrelated `.claude/` directory remained
+untracked and is not part of the evaluated implementation.
 
+The package remains a final candidate until the complete evaluation protocol is
+run and reviewed, but its positive-control implementation is now tied to an
+immutable revision.

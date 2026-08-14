@@ -831,3 +831,7 @@ UNGOVERNED FULL-RESULT EXPORT (added 2026-08-14)
 165. Generated RAW_SEED_RESULTS_MANIFEST.csv for all 32 historical seed JSON
      artifacts, recording seeds, tissue/cell-type metadata, completion status,
      byte size, and SHA-256. Twenty-two runs were complete and ten partial.
+166. Froze the evaluated implementation at commit
+     374ae5f26ab1fecfc6b05579bcc818052afa2388 and recorded its timestamp,
+     subject, tracked-tree cleanliness, and unrelated untracked .claude path in
+     both final-candidate protocols. The null sweep is ready for its smoke test.

@@ -1,6 +1,6 @@
 {
   "experiment": "final_paired_agent_null_sweep",
-  "status": "planned_not_run",
+  "status": "frozen_ready_for_smoke_test",
   "seed_file": "seeds.txt",
   "n_seeds_per_tissue_arm": 30,
   "paired_arms": ["governed", "ungoverned"],
@@ -22,9 +22,12 @@
   "raw_outputs_committed_to_git": false,
   "required_manifest": "raw_results_manifest.csv",
   "code": {
-    "revision": null,
-    "working_tree_dirty": null,
-    "frozen": false
+    "revision": "374ae5f26ab1fecfc6b05579bcc818052afa2388",
+    "commit_timestamp": "2026-08-14T14:41:00-04:00",
+    "commit_subject": "feat: finalize governed DE evaluation and result provenance",
+    "tracked_working_tree_clean_after_commit": true,
+    "untracked_paths_after_commit": [".claude/"],
+    "frozen": true
   },
   "notes": [
     "Freeze the code revision before execution.",
@@ -32,4 +35,3 @@
     "Archive raw outputs externally and verify hashes before local deletion."
   ]
 }
-

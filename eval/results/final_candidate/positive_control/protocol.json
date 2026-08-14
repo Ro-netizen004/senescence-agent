@@ -24,10 +24,12 @@
     "pydeseq2": "0.5.4"
   },
   "code": {
-    "base_commit": "4dde3b41c0cc84ecac1ff11138c710f059c8eeb7",
-    "working_tree_dirty_at_packaging": true,
-    "publication_revision_frozen": false
+    "evaluated_commit": "374ae5f26ab1fecfc6b05579bcc818052afa2388",
+    "commit_timestamp": "2026-08-14T14:41:00-04:00",
+    "commit_subject": "feat: finalize governed DE evaluation and result provenance",
+    "tracked_working_tree_clean_after_commit": true,
+    "untracked_paths_after_commit": [".claude/"],
+    "publication_revision_frozen": true
   },
   "arm_difference_note": "Prompts were not text-identical. Governed covariate adjustment came from the dashboard; ungoverned explicitly requested sex adjustment but executed no covariates."
 }
-
