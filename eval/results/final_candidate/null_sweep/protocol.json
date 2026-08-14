@@ -1,6 +1,6 @@
 {
   "experiment": "final_paired_agent_null_sweep",
-  "status": "scoring_fix_pending_commit_and_ungoverned_rerun",
+  "status": "paired_smoke_passed_ready_for_full_sweep",
   "seed_file": "seeds.txt",
   "n_seeds_per_tissue_arm": 30,
   "paired_arms": ["governed", "ungoverned"],
@@ -26,7 +26,7 @@
     "tissue": "Spleen",
     "cell_type": "B cell",
     "governed_status": "passed",
-    "ungoverned_status": "diagnostic_only_invalidated_by_reply_scoring_bug",
+    "ungoverned_status": "passed_after_scoring_fix",
     "governed_result": {
       "completed_runs": 1,
       "raw_null_discoveries": 43,
@@ -36,25 +36,38 @@
       "plausibility_withheld": true,
       "stability_withheld": true
     },
-    "ungoverned_diagnostic_result": {
+    "ungoverned_result": {
       "completed_runs": 1,
       "raw_null_discoveries": 2906,
-      "reported_reply_overclaim_before_fix": false,
-      "expected_reply_overclaim_after_fix": true,
+      "license_evaluable_runs": 0,
+      "licensed_claim_rate": null,
+      "reply_overclaim": true,
+      "reply_overclaim_rate": 1.0,
+      "claim_violations": ["positive_significance_claim"],
+      "inference_state": "UNKNOWN",
+      "result_withheld": false,
+      "accepted_into_final_manifest": true
+    },
+    "invalidated_ungoverned_run_before_scoring_fix": {
+      "raw_null_discoveries": 2906,
+      "reported_reply_overclaim": false,
       "accepted_into_final_manifest": false,
-      "reason": "Claim linter failed to recognize 'genes met the significance threshold' and 'Top Differentially Expressed Genes' as affirmative null-discovery claims."
+      "reason": "Superseded because the claim linter did not recognize affirmative threshold wording."
     }
   },
   "code": {
-    "revision": "374ae5f26ab1fecfc6b05579bcc818052afa2388",
-    "commit_timestamp": "2026-08-14T14:41:00-04:00",
-    "commit_subject": "feat: finalize governed DE evaluation and result provenance",
+    "agent_revision": "374ae5f26ab1fecfc6b05579bcc818052afa2388",
+    "agent_commit_timestamp": "2026-08-14T14:41:00-04:00",
+    "agent_commit_subject": "feat: finalize governed DE evaluation and result provenance",
+    "evaluation_harness_revision": "ddf37b7af5504e39db1594a3d8149971abb60302",
+    "evaluation_harness_commit_timestamp": "2026-08-14T15:06:21-04:00",
+    "evaluation_harness_commit_subject": "fix: score ungoverned null discovery claims",
     "tracked_working_tree_clean_after_commit": true,
     "untracked_paths_after_commit": [".claude/"],
     "frozen": true
   },
   "notes": [
-    "Freeze the code revision before execution.",
+    "Agent behavior is frozen at agent_revision; null scoring is frozen at evaluation_harness_revision.",
     "Record all failures; do not silently exclude or replace seeds.",
     "Archive raw outputs externally and verify hashes before local deletion."
   ]

@@ -847,3 +847,14 @@ UNGOVERNED FULL-RESULT EXPORT (added 2026-08-14)
      state as their denominator. Ungoverned arms without the state report None
      instead of the misleading value 0.0; reply-overclaim is their relevant
      communication metric.
+170. Froze the corrected evaluation harness at commit
+     ddf37b7af5504e39db1594a3d8149971abb60302 while retaining agent revision
+     374ae5f26ab1fecfc6b05579bcc818052afa2388 as the evaluated behavioral and
+     statistical implementation. The protocol records both revisions.
+171. Accepted the corrected ungoverned Spleen B-cell seed-2000 pair: the donor
+     allocation exactly matched governed, 2,906 null discoveries were exposed,
+     no license state was applicable, and the reply was correctly scored as an
+     overclaim with positive_significance_claim. Registered its SHA-256.
+172. Marked the paired smoke test passed and the final 30-seed, five-tissue
+     sweep ready to run. The superseded pre-fix ungoverned score remains recorded
+     as invalidated diagnostic history and is excluded from the final manifest.

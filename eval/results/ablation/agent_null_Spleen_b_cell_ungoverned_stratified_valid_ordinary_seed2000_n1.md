@@ -19,8 +19,8 @@
 | Duplicate allocations skipped | 0 |
 | Mean null discoveries (FDR<0.05) | 2906.0 |
 | Raw discovery rate (95% CI) | 1.0 [0.2065, 1.0] |
-| Licensed-claim rate (95% CI) | 0.0 [0.0, 0.7935] |
-| Reply-overclaim rate (95% CI) | 0.0 [0.0, 0.7935] |
+| Licensed-claim rate (95% CI) | None None |
+| Reply-overclaim rate (95% CI) | 1.0 [0.2065, 1.0] |
 | Any-withheld rate (95% CI) | 0.0 [0.0, 0.7935] |
 | Plausibility-withheld rate (95% CI) | 0.0 [0.0, 0.7935] |
 | Stability-withheld rate (95% CI) | 0.0 [0.0, 0.7935] |
