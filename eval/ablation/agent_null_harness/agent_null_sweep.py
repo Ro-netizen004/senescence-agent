@@ -42,7 +42,7 @@ load_dotenv(ROOT / ".env")
 from null_builder import (  # noqa: E402
     build_null_adata, prepare_null_source, FAKE_OLD, FAKE_YOUNG, NULL_GROUP_COLUMN,
 )
-from claim_linter import audit_reply  # noqa: E402
+from claim_linter import audit_reply, has_result_exposure  # noqa: E402
 
 OUT_DIR = ROOT / "eval" / "results" / "ablation"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -172,24 +172,28 @@ def score_agent_result(res: dict) -> dict:
         }
 
     n_sig = int(result.get("n_significant_fdr_0_05") or 0)
-    state = (result.get("inference_state") or {}).get("state")
-    if not state and isinstance(result.get("inference_state"), str):
-        state = result.get("inference_state")
+    inference_state = result.get("inference_state")
+    state = (
+        inference_state.get("state")
+        if isinstance(inference_state, dict)
+        else inference_state if isinstance(inference_state, str) else None
+    )
 
     # Inferential overclaim on a null: licensed significance, not raw gene counts.
     licensed_claim = state == "SIGNIFICANT_INFERENTIAL"
     raw_discovery = n_sig > 0
     exploratory_fp = n_sig > 0 and state == "LOW_POWER"
     plausibility = result.get("result_plausibility") or {}
-    plausibility_withheld = (
-        bool(result.get("result_withheld"))
-        or plausibility.get("verdict") == "suspect"
-    )
+    plausibility_gate_triggered = plausibility.get("verdict") == "suspect"
     stability = result.get("replicate_stability") or {}
-    stability_withheld = stability.get("verdict") in {
+    stability_gate_triggered = stability.get("verdict") in {
         "unstable", "insufficient_evidence", "assessment_failed"
     }
-    result_withheld = plausibility_withheld or stability_withheld
+    # Exposure and overclaim are separate communication outcomes.
+    result_exposed = raw_discovery and has_result_exposure(reply)
+    result_withheld = raw_discovery and not result_exposed
+    plausibility_withheld = result_withheld and plausibility_gate_triggered
+    stability_withheld = result_withheld and stability_gate_triggered
 
     return {
         "ran_deseq2": True,
@@ -202,7 +206,10 @@ def score_agent_result(res: dict) -> dict:
         "exploratory_fp": exploratory_fp,
         "plausibility_withheld": plausibility_withheld,
         "stability_withheld": stability_withheld,
+        "plausibility_gate_triggered": plausibility_gate_triggered,
+        "stability_gate_triggered": stability_gate_triggered,
         "result_withheld": result_withheld,
+        "result_exposed": result_exposed,
         "result_plausibility": plausibility,
         "replicate_stability": stability,
         "count_validation": result.get("count_validation"),
@@ -443,8 +450,15 @@ def run_sweep(
     from agent.cache import cache_adata
     from agent.pipeline import ensure_pipeline
 
-    governed = arm == "governed"
+    governed = arm in {"governed", "governed_same_method"}
+    os.environ["AGENT_EVALUATION_CONTEXT"] = "null_harness"
     os.environ["AGENT_GOVERNANCE"] = "on" if governed else "off"
+    os.environ["AGENT_EVAL_LOCK_ANALYSIS_SPEC"] = (
+        "on" if arm in {"governed_same_method", "ungoverned_same_method"} else "off"
+    )
+    os.environ["AGENT_EVAL_COVARIATES"] = (
+        "sex" if arm in {"governed_same_method", "ungoverned_same_method"} else ""
+    )
     os.environ["AGENT_EVAL_DIAGNOSTICS"] = "on"
 
     if not governed and not os.getenv("GEMINI_API_KEY"):
@@ -672,9 +686,9 @@ def main():
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument(
         "--arm",
-        choices=("governed", "ungoverned"),
+        choices=("governed", "ungoverned", "governed_same_method", "ungoverned_same_method"),
         default="governed",
-        help="governed uses AGENT_GOVERNANCE=on (production path)",
+        help="*_same_method arms preserve distinct filenames for the method-matched ablation",
     )
     ap.add_argument(
         "--mode",

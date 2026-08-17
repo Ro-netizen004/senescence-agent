@@ -62,7 +62,47 @@ class TestAgentNullSweepScoring(unittest.TestCase):
         self.assertIsNone(scored["inference_state"])
         self.assertFalse(scored["licensed_claim"])
         self.assertTrue(scored["reply_overclaim"])
+        self.assertFalse(scored["result_withheld"])
         self.assertIn("positive_significance_claim", scored["claim_violations"])
+
+    def test_diagnostic_trigger_is_not_communication_withholding(self):
+        result = {
+            "n_significant_fdr_0_05": 43,
+            "result_plausibility": {"verdict": "suspect"},
+            "replicate_stability": {"verdict": "unstable"},
+        }
+        reply = "43 genes met the significance threshold. Top Differentially Expressed Genes"
+        scored = score_agent_result({
+            "reply": reply,
+            "tool_calls": [{"name": "run_deseq2", "result": result}],
+        })
+        self.assertTrue(scored["plausibility_gate_triggered"])
+        self.assertTrue(scored["stability_gate_triggered"])
+        self.assertFalse(scored["plausibility_withheld"])
+        self.assertFalse(scored["stability_withheld"])
+        self.assertFalse(scored["result_withheld"])
+
+    def test_gene_table_is_exposure_without_significance_phrase(self):
+        result = {"n_significant_fdr_0_05": 2}
+        reply = "| Gene | log2FC | padj |\n| Abc1 | 1.2 | 0.01 |"
+        scored = score_agent_result({
+            "reply": reply,
+            "tool_calls": [{"name": "run_deseq2", "result": result}],
+        })
+        self.assertTrue(scored["result_exposed"])
+        self.assertFalse(scored["result_withheld"])
+
+    def test_string_inference_state_is_supported(self):
+        result = {
+            "n_significant_fdr_0_05": 1,
+            "inference_state": "DESCRIPTIVE_ONLY",
+        }
+        scored = score_agent_result({
+            "reply": "Gene-level results were withheld.",
+            "tool_calls": [{"name": "run_deseq2", "result": result}],
+        })
+        self.assertEqual(scored["inference_state"], "DESCRIPTIVE_ONLY")
+        self.assertTrue(scored["result_withheld"])
 
     def test_plausibility_withholding_is_separate_outcome(self):
         result = {

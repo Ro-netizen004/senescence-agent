@@ -282,7 +282,8 @@ def run_agent(
     # ── pipeline ──────────────────────────────────────────────────────
     ensure_pipeline(adata, species)
  
-    # Production is always governed; AGENT_GOVERNANCE=off enables the ablation.
+    # Production is always governed; AGENT_GOVERNANCE=off disables only the
+    # governance stack while retaining identical statistical implementations.
     governed = governance_enabled()
 
     # ── tool map ──────────────────────────────────────────────────────

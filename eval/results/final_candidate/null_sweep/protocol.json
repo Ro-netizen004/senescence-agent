@@ -1,6 +1,6 @@
 {
   "experiment": "final_paired_agent_null_sweep",
-  "status": "paired_smoke_passed_ready_for_full_sweep",
+  "status": "paper_usable_tms_pilot_external_validation_required",
   "seed_file": "seeds.txt",
   "n_seeds_per_tissue_arm": 30,
   "paired_arms": ["governed", "ungoverned"],
@@ -21,6 +21,13 @@
   "raw_output_directory": "raw",
   "raw_outputs_committed_to_git": false,
   "required_manifest": "raw_results_manifest.csv",
+  "derived_outputs": [
+    "paired_allocations.csv",
+    "tissue_summary.csv",
+    "paper_summary.json",
+    "PAPER_RESULTS.md",
+    "SHA256SUMS.txt"
+  ],
   "smoke_test": {
     "seed": 2000,
     "tissue": "Spleen",
@@ -59,9 +66,9 @@
     "agent_revision": "374ae5f26ab1fecfc6b05579bcc818052afa2388",
     "agent_commit_timestamp": "2026-08-14T14:41:00-04:00",
     "agent_commit_subject": "feat: finalize governed DE evaluation and result provenance",
-    "evaluation_harness_revision": "ddf37b7af5504e39db1594a3d8149971abb60302",
-    "evaluation_harness_commit_timestamp": "2026-08-14T15:06:21-04:00",
-    "evaluation_harness_commit_subject": "fix: score ungoverned null discovery claims",
+    "evaluation_harness_revision": "19799611bf7f8e64fed16873d96c7a094e891844",
+    "evaluation_harness_commit_timestamp": "2026-08-14T19:59:47-04:00",
+    "evaluation_harness_commit_subject": "fix: finalize memory-safe null sweep and paper registry",
     "tracked_working_tree_clean_after_commit": true,
     "untracked_paths_after_commit": [".claude/"],
     "frozen": true

@@ -1,0 +1,108 @@
+{
+  "experiment": "matched_tms_multitissue_agent_null_pilot",
+  "status": "paper_usable_pilot",
+  "generated_utc": "2026-08-17T15:55:26.819620+00:00",
+  "design": {
+    "mode": "stratified",
+    "allocation_unit": "biological_donor",
+    "paired_arms": [
+      "governed",
+      "ungoverned"
+    ],
+    "seed_start": 2000,
+    "requested_per_tissue": 30
+  },
+  "n_paired_allocations": 78,
+  "derivation": {
+    "aggregator": "eval/ablation/agent_null_harness/build_paired_paper_results.py",
+    "aggregator_sha256": "cf1136227aee1ca2808038019247319b5ab2c6c153fc56e902126a38433ab6d3",
+    "claim_linter": "eval/claim_linter.py",
+    "claim_linter_sha256": "d190fbb486378e1aad450ac953c90e8f7bef72bf1ebbb3421dc8a28453588da8",
+    "raw_inputs_are_immutable": true
+  },
+  "tissue_results": [
+    {
+      "tissue": "Kidney",
+      "cell_type": "epithelial cell of proximal tubule",
+      "paired_allocations": 6,
+      "governed_mean_null_discoveries": 227.67,
+      "ungoverned_mean_null_discoveries": 1206.0,
+      "governed_reply_overclaim_rate": 0.0,
+      "ungoverned_reply_overclaim_rate": 1.0,
+      "governed_result_withheld_rate": 1.0,
+      "ungoverned_result_withheld_rate": 0.0
+    },
+    {
+      "tissue": "Liver",
+      "cell_type": "hepatocyte",
+      "paired_allocations": 8,
+      "governed_mean_null_discoveries": 30.12,
+      "ungoverned_mean_null_discoveries": 5336.0,
+      "governed_reply_overclaim_rate": 0.0,
+      "ungoverned_reply_overclaim_rate": 1.0,
+      "governed_result_withheld_rate": 1.0,
+      "ungoverned_result_withheld_rate": 0.0
+    },
+    {
+      "tissue": "Spleen",
+      "cell_type": "B cell",
+      "paired_allocations": 30,
+      "governed_mean_null_discoveries": 45.87,
+      "ungoverned_mean_null_discoveries": 2906.0,
+      "governed_reply_overclaim_rate": 0.0,
+      "ungoverned_reply_overclaim_rate": 1.0,
+      "governed_result_withheld_rate": 1.0,
+      "ungoverned_result_withheld_rate": 0.0
+    },
+    {
+      "tissue": "Aorta",
+      "cell_type": "aortic endothelial cell",
+      "paired_allocations": 4,
+      "governed_mean_null_discoveries": 164.25,
+      "ungoverned_mean_null_discoveries": 2234.0,
+      "governed_reply_overclaim_rate": 0.0,
+      "ungoverned_reply_overclaim_rate": 1.0,
+      "governed_result_withheld_rate": 1.0,
+      "ungoverned_result_withheld_rate": 0.0
+    },
+    {
+      "tissue": "Limb_Muscle",
+      "cell_type": "skeletal muscle satellite cell",
+      "paired_allocations": 30,
+      "governed_mean_null_discoveries": 156.4,
+      "ungoverned_mean_null_discoveries": 4667.07,
+      "governed_reply_overclaim_rate": 0.0,
+      "ungoverned_reply_overclaim_rate": 1.0,
+      "governed_result_withheld_rate": 1.0,
+      "ungoverned_result_withheld_rate": 0.0
+    }
+  ],
+  "pooled": {
+    "governed_mean_null_discoveries": 106.82,
+    "ungoverned_mean_null_discoveries": 3667.33,
+    "governed_reply_overclaims": 0,
+    "governed_reply_overclaim_rate": 0.0,
+    "governed_allocation_level_wilson_interval_descriptive_only": [
+      0,
+      0.0469
+    ],
+    "ungoverned_reply_overclaims": 78,
+    "ungoverned_reply_overclaim_rate": 1.0,
+    "ungoverned_allocation_level_wilson_interval_descriptive_only": [
+      0.9531,
+      1
+    ],
+    "paired_reply_overclaim_difference": 1.0,
+    "governed_results_withheld": 78,
+    "governed_result_withheld_rate": 1.0,
+    "ungoverned_results_withheld": 0,
+    "ungoverned_result_withheld_rate": 0.0,
+    "governed_state_counts": {
+      "DESCRIPTIVE_ONLY": 78
+    },
+    "ungoverned_state_counts": {
+      "UNKNOWN": 78
+    }
+  },
+  "interpretation_boundary": "Pilot evaluates the complete governed system against an ungoverned per-cell-method ablation under donor-split TMS nulls. Allocations reuse donors and are not independent biological experiments. Raw null discoveries are not gene-level ground-truth false positives, and TMS is not a many-donor droplet/UMI generalization dataset."
+}

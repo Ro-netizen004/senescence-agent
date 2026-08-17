@@ -1,0 +1,6 @@
+tissue,cell_type,paired_allocations,governed_mean_null_discoveries,ungoverned_mean_null_discoveries,governed_reply_overclaim_rate,ungoverned_reply_overclaim_rate,governed_result_withheld_rate,ungoverned_result_withheld_rate
+Kidney,epithelial cell of proximal tubule,6,227.67,1206.0,0.0,1.0,1.0,0.0
+Liver,hepatocyte,8,30.12,5336.0,0.0,1.0,1.0,0.0
+Spleen,B cell,30,45.87,2906.0,0.0,1.0,1.0,0.0
+Aorta,aortic endothelial cell,4,164.25,2234.0,0.0,1.0,1.0,0.0
+Limb_Muscle,skeletal muscle satellite cell,30,156.4,4667.07,0.0,1.0,1.0,0.0

@@ -1,4 +1,9 @@
-# Final Null Sweep Candidate
+# Legacy Method-plus-Governance Null Pilot
+
+**Historical after the same-method ablation redesign.** This package compares
+governed pseudobulk DESeq2 with an ungoverned per-cell Wilcoxon implementation.
+It remains useful as a full-system comparison but cannot attribute differences
+to governance alone. Its replacement writes to `../null_sweep_same_method/`.
 
 This directory holds the version-controlled protocol, seed definition,
 aggregate results, and raw-artifact manifest for the final null evaluation.
@@ -24,7 +29,7 @@ may be rerun only with the same seed after documenting the technical cause.
 
 ## Publication boundary
 
-This package remains a final candidate until the agent code is committed or
-tagged, the protocol revision is frozen, every expected run is represented in
-the manifest, and aggregate values reconcile to the raw archive.
-
+The memory-safe evaluation harness is frozen at
+`19799611bf7f8e64fed16873d96c7a094e891844`. This package remains a final
+candidate until every expected paired run is represented in the manifest and
+aggregate values reconcile to the raw archive.

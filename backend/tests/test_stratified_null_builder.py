@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.join(ROOT, "eval", "ablation", "agent_null_harness"))
 
 from null_builder import (
     FAKE_OLD, FAKE_YOUNG, NULL_GROUP_COLUMN, _canonical_allocation,
-    _covariate_audit, _stratified_split, build_null_adata,
+    _covariate_audit, _stratified_split, _usable_mice, build_null_adata,
 )
 
 
@@ -94,6 +94,23 @@ class TestStratifiedNullBuilder(unittest.TestCase):
         self.assertNotIn(NULL_GROUP_COLUMN, source.obs)
         self.assertNotIn("_null_source_cell_type", result.uns)
         self.assertEqual(set(result.obs[NULL_GROUP_COLUMN]), {FAKE_YOUNG, FAKE_OLD})
+
+    def test_usable_mice_reads_obs_without_slicing_expression_data(self):
+        class MetadataOnly:
+            obs = pd.DataFrame(
+                {
+                    "cell_type": ["B cell"] * 40 + ["T cell"] * 20,
+                    "sample_id": ["m1"] * 20 + ["m2"] * 20 + ["m3"] * 20,
+                }
+            )
+
+            def __getitem__(self, _key):
+                raise AssertionError("AnnData expression matrix must not be sliced")
+
+        self.assertEqual(
+            _usable_mice(MetadataOnly(), "cell_type", "sample_id", "B cell"),
+            ["m1", "m2"],
+        )
 
 
 if __name__ == "__main__":

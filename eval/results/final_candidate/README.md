@@ -58,14 +58,14 @@ rate. Evidence, checksums, and revision metadata are in
 [`null_sweep/raw_results_manifest.csv`](null_sweep/raw_results_manifest.csv),
 and [`null_sweep/protocol.json`](null_sweep/protocol.json).
 
-## 3. Governed multi-tissue TMS null pilot
+## 3. Matched multi-tissue TMS null pilot
 
-**Status: Preliminary.** These runs establish feasibility and describe the
-current TMS behavior. They are not yet one frozen, matched governed-versus-
-ungoverned paper sweep. The first four tissue artifacts also contain obsolete
-reply-overclaim scores from an overbroad text linter; those reply scores are
-excluded below. The inferential state, discovery, and withholding endpoints are
-not affected by that linter defect.
+**Status: Historical full-system pilot after the same-method redesign.** Saved replies were
+deterministically rescored with the corrected linter and matched by seed and
+donor allocation. The primary derived files are
+[`null_sweep/PAPER_RESULTS.md`](null_sweep/PAPER_RESULTS.md),
+[`null_sweep/paired_allocations.csv`](null_sweep/paired_allocations.csv), and
+[`null_sweep/paper_summary.json`](null_sweep/paper_summary.json).
 
 | Tissue / cell type | Unique allocations | Mean null discoveries | Raw discovery rate | Licensed-claim rate | Result-withheld rate | State |
 |---|---:|---:|---:|---:|---:|---|
@@ -86,12 +86,23 @@ were licensed as inferential claims.
 
 Additional pooled diagnostics: plausibility withholding occurred in 77/78
 allocations (98.72%), and stability withholding in 58/78 (74.36%). Raw JSON
-artifacts currently live under [`../ablation/`](../ablation/) and must be copied
-into the final null package, checksummed, and reconciled after the matched rerun.
+artifacts are copied into the ignored local `null_sweep/raw/` archive and
+checksummed in [`null_sweep/raw_results_manifest.csv`](null_sweep/raw_results_manifest.csv).
+
+The 78 allocations reuse donors and are not 78 independent biological
+experiments. Rates describe the registered allocation set; no biological-
+population confidence interval is claimed. The arms also compare the complete
+governed pseudobulk system against an ungoverned per-cell-method ablation, so the
+difference cannot be attributed to governance gates alone.
+
+The replacement governance-isolation experiment is registered at
+[`null_sweep_same_method/`](null_sweep_same_method/README.md). Its arms retain
+identical pseudobulk DESeq2 execution and differ only in the governance stack.
 
 ## Publication checklist
 
-- Commit the current memory-safe harness and record its immutable revision.
+- [x] Freeze the memory-safe harness at
+  `19799611bf7f8e64fed16873d96c7a094e891844`.
 - Rerun or deterministically rescore stale reply-linter outputs.
 - Run matched ungoverned allocations for every governed allocation.
 - Generate one aggregate CSV/JSON/Markdown set from the paired raw archive.

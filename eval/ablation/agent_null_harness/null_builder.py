@@ -112,8 +112,10 @@ def _covariate_audit(sub, sample_col, group_col, covariate="null_batch"):
 
 
 def _usable_mice(sub, ct_col: str, sample_col: str, cell_type: str) -> list[str]:
-    cells = sub[sub.obs[ct_col].astype(str) == str(cell_type)]
-    vc = cells.obs[sample_col].astype(str).value_counts()
+    # Donor enumeration needs metadata only. Slicing AnnData here also slices
+    # its large `.raw` sparse matrix and caused cumulative Liver-worker OOMs.
+    mask = sub.obs[ct_col].astype(str) == str(cell_type)
+    vc = sub.obs.loc[mask, sample_col].astype(str).value_counts()
     return sorted(vc[vc >= MIN_CELLS_PER_SAMPLE].index.tolist())
 
 

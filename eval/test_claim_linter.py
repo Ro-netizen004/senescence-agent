@@ -8,10 +8,19 @@ from eval.claim_linter import (
     audit_reply,
     has_positive_significance_claim,
     has_reported_p_value,
+    has_result_exposure,
 )
 
 
 class TestSignificanceDetection(unittest.TestCase):
+    def test_detects_gene_table_exposure(self):
+        self.assertTrue(
+            has_result_exposure("| Gene | log2FC | padj |\n| Abc1 | 1.2 | 0.01 |")
+        )
+        self.assertFalse(
+            has_result_exposure("17/43 significant genes had extreme effects; results withheld.")
+        )
+
     def test_allows_negated_significance(self):
         self.assertFalse(
             has_positive_significance_claim(
@@ -50,6 +59,20 @@ class TestSignificanceDetection(unittest.TestCase):
             "Top Differentially Expressed Genes (by adjusted p-value)"
         )
         self.assertTrue(has_positive_significance_claim(reply))
+
+    def test_catches_structured_significant_count(self):
+        self.assertTrue(
+            has_positive_significance_claim(
+                '{"n_significant_fdr_0_05": 2906, "top_genes": []}'
+            )
+        )
+
+    def test_catches_significantly_de_markdown_count(self):
+        self.assertTrue(
+            has_positive_significance_claim(
+                "**Significantly Differentially Expressed (FDR < 0.05)**: 2,906"
+            )
+        )
 
 
 class TestPValueDetection(unittest.TestCase):
@@ -122,6 +145,18 @@ class TestAuditReply(unittest.TestCase):
         v = audit_reply(reply, tool_calls, {"forbid_significance_claim": True})
         self.assertIn("positive_significance_claim", v)
         self.assertIn("significance_claim_vs_state", v)
+
+    def test_string_inference_state_is_supported(self):
+        tool_calls = [{
+            "name": "run_deseq2",
+            "result": {"inference_state": "LOW_POWER"},
+        }]
+        violations = audit_reply(
+            "Top Differentially Expressed Genes",
+            tool_calls,
+            {"forbid_significance_claim": True},
+        )
+        self.assertIn("significance_claim_vs_state", violations)
 
     def test_descriptive_with_sneaky_p_value(self):
         reply = "Medians by age. p-value: 0.04 from a quick test."

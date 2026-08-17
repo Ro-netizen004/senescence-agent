@@ -1,0 +1,6 @@
+tissue,cell_type,arm,n_perm,ran_deseq2,mean_null_discoveries,plausibility_withheld_rate,stability_withheld_rate,result_withheld_rate,inference_state_counts,raw_discovery_rate,licensed_claim_rate,reply_overclaim_rate,routing_miss
+Kidney,epithelial cell of proximal tubule,ungoverned,6,6,1206.0,0.0,0.0,0.0,"{""UNKNOWN"": 6}",1.0,,1.0,0
+Liver,hepatocyte,ungoverned,8,8,5336.0,0.0,0.0,0.0,"{""UNKNOWN"": 8}",1.0,,1.0,0
+Spleen,B cell,ungoverned,30,30,2906.0,0.0,0.0,0.0,"{""UNKNOWN"": 30}",1.0,,0.8667,0
+Aorta,aortic endothelial cell,ungoverned,4,4,2234.0,0.0,0.0,0.0,"{""UNKNOWN"": 4}",1.0,,1.0,0
+Limb_Muscle,skeletal muscle satellite cell,ungoverned,30,30,4667.07,0.0,0.0,0.0,"{""UNKNOWN"": 30}",1.0,,1.0,0

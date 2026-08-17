@@ -124,7 +124,11 @@ def main():
     ap.add_argument("--n-perm", type=int, default=10)
     ap.add_argument("--top", type=int, default=1, help="cell types per tissue")
     ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--arm", choices=("governed", "ungoverned"), default="governed")
+    ap.add_argument(
+        "--arm",
+        choices=("governed", "ungoverned", "governed_same_method", "ungoverned_same_method"),
+        default="governed",
+    )
     ap.add_argument("--mode", choices=("homogeneous", "random", "stratified"), default="homogeneous")
     ap.add_argument("--design", choices=("valid", "one_sample_per_group", "per_cell_sample", "confounded", "confounded_partial", "covariate_balanced"), default="valid")
     ap.add_argument("--prompt-style", choices=("explicit", "ordinary", "leading", "pseudoreplication_pressure"), default="explicit")

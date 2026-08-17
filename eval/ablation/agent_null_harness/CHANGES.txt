@@ -883,3 +883,65 @@ UNGOVERNED FULL-RESULT EXPORT (added 2026-08-14)
      five-tissue governed pilot; records denominators and pooled endpoints; and
      labels preliminary, stale-linter, provenance, and publication boundaries
      so historical artifacts cannot be mistaken for final paper evidence.
+179. Registered commit 19799611bf7f8e64fed16873d96c7a094e891844 as the
+     frozen memory-safe evaluation-harness revision in the final null protocol
+     and paper-data registry. This is a provenance-only update made after the
+     evaluated implementation commit; it does not change agent behavior.
+180. Closed two claim-linter gaps revealed by the matched ungoverned pilot:
+     structured `n_significant_fdr_0_05` fields and Markdown
+     `Significantly Differentially Expressed: N` summaries now count as
+     affirmative significance claims. Narrow regression patterns preserve the
+     exemption for governed diagnostic counts followed by explicit withholding.
+181. Added `build_paired_paper_results.py` to rescore immutable replies, require
+     identical seed/allocation pairs, copy and checksum raw artifacts, and emit
+     allocation-, tissue-, and paper-level CSV/JSON/Markdown outputs. The report
+     explicitly avoids biological-population inference across reused donors and
+     identifies the method-plus-governance nature of the arm comparison.
+182. Replaced the ungoverned per-cell method swap with a same-method governance
+     ablation. Both arms now resolve the same contrast and call donor-level
+     pseudobulk DESeq2 with identical arguments; only governed routing/intent
+     validation, gates, inference-state licensing, payload sanitization, and
+     response rendering differ. Added
+     protected `*_same_method` arm filenames, a method-parity regression test,
+     a parity-enforcing paired aggregator, and a separate final-candidate output
+     directory. The previous per-cell package is retained and labeled historical.
+183. Removed the final unnecessary AnnData slice from donor enumeration.
+     `_usable_mice` now counts sample IDs through an `obs` mask, avoiding a
+     redundant `.raw` sparse-matrix subset on every Liver allocation while
+     leaving donor eligibility unchanged.
+184. The first same-method run exposed a remaining design divergence: the
+     ungoverned LLM explicitly supplied an empty covariate list while governed
+     routing used profile-selected `sex` when estimable. Same-method arms now
+     set `AGENT_EVAL_LOCK_ANALYSIS_SPEC=on`, forcing both routes to use the
+     preregistered profile covariates. The parity test deliberately supplies
+     conflicting arm arguments and verifies identical DESeq2 wrapper calls.
+185. Follow-up verification showed that reconstructed profiles did not persist
+     `deseq2_covariates`, so the initial lock still resolved to an empty list.
+     The protocol now preregisters `sex` explicitly through
+     `AGENT_EVAL_COVARIATES=sex` in both arms; downstream design validation may
+     drop it identically when non-estimable. Full reruns are gated on a paired
+     one-seed parity smoke test.
+186. The successful parity smoke test exposed a metric-labeling bug:
+     `result_withheld` was inferred from diagnostic verdicts even when the
+     ungoverned reply printed significant genes. Diagnostic triggers are now
+     recorded separately, while withholding is scored from communicated claim
+     behavior. This prevents an exposed ungoverned gene table from being counted
+     as withheld merely because plausibility or stability diagnostics fired.
+187. Hardened the paper-facing communication metrics after review. Inference
+     states now accept both structured dictionaries and legacy strings without
+     crashing. Added an explicit result-exposure detector for discovery counts,
+     ranked gene tables, adjusted-p-value tables, and DE result downloads;
+     withholding is derived from absence of exposure rather than absence of an
+     overclaim phrase. The paired aggregator now recomputes exposure and
+     withholding from immutable replies, ignores stale stored metric fields,
+     and rejects duplicate seeds, inconsistent completion counts, empty runs,
+     or protocol-mismatched arm metadata.
+188. Made the registered same-method protocol the paired aggregator's source of
+     truth for arms, tissue/cell-type targets, construction settings, seed
+     range, and requested attempts. Corrected the protocol to record that sex
+     is locked through evaluation environment variables rather than recovered
+     from the dataset profile. Production now fails closed: AGENT_GOVERNANCE=off
+     is honored only when AGENT_EVALUATION_CONTEXT=null_harness is also set by
+     the evaluation harness. Removed 13 fully invalid full-run ungoverned
+     same-method artifacts produced before the sex-covariate lock; retained the
+     valid paired smoke artifacts and explicitly historical experiments.

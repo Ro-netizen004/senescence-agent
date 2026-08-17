@@ -4,6 +4,7 @@ import os
 from tools.build_pseudobulk import build_pseudobulk_matrix
 from tools.run_deseq2 import run_deseq2_pseudobulk
 from agent.admissibility import check_admissibility, admissibility_block_result
+from agent.governance import governance_enabled
 
 
 def run_deseq2_wrapper(
@@ -110,7 +111,7 @@ def run_deseq2_wrapper(
 
     output = {
         "results": df.to_dict(orient="records"),
-        "governance_mode": "governed",
+        "governance_mode": "ungoverned_ablation" if not governance_enabled() else "governed",
         "method": "pseudobulk_deseq2",
         "statistical_unit": "biological_sample",
     }
@@ -215,9 +216,9 @@ def run_deseq2_wrapper(
 def build_tool_map(adata, species, tools, governed: bool = True):
     """Build the name->callable tool map.
 
-    When ``governed`` is False (ablation only), the admissibility gate is
-    removed and the two inferential tools are swapped for per-cell
-    (pseudoreplicating) implementations. Production always passes governed=True.
+    Both arms use the same inferential implementations. In the ungoverned
+    ablation only the admissibility gate is removed; method parity is required
+    so differences can be attributed to the governance stack.
     """
     profile = adata.uns.get("dataset_profile") or {}
     age_col = profile.get("age_column") or "age"
@@ -245,64 +246,47 @@ def build_tool_map(adata, species, tools, governed: bool = True):
             return result
         return gated
 
-    if governed:
-        from agent.contrast import resolve_contrast
+    from agent.contrast import resolve_contrast
 
-        def _deseq2_impl(args):
-            spec = resolve_contrast(adata, args)
-            return run_deseq2_wrapper(
-                adata,
-                spec.cell_type or args.get("cell_type"),
-                spec.sample_column or sample_col,
-                spec.group_column,
-                spec.reference_group,
-                spec.comparison_group,
-                (args.get("covariates") if "covariates" in args
-                 else profile.get("deseq2_covariates") or []),
+    def _deseq2_impl(args):
+        spec = resolve_contrast(adata, args)
+        if os.getenv("AGENT_EVAL_LOCK_ANALYSIS_SPEC", "").strip().lower() in {
+            "1", "true", "on", "yes"
+        }:
+            # Same-method evaluation pre-registers the design from the dataset
+            # profile. Neither deterministic nor LLM routing may change it.
+            covariates = [
+                value.strip()
+                for value in os.getenv("AGENT_EVAL_COVARIATES", "").split(",")
+                if value.strip()
+            ]
+        else:
+            covariates = (
+                args.get("covariates") if "covariates" in args
+                else profile.get("deseq2_covariates") or []
             )
-
-        def _test_impl(args):
-            spec = resolve_contrast(adata, args)
-            return tools["test_senescence_difference"](
-                adata,
-                spec.cell_type or args.get("cell_type"),
-                spec.group_column,
-                spec.cell_type_column,
-                spec.sample_column or sample_col,
-                spec.reference_group,
-                spec.comparison_group,
-                species,
-            )
-    else:
-        # Ungoverned ablation: per-cell (pseudoreplicating) versions.
-        from tools.percell_inference import (
-            differential_expression_percell,
-            test_senescence_difference_percell,
+        return run_deseq2_wrapper(
+            adata,
+            spec.cell_type or args.get("cell_type"),
+            spec.sample_column or sample_col,
+            spec.group_column,
+            spec.reference_group,
+            spec.comparison_group,
+            covariates,
         )
 
-        def _deseq2_impl(args):
-            return differential_expression_percell(
-                adata,
-                args.get("cell_type"),
-                args.get("age_column", age_col),
-                args.get("cell_type_column", ct_col),
-                args.get("sample_column", sample_col),
-                args.get("reference_age") or youngest,
-                args.get("comparison_age") or oldest,
-                species,
-            )
-
-        def _test_impl(args):
-            return test_senescence_difference_percell(
-                adata,
-                args.get("cell_type"),
-                args.get("age_column", age_col),
-                args.get("cell_type_column", ct_col),
-                args.get("sample_column", sample_col),
-                args.get("reference_age") or youngest,
-                args.get("comparison_age") or oldest,
-                species,
-            )
+    def _test_impl(args):
+        spec = resolve_contrast(adata, args)
+        return tools["test_senescence_difference"](
+            adata,
+            spec.cell_type or args.get("cell_type"),
+            spec.group_column,
+            spec.cell_type_column,
+            spec.sample_column or sample_col,
+            spec.reference_group,
+            spec.comparison_group,
+            species,
+        )
 
     return {
         "generate_umap": lambda args: tools["generate_umap"](adata, species=species),

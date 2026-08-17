@@ -56,6 +56,18 @@ _POSITIVE_SIG_PHRASES = [
     r"\bevidence of statistical significance\b",
     r"\b\d[\d,]*\s+genes?\s+(?:met|meet)\s+the\s+significance\s+threshold\b",
     r"\btop\s+differentially\s+expressed\s+genes?\b",
+    r"\bsignificantly\s+differentially\s+expressed\b[^\n:]{0,40}:\s*[1-9][\d,]*",
+    r'["\']?n_significant(?:_fdr_0_05)?["\']?\s*:\s*[1-9]\d*',
+]
+
+_RESULT_EXPOSURE_PHRASES = [
+    r"\b\d[\d,]*\s+genes?\s+(?:met|meet)\s+the\s+significance\s+threshold\b",
+    r"\btotal\s+significant\s+genes?\b[^\n:]{0,40}:\s*[1-9][\d,]*",
+    r"\bsignificantly\s+differentially\s+expressed\b[^\n:]{0,40}:\s*[1-9][\d,]*",
+    r'["\']?n_significant(?:_fdr_0_05)?["\']?\s*:\s*[1-9]\d*',
+    r"\btop\s+differentially\s+expressed\s+genes?\b",
+    r"\|\s*gene\s*\|[^\n]*(?:padj|adjusted\s+p[\s-]?value|log2(?:foldchange|fc))",
+    r"(?:/plots/|href\s*=)[^\s\"']*(?:deseq2|differential)[^\s\"']*\.csv",
 ]
 
 
@@ -81,6 +93,11 @@ def has_positive_significance_claim(text: str) -> bool:
             continue
         return True
     return False
+
+
+def has_result_exposure(text: str) -> bool:
+    """True when a reply exposes discovery counts or gene-level DE results."""
+    return any(re.search(pattern, text or "", re.I) for pattern in _RESULT_EXPOSURE_PHRASES)
 
 
 def has_reported_p_value(text: str) -> bool:
@@ -116,9 +133,11 @@ def _tool_result_dict(tc: dict) -> dict:
 def _infer_states(tool_calls: list[dict]) -> list[str]:
     states: list[str] = []
     for tc in tool_calls:
-        inf = _tool_result_dict(tc).get("inference_state") or {}
-        if inf.get("state"):
+        inf = _tool_result_dict(tc).get("inference_state")
+        if isinstance(inf, dict) and inf.get("state"):
             states.append(str(inf["state"]))
+        elif isinstance(inf, str) and inf:
+            states.append(inf)
     return states
 
 
@@ -129,8 +148,8 @@ def _tool_result_indicates_error(tc: dict) -> bool:
         return True
     if result.get("error"):
         return True
-    err = result.get("inference_state") or {}
-    if err.get("state") == "BLOCKED":
+    err = result.get("inference_state")
+    if (isinstance(err, dict) and err.get("state") == "BLOCKED") or err == "BLOCKED":
         return True
     return False
 
@@ -229,9 +248,9 @@ def audit_reply(
     blocked_conclusions = {"no_conclusion", "not_significant"}
     for tc in tool_calls:
         result = _tool_result_dict(tc)
-        inf = result.get("inference_state") or {}
-        conclusion = inf.get("conclusion")
-        state = inf.get("state")
+        inf = result.get("inference_state")
+        conclusion = inf.get("conclusion") if isinstance(inf, dict) else None
+        state = inf.get("state") if isinstance(inf, dict) else inf
         if conclusion in blocked_conclusions or state in blocked_states:
             if has_positive_significance_claim(text):
                 violations.append("significance_claim_vs_state")

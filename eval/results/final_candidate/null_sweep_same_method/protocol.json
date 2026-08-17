@@ -1,0 +1,48 @@
+{
+  "experiment": "same_method_governance_ablation_tms_null_pilot",
+  "status": "paired_smoke_test_passed_full_run_required",
+  "paired_arms": ["governed_same_method", "ungoverned_same_method"],
+  "method_both_arms": "donor_level_pseudobulk_deseq2",
+  "analysis_specification": "locked_by_evaluation_environment_in_both_arms",
+  "analysis_specification_environment": {
+    "AGENT_EVAL_LOCK_ANALYSIS_SPEC": "on",
+    "AGENT_EVAL_COVARIATES": "sex",
+    "AGENT_EVALUATION_CONTEXT": "null_harness"
+  },
+  "preregistered_covariates_requested_both_arms": ["sex"],
+  "covariate_handling": "DESeq2 design validation may drop sex identically when non-estimable",
+  "statistical_unit_both_arms": "biological_donor",
+  "seed_file": "seeds.txt",
+  "seed_start": 2000,
+  "n_requested_per_tissue_arm": 30,
+  "null_construction": {
+    "mode": "stratified",
+    "design": "valid",
+    "prompt_style": "ordinary",
+    "pairing_rule": "identical seed and allocation_id"
+  },
+  "only_intended_arm_differences": [
+    "governed routing and intent validation",
+    "admissibility gates",
+    "inference-state licensing",
+    "LLM payload sanitization",
+    "deterministic governed response rendering"
+  ],
+  "required_method_parity": [
+    "allocation_id",
+    "n_sig",
+    "significant_genes",
+    "design_factors",
+    "covariates_used",
+    "covariates_dropped"
+  ],
+  "planned_tissue_cell_types": [
+    {"tissue": "Kidney", "cell_type": "epithelial cell of proximal tubule"},
+    {"tissue": "Liver", "cell_type": "hepatocyte"},
+    {"tissue": "Spleen", "cell_type": "B cell"},
+    {"tissue": "Aorta", "cell_type": "aortic endothelial cell"},
+    {"tissue": "Limb_Muscle", "cell_type": "skeletal muscle satellite cell"}
+  ],
+  "publication_boundary": "TMS pilot; external many-donor UMI validation required",
+  "code_revision": "pending_commit"
+}
