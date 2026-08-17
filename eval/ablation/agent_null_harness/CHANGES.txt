@@ -945,3 +945,7 @@ UNGOVERNED FULL-RESULT EXPORT (added 2026-08-14)
      the evaluation harness. Removed 13 fully invalid full-run ungoverned
      same-method artifacts produced before the sex-covariate lock; retained the
      valid paired smoke artifacts and explicitly historical experiments.
+189. Registered commit 3b09c25e320234b8037a3bd718a568baf0d94a5e as the
+     frozen behavioral and statistical implementation for the full same-method
+     governance ablation. Marked the protocol frozen and ready for the paired
+     full run; this provenance-only update does not alter evaluated behavior.

@@ -1,6 +1,6 @@
 {
   "experiment": "same_method_governance_ablation_tms_null_pilot",
-  "status": "paired_smoke_test_passed_full_run_required",
+  "status": "frozen_full_run_ready",
   "paired_arms": ["governed_same_method", "ungoverned_same_method"],
   "method_both_arms": "donor_level_pseudobulk_deseq2",
   "analysis_specification": "locked_by_evaluation_environment_in_both_arms",
@@ -44,5 +44,5 @@
     {"tissue": "Limb_Muscle", "cell_type": "skeletal muscle satellite cell"}
   ],
   "publication_boundary": "TMS pilot; external many-donor UMI validation required",
-  "code_revision": "pending_commit"
+  "code_revision": "3b09c25e320234b8037a3bd718a568baf0d94a5e"
 }
