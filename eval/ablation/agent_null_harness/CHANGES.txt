@@ -949,3 +949,10 @@ UNGOVERNED FULL-RESULT EXPORT (added 2026-08-14)
      frozen behavioral and statistical implementation for the full same-method
      governance ablation. Marked the protocol frozen and ready for the paired
      full run; this provenance-only update does not alter evaluated behavior.
+190. Fixed the repeatable Liver worker OOM at donor-allocation slicing. The
+     reusable cell-type source previously retained `.raw` after ensure_pipeline
+     had already locked the same verified counts into `layers['counts']`, so
+     each allocation copied the sparse count matrix twice. The null harness now
+     detaches only this redundant `.raw` storage after asserting that counts are
+     locked; normalized X, counts, metadata, and completed pipeline state remain
+     unchanged. Added a fail-closed regression test for the detachment helper.

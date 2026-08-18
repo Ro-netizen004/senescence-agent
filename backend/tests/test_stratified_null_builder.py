@@ -14,11 +14,28 @@ sys.path.insert(0, os.path.join(ROOT, "eval", "ablation", "agent_null_harness"))
 
 from null_builder import (
     FAKE_OLD, FAKE_YOUNG, NULL_GROUP_COLUMN, _canonical_allocation,
-    _covariate_audit, _stratified_split, _usable_mice, build_null_adata,
+    _covariate_audit, _detach_redundant_raw, _stratified_split, _usable_mice,
+    build_null_adata,
 )
 
 
 class TestStratifiedNullBuilder(unittest.TestCase):
+    def test_redundant_raw_is_detached_only_after_counts_are_locked(self):
+        class Data:
+            layers = {"counts": object()}
+            raw = object()
+            uns = {}
+
+        data = Data()
+        _detach_redundant_raw(data)
+        self.assertIsNone(data.raw)
+        self.assertTrue(data.uns["_null_source_raw_detached"])
+
+        missing_counts = Data()
+        missing_counts.layers = {}
+        with self.assertRaisesRegex(RuntimeError, "counts are locked"):
+            _detach_redundant_raw(missing_counts)
+
     def test_uses_explicit_nonbiological_group_labels(self):
         self.assertEqual(NULL_GROUP_COLUMN, "null_group")
         self.assertEqual({FAKE_YOUNG, FAKE_OLD}, {"fake_A", "fake_B"})

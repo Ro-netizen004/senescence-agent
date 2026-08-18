@@ -119,6 +119,14 @@ def _usable_mice(sub, ct_col: str, sample_col: str, cell_type: str) -> list[str]
     return sorted(vc[vc >= MIN_CELLS_PER_SAMPLE].index.tolist())
 
 
+def _detach_redundant_raw(adata) -> None:
+    """Drop harness-only duplicate raw storage after counts are locked."""
+    if "counts" not in adata.layers:
+        raise RuntimeError("Cannot detach .raw before verified counts are locked")
+    adata.raw = None
+    adata.uns["_null_source_raw_detached"] = True
+
+
 def prepare_null_source(data_path: Path, cell_type: str | None = None):
     """Load once and optionally materialize one reusable cell-type subset."""
     import gc
@@ -131,6 +139,12 @@ def prepare_null_source(data_path: Path, cell_type: str | None = None):
         profile = adata.uns.get("dataset_profile") or {}
         ct_col = profile.get("cell_type_column") or "cell_ontology_class"
         subset = adata[adata.obs[ct_col].astype(str) == str(cell_type)].copy()
+        # ensure_pipeline has already locked verified raw counts into the counts
+        # layer. Keeping `.raw` as well makes every donor-allocation slice copy
+        # the same sparse count matrix a second time and exhausts Liver workers.
+        # X remains the author-normalized visualization matrix; counts remains
+        # the sole DESeq2 input; completed pipeline_state prevents reprocessing.
+        _detach_redundant_raw(subset)
         subset.uns["_null_source_cell_type"] = str(cell_type)
         del adata
         gc.collect()
