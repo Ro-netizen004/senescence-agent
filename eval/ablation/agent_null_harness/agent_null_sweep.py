@@ -69,6 +69,16 @@ def _rate(successes: int, total: int) -> tuple[float | None, list[float] | None]
     return round(successes / total, 4), _wilson_interval(successes, total)
 
 
+def _is_provider_abort(error: Exception | str) -> bool:
+    """Recognize provider failures that must stop rather than fan out."""
+    text = str(error).lower()
+    return any(marker in text for marker in (
+        "429", "resource_exhausted", "resource exhausted",
+        "prepayment credits", "credits are depleted", "billing",
+        "503", "unavailable", "high demand",
+    ))
+
+
 def score_confounding_design(design: str, rows: list[dict]) -> dict:
     """Score the expected gate outcome without conflating unrelated blocks."""
     evaluable = []
@@ -526,6 +536,9 @@ def run_sweep(
             cache_adata(file_id, None)
             del sub
             gc.collect()
+            if _is_provider_abort(exc):
+                print("  STOPPING SWEEP: provider quota/availability failure detected")
+                break
             continue
 
         scored = score_agent_result(res)
@@ -583,6 +596,7 @@ def run_sweep(
         "n_perm_requested": n_perm,
         "n_perm_completed": len(completed),
         "n_perm_ran_deseq2": len(sig_rows),
+        "n_perm_agent_errors": sum(bool(r.get("agent_error")) for r in rows),
         "n_perm_blocked": sum(1 for r in completed if r.get("blocked")),
         "n_perm_routing_miss": sum(1 for r in completed if r.get("error") == "run_deseq2 not called (routing miss)"),
         "n_duplicate_allocations_skipped": duplicate_allocations,
@@ -724,9 +738,16 @@ def main():
         f"{args.design}_{args.prompt_style}_seed{args.seed}_n{args.n_perm}"
     )
 
-    json_path = OUT_DIR / f"{stem}.json"
-    json_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
-    _write_report(summary, stem)
+    incomplete = bool(summary.get("n_perm_agent_errors", 0))
+    output_stem = f"{stem}.partial" if incomplete else stem
+    json_path = OUT_DIR / f"{output_stem}.json"
+    if incomplete:
+        json_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    else:
+        temporary = json_path.with_suffix(".json.tmp")
+        temporary.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+        temporary.replace(json_path)
+    _write_report(summary, output_stem)
 
     print("\n" + "=" * 60)
     print("AGENT NULL SWEEP COMPLETE")
@@ -740,7 +761,9 @@ def main():
     print(f"  Inference states:                   {summary['inference_state_counts']}")
     print(f"  Exploratory null-discovery rate:    {summary['exploratory_null_discovery_rate']}")
     print(f"  Saved: {json_path}")
-    print(f"  Saved: {OUT_DIR / (stem + '.md')}")
+    print(f"  Saved: {OUT_DIR / (output_stem + '.md')}")
+    if incomplete:
+        raise SystemExit(2)
 
 
 if __name__ == "__main__":

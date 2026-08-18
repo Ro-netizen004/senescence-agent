@@ -115,7 +115,17 @@ def _worker_main(args):
         prompt_style=args.prompt_style,
     )
     result_path = OUT_DIR / f"{_stem(tissue, summary['cell_type'], args)}.json"
-    result_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    if summary.get("n_perm_agent_errors", 0):
+        partial_path = result_path.with_name(f"{result_path.stem}.partial.json")
+        partial_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+        print(
+            f"WORKER INCOMPLETE: {summary['n_perm_agent_errors']} agent/API errors; "
+            f"partial result saved at {partial_path}"
+        )
+        raise SystemExit(2)
+    temporary = result_path.with_suffix(".json.tmp")
+    temporary.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    temporary.replace(result_path)
     print(f"WORKER COMPLETE: {result_path}")
 
 

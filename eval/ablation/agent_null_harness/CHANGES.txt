@@ -956,3 +956,55 @@ UNGOVERNED FULL-RESULT EXPORT (added 2026-08-14)
      detaches only this redundant `.raw` storage after asserting that counts are
      locked; normalized X, counts, metadata, and completed pipeline state remain
      unchanged. Added a fail-closed regression test for the detachment helper.
+191. Corrected the paired protocol's seed semantics after the completed Liver
+     run exposed finite-allocation exhaustion accounting. The registered rule
+     is now a deterministic sequence from seed 2000 for at most 600 attempts,
+     stopping at 30 unique orientation-independent allocations. The aggregator
+     derives that schedule from protocol.json, accepts early stopping only after
+     30 unique allocations, accepts fewer allocations only after all 600
+     attempts are accounted for, and still requires exact completed-seed and
+     allocation parity between arms. The obsolete 30-line seed list is removed.
+192. Made multi-tissue worker status fail closed on agent/API errors. Partial
+     summaries now record `n_perm_agent_errors`, remain available for diagnosis,
+     and exit nonzero so the parent status cannot label quota-depleted or other
+     incomplete jobs as completed. This fixes the misleading success status
+     observed when Gemini prepaid credits were exhausted during the ungoverned
+     Spleen, Aorta, and Limb Muscle jobs.
+193. Added immediate provider-quota termination. A null worker now stops after
+     the first 429, RESOURCE_EXHAUSTED, depleted-credit, or billing error while
+     preserving its partial diagnostic summary. This prevents a failed API key
+     from being retried across every remaining allocation. Added regression
+     coverage for quota detection before testing the replacement free-tier key.
+194. The one-call free-tier smoke reached Gemini but returned 503 UNAVAILABLE
+     due to temporary model demand. Provider-abort detection now also stops on
+     503/high-demand responses, and direct single-tissue sweeps exit nonzero
+     when their saved summary contains agent errors. No automatic retry was
+     added, preventing transient outages from multiplying API calls.
+195. Made result publication non-destructive after a guarded 503 full-sweep
+     attempt revealed that failed workers overwrote canonical successful JSON.
+     Agent/API-error runs now write only `.partial.json`/`.partial.md`; canonical
+     JSON is atomically replaced through a temporary file only after zero-error
+     completion. The prior successful ungoverned Kidney/Liver raw JSON had no
+     tracked or final-candidate backup and must be regenerated; this loss is
+     recorded explicitly rather than concealed.
+196. Added a minimal-usage resumable ungoverned shard runner. It derives the
+     exact 78-seed worklist from frozen governed JSON, runs each missing seed as
+     an isolated n=1 artifact, immediately verifies allocation, discovery count,
+     significant genes, design, and covariate parity, and reuses every passing
+     shard on later invocations. `--max-new` provides a hard paid-allocation
+     budget and `--delay-seconds` provides explicit pacing; any provider or
+     parity failure stops the run before the next shard.
+197. Fixed the resumable runner's Limb Muscle shard lookup to match the direct
+     harness's dataset-derived `LimbMuscle` filename. The seed-2000 API result
+     had completed successfully before the mismatch stopped the batch; the
+     corrected resolver recognizes and reuses it instead of repeating the call.
+198. Completed and assembled the frozen same-method paired null sweep: 78/78
+     ungoverned per-seed shards passed allocation and DE-result parity against
+     the governed worklist. Added `assemble_paired_ungoverned_shards.py`, which
+     refuses missing, duplicate, or mismatched shards, recomputes ungoverned
+     aggregate metrics, and writes canonical per-tissue inputs. The paired paper
+     builder then produced checksummed outputs from 78 matched allocations:
+     identical mean null discoveries (132.81) in both arms, governed reply
+     overclaim 0/78 versus ungoverned 72/78, and governed result withholding
+     78/78 versus ungoverned 4/78. This is a TMS pilot; donor reuse and the need
+     for external many-donor UMI validation remain explicit limitations.

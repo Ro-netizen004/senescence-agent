@@ -2,9 +2,17 @@
 import os, sys, unittest
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, os.path.join(ROOT, "eval", "ablation", "agent_null_harness"))
-from agent_null_sweep import _wilson_interval, score_agent_result, score_confounding_design
+from agent_null_sweep import (
+    _is_provider_abort, _wilson_interval, score_agent_result, score_confounding_design,
+)
 
 class TestAgentNullSweepScoring(unittest.TestCase):
+    def test_quota_errors_are_detected_fail_closed(self):
+        self.assertTrue(_is_provider_abort("429 RESOURCE_EXHAUSTED"))
+        self.assertTrue(_is_provider_abort("Your prepayment credits are depleted"))
+        self.assertTrue(_is_provider_abort("503 UNAVAILABLE: high demand"))
+        self.assertFalse(_is_provider_abort("temporary parsing failure"))
+
     def test_confounding_recall_and_specificity_are_scored(self):
         blocked = [{"blocked": True, "error": "confounded_contrast: batch"}]
         allowed = [{"blocked": False, "error": None}]

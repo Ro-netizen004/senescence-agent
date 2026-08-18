@@ -1,0 +1,118 @@
+{
+  "experiment": "same_method_governance_ablation_tms_null_pilot",
+  "status": "paper_candidate_after_frozen_run",
+  "generated_utc": "2026-08-18T18:55:55.490906+00:00",
+  "design": {
+    "mode": "stratified",
+    "allocation_unit": "biological_donor",
+    "paired_arms": [
+      "governed_same_method",
+      "ungoverned_same_method"
+    ],
+    "method_both_arms": "pseudobulk_deseq2",
+    "required_parity": [
+      "allocation_id",
+      "n_sig",
+      "significant_genes",
+      "design_factors",
+      "covariates_used",
+      "covariates_dropped"
+    ],
+    "seed_start": 2000,
+    "requested_per_tissue": 30,
+    "max_seed_attempts_per_tissue": 600
+  },
+  "n_paired_allocations": 78,
+  "derivation": {
+    "aggregator": "eval/ablation/agent_null_harness/build_paired_paper_results.py",
+    "aggregator_sha256": "1b6b95d3d955af556e7d701334d7c14f8c661cf5c3f311914010d60e4ad176f8",
+    "claim_linter": "eval/claim_linter.py",
+    "claim_linter_sha256": "7a15fe9cab8ffe6323243d1e06729904e29601a88826ed2ffcb44e1e5c6d7f42",
+    "raw_inputs_are_immutable": true
+  },
+  "tissue_results": [
+    {
+      "tissue": "Kidney",
+      "cell_type": "epithelial cell of proximal tubule",
+      "paired_allocations": 6,
+      "governed_mean_null_discoveries": 458.67,
+      "ungoverned_mean_null_discoveries": 458.67,
+      "governed_reply_overclaim_rate": 0.0,
+      "ungoverned_reply_overclaim_rate": 1.0,
+      "governed_result_withheld_rate": 1.0,
+      "ungoverned_result_withheld_rate": 0.0
+    },
+    {
+      "tissue": "Liver",
+      "cell_type": "hepatocyte",
+      "paired_allocations": 8,
+      "governed_mean_null_discoveries": 30.12,
+      "ungoverned_mean_null_discoveries": 30.12,
+      "governed_reply_overclaim_rate": 0.0,
+      "ungoverned_reply_overclaim_rate": 0.625,
+      "governed_result_withheld_rate": 1.0,
+      "ungoverned_result_withheld_rate": 0.25
+    },
+    {
+      "tissue": "Spleen",
+      "cell_type": "B cell",
+      "paired_allocations": 30,
+      "governed_mean_null_discoveries": 53.67,
+      "ungoverned_mean_null_discoveries": 53.67,
+      "governed_reply_overclaim_rate": 0.0,
+      "ungoverned_reply_overclaim_rate": 0.9,
+      "governed_result_withheld_rate": 1.0,
+      "ungoverned_result_withheld_rate": 0.0667
+    },
+    {
+      "tissue": "Aorta",
+      "cell_type": "aortic endothelial cell",
+      "paired_allocations": 4,
+      "governed_mean_null_discoveries": 190.5,
+      "ungoverned_mean_null_discoveries": 190.5,
+      "governed_reply_overclaim_rate": 0.0,
+      "ungoverned_reply_overclaim_rate": 1.0,
+      "governed_result_withheld_rate": 1.0,
+      "ungoverned_result_withheld_rate": 0.0
+    },
+    {
+      "tissue": "Limb_Muscle",
+      "cell_type": "skeletal muscle satellite cell",
+      "paired_allocations": 30,
+      "governed_mean_null_discoveries": 166.47,
+      "ungoverned_mean_null_discoveries": 166.47,
+      "governed_reply_overclaim_rate": 0.0,
+      "ungoverned_reply_overclaim_rate": 1.0,
+      "governed_result_withheld_rate": 1.0,
+      "ungoverned_result_withheld_rate": 0.0
+    }
+  ],
+  "pooled": {
+    "governed_mean_null_discoveries": 132.81,
+    "ungoverned_mean_null_discoveries": 132.81,
+    "governed_reply_overclaims": 0,
+    "governed_reply_overclaim_rate": 0.0,
+    "governed_allocation_level_wilson_interval_descriptive_only": [
+      0,
+      0.0469
+    ],
+    "ungoverned_reply_overclaims": 72,
+    "ungoverned_reply_overclaim_rate": 0.9231,
+    "ungoverned_allocation_level_wilson_interval_descriptive_only": [
+      0.8422,
+      0.9643
+    ],
+    "paired_reply_overclaim_difference": 0.9231,
+    "governed_results_withheld": 78,
+    "governed_result_withheld_rate": 1.0,
+    "ungoverned_results_withheld": 4,
+    "ungoverned_result_withheld_rate": 0.0513,
+    "governed_state_counts": {
+      "DESCRIPTIVE_ONLY": 78
+    },
+    "ungoverned_state_counts": {
+      "UNKNOWN": 78
+    }
+  },
+  "interpretation_boundary": "Pilot isolates the governance stack while both arms use donor-level pseudobulk DESeq2 under donor-split TMS nulls. Allocations reuse donors and are not independent biological experiments. Raw null discoveries are not gene-level ground-truth false positives, and TMS is not a many-donor droplet/UMI generalization dataset."
+}
