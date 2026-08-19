@@ -1,6 +1,6 @@
 {
   "experiment": "same_method_governance_ablation_tms_null_pilot",
-  "status": "frozen_full_run_ready",
+  "status": "current_paper_result_complete",
   "paired_arms": ["governed_same_method", "ungoverned_same_method"],
   "method_both_arms": "donor_level_pseudobulk_deseq2",
   "analysis_specification": "locked_by_evaluation_environment_in_both_arms",
@@ -50,5 +50,8 @@
   ],
   "publication_boundary": "TMS pilot; external many-donor UMI validation required",
   "agent_statistical_revision": "3b09c25e320234b8037a3bd718a568baf0d94a5e",
-  "memory_safe_harness_revision": "5b53d5f1d2ac0023d6e6cf5ce5dcea7aa557166e"
+  "memory_safe_harness_revision": "5b53d5f1d2ac0023d6e6cf5ce5dcea7aa557166e",
+  "result_packaging_revision": "2388c7b86cb8b4cf4d4f96741c50ff5851c32c20",
+  "evaluation_completed_utc": "2026-08-18",
+  "external_validation_status": "required_not_run"
 }

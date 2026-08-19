@@ -1008,3 +1008,12 @@ UNGOVERNED FULL-RESULT EXPORT (added 2026-08-14)
      overclaim 0/78 versus ungoverned 72/78, and governed result withholding
      78/78 versus ungoverned 4/78. This is a TMS pilot; donor reuse and the need
      for external many-donor UMI validation remain explicit limitations.
+199. Promoted `null_sweep_same_method` to the current paper result and marked
+     the earlier positive control and mixed-method null package historical.
+     Added manuscript-ready results, a reproducible PNG/PDF tissue-level figure,
+     a machine-readable package registry, and a reproducibility archive covering
+     the packaging commit, frozen implementation revisions, package versions,
+     model settings, prompts, dataset hashes, and all ten canonical raw inputs.
+     Prepared a staged many-donor UMI validation protocol and a no-LLM schema
+     audit utility; OneK1K validation remains unexecuted until its controlled
+     dataset and donor metadata are available locally.
