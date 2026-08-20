@@ -2,7 +2,8 @@
 
 ## Status
 
-**Final candidate - protocol review required before publication.**
+**Final candidate.** Protocol reviewed; numbers match `comparison_summary.json`
+and the manuscript. Evaluated at commit `374ae5f`.
 
 This package records a positive-control comparison between the governed agent
 and its ungoverned ablation on a real Tabula Muris Senis aging contrast. It

@@ -9,6 +9,9 @@ cite. Do not cite an artifact marked preliminary as a final result.
 
 - **Final candidate:** packaged with protocol and provenance; still requires
   manuscript-level review.
+- **Paper-usable pilot:** scientifically sound for its stated scope; caveats
+  (e.g., confounded comparison, non-independent allocations) are documented in
+  the manuscript and must be preserved.
 - **Preliminary:** scientifically useful, but must be rerun or reconciled under
   one frozen revision before publication.
 - **Historical:** retained for audit only and not eligible for paper claims.
@@ -60,9 +63,12 @@ and [`null_sweep/protocol.json`](null_sweep/protocol.json).
 
 ## 3. Matched multi-tissue TMS null pilot
 
-**Status: Historical full-system pilot after the same-method redesign.** Saved replies were
-deterministically rescored with the corrected linter and matched by seed and
-donor allocation. The primary derived files are
+**Status: Paper-usable full-system pilot.** This compares the complete governed
+pseudobulk system against an ungoverned per-cell-method ablation. The arms
+differ in both governance and statistical method; the result demonstrates the
+full-system difference but does not isolate the governance effect. Saved replies
+were deterministically rescored with the corrected linter and matched by seed
+and donor allocation. The primary derived files are
 [`null_sweep/PAPER_RESULTS.md`](null_sweep/PAPER_RESULTS.md),
 [`null_sweep/paired_allocations.csv`](null_sweep/paired_allocations.csv), and
 [`null_sweep/paper_summary.json`](null_sweep/paper_summary.json).
