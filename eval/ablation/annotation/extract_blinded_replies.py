@@ -24,21 +24,43 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 
 
+def _normalize_arm(value: object) -> str | None:
+    """Map registered arm names without substring ambiguity."""
+    arm = str(value or "").strip().lower()
+    if arm == "ungoverned" or arm.startswith("ungoverned_"):
+        return "ungoverned"
+    if arm == "governed" or arm.startswith("governed_"):
+        return "governed"
+    return None
+
+
+def _source_arm(data: dict, source: Path) -> str | None:
+    arm = _normalize_arm(data.get("arm"))
+    if arm:
+        return arm
+
+    # Check the longer token first: "ungoverned" contains "governed".
+    if "_ungoverned_" in source.stem:
+        return "ungoverned"
+    if "_governed_" in source.stem:
+        return "governed"
+    return None
+
+
 def extract_replies(raw_dir: Path) -> list[dict]:
     rows = []
     for f in sorted(raw_dir.glob("*.json")):
         data = json.loads(f.read_text(encoding="utf-8"))
-        allocations = data.get("allocations", data.get("results", []))
-        arm = "governed" if "governed" in f.stem else "ungoverned"
-        tissue = f.stem.split(f"_{arm}_")[0] if f"_{arm}_" in f.stem else f.stem
+        allocations = data.get("permutations")
+        if allocations is None:
+            allocations = data.get("allocations")
+        if allocations is None:
+            allocations = data.get("results", [])
+        arm = _source_arm(data, f)
+        tissue = data.get("dataset") or f.stem
 
         for i, alloc in enumerate(allocations):
-            reply = ""
-            if "reply" in alloc:
-                reply = alloc["reply"]
-            elif arm in alloc and "reply" in alloc[arm]:
-                reply = alloc[arm]["reply"]
-            elif "governed" in alloc and "ungoverned" in alloc:
+            if "governed" in alloc and "ungoverned" in alloc:
                 for a in ["governed", "ungoverned"]:
                     r = alloc[a].get("reply", "")
                     if r:
@@ -51,6 +73,15 @@ def extract_replies(raw_dir: Path) -> list[dict]:
                             "source_file": f.name,
                         })
                 continue
+
+            if arm is None:
+                raise ValueError(
+                    f"Cannot determine governed/ungoverned arm for {f.name}"
+                )
+
+            reply = alloc.get("reply", "")
+            if not reply and arm in alloc:
+                reply = alloc[arm].get("reply", "")
 
             if reply:
                 rows.append({
@@ -70,11 +101,27 @@ def main() -> None:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--key", type=Path, required=True)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument(
+        "--expected-per-arm", type=int, default=78,
+        help="Fail unless this many replies are found per arm (default: 78)",
+    )
     args = parser.parse_args()
 
     replies = extract_replies(args.raw_dir)
     if not replies:
         print("No replies found. Check the raw JSON structure.", file=sys.stderr)
+        sys.exit(1)
+
+    n_gov = sum(1 for r in replies if r["arm"] == "governed")
+    n_ungov = sum(1 for r in replies if r["arm"] == "ungoverned")
+    if args.expected_per_arm >= 0 and (
+        n_gov != args.expected_per_arm or n_ungov != args.expected_per_arm
+    ):
+        print(
+            f"Reply-count validation failed: governed={n_gov}, "
+            f"ungoverned={n_ungov}, expected={args.expected_per_arm} per arm",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     rng = random.Random(args.seed)
@@ -111,8 +158,6 @@ def main() -> None:
     args.key.parent.mkdir(parents=True, exist_ok=True)
     args.key.write_text(json.dumps(key_data, indent=2) + "\n", encoding="utf-8")
 
-    n_gov = sum(1 for r in replies if r["arm"] == "governed")
-    n_ungov = sum(1 for r in replies if r["arm"] == "ungoverned")
     print(f"Extracted {len(replies)} replies ({n_gov} governed, {n_ungov} ungoverned)")
     print(f"Blinded CSV: {args.output}")
     print(f"Answer key:  {args.key}")
