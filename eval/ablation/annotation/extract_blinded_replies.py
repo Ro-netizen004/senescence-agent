@@ -144,7 +144,9 @@ def main() -> None:
         ])
         for i, row in enumerate(replies):
             blinded_id = f"R{i:04d}"
-            reply_text = row["reply"].replace("\n", " ").strip()
+            # CSV supports quoted multiline fields. Preserve the response exactly
+            # so annotation sees the same paragraphs, lists, and tables as users.
+            reply_text = row["reply"].strip()
             writer.writerow([blinded_id, reply_text, "", "", "", "", "", "", ""])
             key_data.append({
                 "blinded_id": blinded_id,

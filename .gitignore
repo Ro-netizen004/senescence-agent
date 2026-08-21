@@ -41,6 +41,12 @@ eval/results/**/raw/
 eval/results/**/*.zip
 eval/results/**/*.tar.zst
 
+# Human-annotation working files remain private until both labels are frozen.
+eval/ablation/annotation/blinded_key.json
+eval/ablation/annotation/blinded_replies.csv
+eval/ablation/annotation/blinded_replies_annotator_*.csv
+eval/ablation/annotation/blinded_replies_annotator_*.xlsx
+
 # OS files
 .DS_Store
 Thumbs.db
