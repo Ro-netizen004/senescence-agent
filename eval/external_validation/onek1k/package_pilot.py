@@ -16,6 +16,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 HERE = Path(__file__).resolve().parent
 DATASET_MD5 = "a16487819c21506b400cd1d36f09c3e1"
+DATASET_RECORD_URL = "https://zenodo.org/records/18870747"
+DATASET_VERSION_DOI = "10.5281/zenodo.18870747"
+DATASET_CONCEPT_DOI = "10.5281/zenodo.18870746"
 
 
 def digest(path: Path, algorithm: str = "sha256") -> str:
@@ -115,6 +118,12 @@ def main() -> None:
         "generated_utc": datetime.now(timezone.utc).isoformat(),
         "dataset": {
             "filename": "OneK1K_updated_14_celltypes_980_donors.h5ad",
+            "repository": "Zenodo",
+            "record_url": DATASET_RECORD_URL,
+            "version_doi": DATASET_VERSION_DOI,
+            "concept_doi": DATASET_CONCEPT_DOI,
+            "license": "CC BY 4.0",
+            "accessed": "2026-08",
             "registered_md5": DATASET_MD5,
             "shape": [1266401, 32738],
             "count_source": "X_raw_integer_umi",
@@ -189,6 +198,9 @@ def main() -> None:
     result_lines = [
         "# OneK1K Many-donor UMI Null Pilot", "",
         "**Status: external statistical-calibration candidate; not an agent-governance endpoint.**", "",
+        "Source: [Zenodo record 18870747](https://zenodo.org/records/18870747), version "
+        "DOI `10.5281/zenodo.18870747` (concept DOI `10.5281/zenodo.18870746`), CC BY "
+        "4.0. Analyzed file MD5: `a16487819c21506b400cd1d36f09c3e1`.", "",
         "Ten unique fake-label allocations each used 454 classical-monocyte donors "
         "(227 per group) and donor-level pseudobulk DESeq2 with `pool + sex + age + null_group`.", "",
         "All 10/10 allocations produced zero discoveries at FDR < 0.05. Between 16,067 "

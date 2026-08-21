@@ -4,6 +4,12 @@
   "generated_utc": "2026-08-20T17:37:05.219883+00:00",
   "dataset": {
     "filename": "OneK1K_updated_14_celltypes_980_donors.h5ad",
+    "repository": "Zenodo",
+    "record_url": "https://zenodo.org/records/18870747",
+    "version_doi": "10.5281/zenodo.18870747",
+    "concept_doi": "10.5281/zenodo.18870746",
+    "license": "CC BY 4.0",
+    "accessed": "2026-08",
     "registered_md5": "a16487819c21506b400cd1d36f09c3e1",
     "shape": [
       1266401,

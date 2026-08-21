@@ -2,6 +2,10 @@
 
 **Status: external statistical-calibration candidate; not an agent-governance endpoint.**
 
+Source: [Zenodo record 18870747](https://zenodo.org/records/18870747), version
+DOI `10.5281/zenodo.18870747` (concept DOI `10.5281/zenodo.18870746`), CC BY
+4.0. Analyzed file MD5: `a16487819c21506b400cd1d36f09c3e1`.
+
 Ten unique fake-label allocations each used 454 classical-monocyte donors (227 per group) and donor-level pseudobulk DESeq2 with `pool + sex + age + null_group`.
 
 All 10/10 allocations produced zero discoveries at FDR < 0.05. Between 16,067 and 16,075 genes were tested per allocation.

@@ -9,6 +9,11 @@ repository. Seed 3000 completed without an LLM call: 227 donors per group,
 ## Registered pilot input
 
 - File: `OneK1K_updated_14_celltypes_980_donors.h5ad`
+- Repository: Zenodo record [18870747](https://zenodo.org/records/18870747)
+- Version DOI: `10.5281/zenodo.18870747`
+- Concept DOI: `10.5281/zenodo.18870746`
+- License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+- Accessed: August 2026
 - MD5: `a16487819c21506b400cd1d36f09c3e1`
 - Shape: 1,266,401 cells x 32,738 genes
 - Count source: raw nonnegative integer UMI counts in `X`

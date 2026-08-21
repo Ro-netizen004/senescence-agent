@@ -1,5 +1,14 @@
 # OneK1K External Validation
 
+## Dataset source
+
+The analyzed file, `OneK1K_updated_14_celltypes_980_donors.h5ad`, was
+downloaded from [Zenodo record 18870747](https://zenodo.org/records/18870747)
+(version DOI `10.5281/zenodo.18870747`; concept DOI
+`10.5281/zenodo.18870746`) under CC BY 4.0 in August 2026. The registered file
+MD5 is `a16487819c21506b400cd1d36f09c3e1`. The H5AD itself is intentionally not
+stored in this repository.
+
 ## Current status
 
 Seed 3000 is the completed direct statistical smoke, not the final multi-seed
