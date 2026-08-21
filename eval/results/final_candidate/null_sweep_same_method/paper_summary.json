@@ -1,7 +1,7 @@
 {
   "experiment": "same_method_governance_ablation_tms_null_pilot",
   "status": "paper_candidate_after_frozen_run",
-  "generated_utc": "2026-08-18T18:55:55.490906+00:00",
+  "generated_utc": "2026-08-20T15:42:40.169842+00:00",
   "design": {
     "mode": "stratified",
     "allocation_unit": "biological_donor",
@@ -25,9 +25,9 @@
   "n_paired_allocations": 78,
   "derivation": {
     "aggregator": "eval/ablation/agent_null_harness/build_paired_paper_results.py",
-    "aggregator_sha256": "1b6b95d3d955af556e7d701334d7c14f8c661cf5c3f311914010d60e4ad176f8",
+    "aggregator_sha256": "8993cb2328bdffd810e447facf4affe05228cd7b0f878cb6c8102b8380e08a0b",
     "claim_linter": "eval/claim_linter.py",
-    "claim_linter_sha256": "7a15fe9cab8ffe6323243d1e06729904e29601a88826ed2ffcb44e1e5c6d7f42",
+    "claim_linter_sha256": "6dc989b07f77b2905a9a735e852b1b0bbb17e6d1da9fc61c0f9b18af750673e9",
     "raw_inputs_are_immutable": true
   },
   "tissue_results": [

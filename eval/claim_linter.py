@@ -88,6 +88,15 @@ def has_positive_significance_claim(text: str) -> bool:
             continue
         if re.search(r"\bno\s+statistically\s+significant\b", window, re.I):
             continue
+        if re.search(
+            r"\bno\s+(?:genes?|features?|transcripts?|markers?|results?)\s+"
+            r"(?:are|were|is|was|show|showed)\s+statistically\s+significant\b",
+            window,
+            re.I,
+        ):
+            continue
+        if re.search(r"\bnone\s+(?:are|were|is|was)\s+statistically\s+significant\b", window, re.I):
+            continue
         prefix = _prefix_before(text, start)
         if re.search(r"\b(not|no|non|without)\s*$", prefix, re.I):
             continue

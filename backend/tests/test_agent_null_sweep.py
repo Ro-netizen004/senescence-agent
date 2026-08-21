@@ -40,6 +40,24 @@ class TestAgentNullSweepScoring(unittest.TestCase):
         self.assertEqual(result["metric"], 1.0)
         self.assertEqual(result["partial_warning_rate"], 1.0)
 
+    def test_registered_alias_requires_warning_without_blocking(self):
+        result = score_confounding_design("contrast_alias", [{
+            "blocked": False,
+            "error": None,
+            "admissibility_warnings": ["redundant_contrast_encoding: null_group_alias"],
+        }])
+        self.assertEqual(result["metric_name"], "allow_rate")
+        self.assertEqual(result["metric"], 1.0)
+        self.assertEqual(result["alias_warning_rate"], 1.0)
+
+    def test_alias_does_not_hide_off_axis_confound(self):
+        result = score_confounding_design("contrast_alias_with_batch", [{
+            "blocked": True,
+            "error": "confounded_contrast: null_batch",
+        }])
+        self.assertEqual(result["metric_name"], "recall")
+        self.assertEqual(result["metric"], 1.0)
+
     def test_routing_miss_is_preserved(self):
         scored = score_agent_result({"reply": "No tool selected.", "tool_calls": []})
         self.assertEqual(scored["error"], "run_deseq2 not called (routing miss)")

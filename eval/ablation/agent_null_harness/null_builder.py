@@ -296,6 +296,19 @@ def build_null_adata(
                 batch_map[m] = "batch1" if i < len(perm) // 2 else "batch2"
         mice_arr = sub.obs[sample_col].astype(str).values
         sub.obs["null_batch"] = [batch_map.get(m, "batch1") for m in mice_arr]
+    elif design in ("contrast_alias", "contrast_alias_with_batch"):
+        # Exact second encoding of the biological axis under test. Registration
+        # occurs after ensure_pipeline builds the profile in run_sweep.
+        sub.obs["null_group_alias"] = np.where(
+            fake_age == FAKE_YOUNG, "alias_A", "alias_B"
+        )
+        design_details["registered_alias"] = "null_group_alias"
+        if design == "contrast_alias_with_batch":
+            # A registered on-axis alias must not hide an independent off-axis
+            # nuisance factor that also perfectly separates the contrast.
+            sub.obs["null_batch"] = np.where(
+                fake_age == FAKE_YOUNG, "batch_X", "batch_Y"
+            )
     elif design != "valid":
         raise ValueError(f"Unknown null design: {design}")
     sub.uns.pop("dataset_profile", None)

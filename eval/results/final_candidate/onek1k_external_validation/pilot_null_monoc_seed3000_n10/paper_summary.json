@@ -1,0 +1,199 @@
+{
+  "experiment": "onek1k_many_donor_umi_constructed_null_pilot",
+  "status": "external_statistical_calibration_candidate",
+  "generated_utc": "2026-08-20T17:37:05.219883+00:00",
+  "dataset": {
+    "filename": "OneK1K_updated_14_celltypes_980_donors.h5ad",
+    "registered_md5": "a16487819c21506b400cd1d36f09c3e1",
+    "shape": [
+      1266401,
+      32738
+    ],
+    "count_source": "X_raw_integer_umi",
+    "donor_column": "individual",
+    "cell_type_column": "cell_label",
+    "selected_cell_type": "Mono C"
+  },
+  "design": {
+    "seeds": [
+      3000,
+      3009
+    ],
+    "n_allocations": 10,
+    "unique_allocation_ids": 10,
+    "eligible_donors": 524,
+    "retained_donors_per_allocation": 454,
+    "donors_per_group": 227,
+    "same_retained_donor_set_every_allocation": false,
+    "unique_retained_donor_sets": 9,
+    "retained_donor_union": 457,
+    "retained_donor_intersection": 449,
+    "pairwise_retained_donor_overlap_range": [
+      451,
+      454
+    ],
+    "pairwise_retained_donor_overlap_mean": 452.2,
+    "assignment": "adjacent-age pairs within pool/sex; random orientation",
+    "deseq2_design": "pool + sex + age + null_group",
+    "statistical_unit": "donor_pseudobulk"
+  },
+  "primary_result": {
+    "allocations_with_any_fdr_discovery": 0,
+    "total_allocations": 10,
+    "allocation_discovery_rate": 0.0,
+    "allocation_level_wilson_interval_descriptive_only": [
+      0,
+      0.2775
+    ],
+    "total_discoveries": 0,
+    "genes_tested_range": [
+      16067,
+      16075
+    ]
+  },
+  "numerical_health": {
+    "seeds_with_full_table_finite_diagnostic": 9,
+    "those_seeds_all_finite": true,
+    "seed_3000_limitation": "Run predates finite-result diagnostics.",
+    "warning_disclosure": "pyDESeq2 worker processes emitted overflow/invalid-value RuntimeWarnings during optimization. Worker warnings were not captured by warnings.catch_warnings; therefore saved runtime_warning_count values are not used. Fits completed Wald testing, and seeds 3001-3009 had finite final values in all six result columns."
+  },
+  "interpretation_boundary": "The ten allocations draw 454 donors from one 524-donor eligible cohort; 449 donors occur in every allocation and pairwise overlap is 451-454, so they are not independent cohorts. This validates donor-level pseudobulk calibration for classical monocytes in this cohort, not an external governance effect and not a zero population false-positive rate.",
+  "provenance": {
+    "packaging_commit": "f0bd9799dc47fb8f3e07a83f45182c96c93aa25b",
+    "working_tree_dirty_at_packaging": true,
+    "builder": "eval/external_validation/onek1k/package_pilot.py",
+    "builder_sha256": "c3f197ac07c82eeab3fb357784a3e98e420b13b0854326d09eee71a981dd5472"
+  },
+  "per_seed": [
+    {
+      "seed": 3000,
+      "allocation_id": "caac95a77ba6cef2f7d6bd5d1a1b71cd7f47cef06ca13c8b7e011294cb097108",
+      "donors_per_group": 227,
+      "n_genes_tested": 16071,
+      "n_discoveries_fdr_0_05": 0,
+      "design_full_rank": true,
+      "mean_within_pair_age_difference": 7.7885,
+      "max_within_pair_age_difference": 46.0,
+      "full_table_finite": null,
+      "finite_diagnostic_available": false,
+      "worker_warning_capture": "not_available"
+    },
+    {
+      "seed": 3001,
+      "allocation_id": "008da0538b7ae1a7831835773ba231577701b369d4d169669a6ad4c5a0db09fb",
+      "donors_per_group": 227,
+      "n_genes_tested": 16072,
+      "n_discoveries_fdr_0_05": 0,
+      "design_full_rank": true,
+      "mean_within_pair_age_difference": 7.7885,
+      "max_within_pair_age_difference": 46.0,
+      "full_table_finite": true,
+      "finite_diagnostic_available": true,
+      "worker_warning_capture": "not_available"
+    },
+    {
+      "seed": 3002,
+      "allocation_id": "685830f7cd03891cb510ec32d37b5714439c7b73308b026088442df140458ae6",
+      "donors_per_group": 227,
+      "n_genes_tested": 16075,
+      "n_discoveries_fdr_0_05": 0,
+      "design_full_rank": true,
+      "mean_within_pair_age_difference": 7.7885,
+      "max_within_pair_age_difference": 46.0,
+      "full_table_finite": true,
+      "finite_diagnostic_available": true,
+      "worker_warning_capture": "not_available"
+    },
+    {
+      "seed": 3003,
+      "allocation_id": "555d296b4169cc63a85a11d249bfb39f33b0ac746cbfe5d014433d38f3019693",
+      "donors_per_group": 227,
+      "n_genes_tested": 16074,
+      "n_discoveries_fdr_0_05": 0,
+      "design_full_rank": true,
+      "mean_within_pair_age_difference": 7.7885,
+      "max_within_pair_age_difference": 46.0,
+      "full_table_finite": true,
+      "finite_diagnostic_available": true,
+      "worker_warning_capture": "not_available"
+    },
+    {
+      "seed": 3004,
+      "allocation_id": "f64a8207d1c86c637ee8e63ce3d3a6f3fba5e536b76c24221f45ac9b30756069",
+      "donors_per_group": 227,
+      "n_genes_tested": 16067,
+      "n_discoveries_fdr_0_05": 0,
+      "design_full_rank": true,
+      "mean_within_pair_age_difference": 7.7885,
+      "max_within_pair_age_difference": 46.0,
+      "full_table_finite": true,
+      "finite_diagnostic_available": true,
+      "worker_warning_capture": "not_available"
+    },
+    {
+      "seed": 3005,
+      "allocation_id": "b29a82731b92bd9804e8bbbc5291da86ad37409146e39a071f6dd6ab9ec8cd5a",
+      "donors_per_group": 227,
+      "n_genes_tested": 16073,
+      "n_discoveries_fdr_0_05": 0,
+      "design_full_rank": true,
+      "mean_within_pair_age_difference": 7.7885,
+      "max_within_pair_age_difference": 46.0,
+      "full_table_finite": true,
+      "finite_diagnostic_available": true,
+      "worker_warning_capture": "not_available"
+    },
+    {
+      "seed": 3006,
+      "allocation_id": "a9a705a56ba8525b35ef692eeb56513c5f74eff32fa9567474a747230ded5829",
+      "donors_per_group": 227,
+      "n_genes_tested": 16074,
+      "n_discoveries_fdr_0_05": 0,
+      "design_full_rank": true,
+      "mean_within_pair_age_difference": 7.7885,
+      "max_within_pair_age_difference": 46.0,
+      "full_table_finite": true,
+      "finite_diagnostic_available": true,
+      "worker_warning_capture": "not_available"
+    },
+    {
+      "seed": 3007,
+      "allocation_id": "bf39c64c6b2beca88b4ba9374990d79890e62867ad83bdf708287c4771a636da",
+      "donors_per_group": 227,
+      "n_genes_tested": 16075,
+      "n_discoveries_fdr_0_05": 0,
+      "design_full_rank": true,
+      "mean_within_pair_age_difference": 7.7885,
+      "max_within_pair_age_difference": 46.0,
+      "full_table_finite": true,
+      "finite_diagnostic_available": true,
+      "worker_warning_capture": "not_available"
+    },
+    {
+      "seed": 3008,
+      "allocation_id": "d25ac58d660972a757c083f1d0fda34bd22e91f17cc9292141e72bec34e4e57e",
+      "donors_per_group": 227,
+      "n_genes_tested": 16070,
+      "n_discoveries_fdr_0_05": 0,
+      "design_full_rank": true,
+      "mean_within_pair_age_difference": 7.7885,
+      "max_within_pair_age_difference": 46.0,
+      "full_table_finite": true,
+      "finite_diagnostic_available": true,
+      "worker_warning_capture": "not_available"
+    },
+    {
+      "seed": 3009,
+      "allocation_id": "86ea96342620ca7a5466650854e44b2a5e703cabaa069ca082bf7fab01f54c6d",
+      "donors_per_group": 227,
+      "n_genes_tested": 16068,
+      "n_discoveries_fdr_0_05": 0,
+      "design_full_rank": true,
+      "mean_within_pair_age_difference": 7.7885,
+      "max_within_pair_age_difference": 46.0,
+      "full_table_finite": true,
+      "finite_diagnostic_available": true,
+      "worker_warning_capture": "not_available"
+    }
+  ]
+}

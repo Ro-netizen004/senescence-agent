@@ -91,7 +91,7 @@ def score_confounding_design(design: str, rows: list[dict]) -> dict:
             evaluable.append((row, confound_block))
 
     matrix = {"true_positive": 0, "false_negative": 0, "true_negative": 0, "false_positive": 0}
-    if design == "confounded":
+    if design in {"confounded", "contrast_alias_with_batch"}:
         matrix["true_positive"] = sum(block for _, block in evaluable)
         matrix["false_negative"] = sum(not block for _, block in evaluable)
         success_name = "recall"
@@ -102,7 +102,7 @@ def score_confounding_design(design: str, rows: list[dict]) -> dict:
         success_name = "specificity"
         successes = matrix["true_negative"]
     else:
-        success_name = "allow_rate" if design == "confounded_partial" else None
+        success_name = "allow_rate" if design in {"confounded_partial", "contrast_alias"} else None
         successes = sum(not block for _, block in evaluable)
 
     rate, ci = _rate(successes, len(evaluable))
@@ -111,11 +111,18 @@ def score_confounding_design(design: str, rows: list[dict]) -> dict:
         for row, blocked in evaluable if not blocked
     )
     warning_rate, warning_ci = _rate(partial_warning_successes, len(evaluable))
+    alias_warning_successes = sum(
+        any("redundant_contrast_encoding" in warning for warning in row.get("admissibility_warnings", []))
+        for row, blocked in evaluable if not blocked
+    )
+    alias_warning_rate, alias_warning_ci = _rate(alias_warning_successes, len(evaluable))
     return {
         "expected_outcome": {
             "confounded": "block_perfect_confound",
             "confounded_partial": "allow_with_partial_confounding_warning",
             "covariate_balanced": "allow_balanced_covariate",
+            "contrast_alias": "allow_registered_alias_with_warning",
+            "contrast_alias_with_batch": "block_off_axis_confound_despite_alias",
         }.get(design, "not_a_confounding_challenge"),
         "n_evaluable": len(evaluable),
         "n_unrelated_blocks": len(rows) - len(evaluable),
@@ -125,6 +132,8 @@ def score_confounding_design(design: str, rows: list[dict]) -> dict:
         "metric_ci95": ci,
         "partial_warning_rate": warning_rate if design == "confounded_partial" else None,
         "partial_warning_rate_ci95": warning_ci if design == "confounded_partial" else None,
+        "alias_warning_rate": alias_warning_rate if design == "contrast_alias" else None,
+        "alias_warning_rate_ci95": alias_warning_ci if design == "contrast_alias" else None,
     }
 
 
@@ -517,6 +526,11 @@ def run_sweep(
 
         cache_adata(file_id, sub)
         ensure_pipeline(sub, "mouse")
+        if design in {"contrast_alias", "contrast_alias_with_batch"}:
+            profile = sub.uns.setdefault("dataset_profile", {})
+            aliases = dict(profile.get("contrast_aliases") or {})
+            aliases[NULL_GROUP_COLUMN] = ["null_group_alias"]
+            profile["contrast_aliases"] = aliases
 
         print(f"perm {i}/{n_perm - 1} seed={perm_seed} "
               f"mice={meta['n_mice']} cells={meta['n_cells']} ...", flush=True)
@@ -710,7 +724,7 @@ def main():
         default="homogeneous",
         help="homogeneous = one stratum; random = unbalanced; stratified = balance real age/sex",
     )
-    ap.add_argument("--design", choices=("valid", "one_sample_per_group", "per_cell_sample", "confounded", "confounded_partial", "covariate_balanced"), default="valid")
+    ap.add_argument("--design", choices=("valid", "one_sample_per_group", "per_cell_sample", "confounded", "confounded_partial", "covariate_balanced", "contrast_alias", "contrast_alias_with_batch"), default="valid")
     ap.add_argument("--prompt-style", choices=("explicit", "ordinary", "leading", "pseudoreplication_pressure"), default="explicit")
     args = ap.parse_args()
 

@@ -1,0 +1,48 @@
+{
+  "status": "schema_audit_only_no_llm_calls",
+  "dataset": "D:\\Downloads\\OneK1K_updated_14_celltypes_980_donors.h5ad",
+  "shape": [
+    1266401,
+    32738
+  ],
+  "donor_column": "individual",
+  "n_donors": 980,
+  "cell_type_column": "cell_label",
+  "n_cell_types": 14,
+  "count_source": "X",
+  "sampled_counts_integer_like": true,
+  "sampled_counts_nonnegative": true,
+  "min_cells_per_donor": 20,
+  "top_cell_types_by_eligible_donors": {
+    "CD4 NC": 980,
+    "CD8 NC": 979,
+    "CD8 ET": 976,
+    "NK": 974,
+    "CD4 ET": 949,
+    "B IN": 916,
+    "B Mem": 812,
+    "CD8 S100B": 676,
+    "Mono C": 524,
+    "Mono NC": 279,
+    "NK R": 91,
+    "DC": 67,
+    "CD4 SOX4": 15,
+    "Plasma": 12
+  },
+  "metadata_columns": [
+    "orig.ident",
+    "nCount_RNA",
+    "nFeature_RNA",
+    "pool",
+    "individual",
+    "percent.mt",
+    "latent",
+    "nCount_SCT",
+    "nFeature_SCT",
+    "cell_type",
+    "cell_label",
+    "sex",
+    "age"
+  ],
+  "ready_for_protocol_review": true
+}

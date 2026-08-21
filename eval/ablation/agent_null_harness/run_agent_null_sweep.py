@@ -140,7 +140,7 @@ def main():
         default="governed",
     )
     ap.add_argument("--mode", choices=("homogeneous", "random", "stratified"), default="homogeneous")
-    ap.add_argument("--design", choices=("valid", "one_sample_per_group", "per_cell_sample", "confounded", "confounded_partial", "covariate_balanced"), default="valid")
+    ap.add_argument("--design", choices=("valid", "one_sample_per_group", "per_cell_sample", "confounded", "confounded_partial", "covariate_balanced", "contrast_alias", "contrast_alias_with_batch"), default="valid")
     ap.add_argument("--prompt-style", choices=("explicit", "ordinary", "leading", "pseudoreplication_pressure"), default="explicit")
     ap.add_argument("--worker", action="store_true", help=argparse.SUPPRESS)
     ap.add_argument("--data", help=argparse.SUPPRESS)

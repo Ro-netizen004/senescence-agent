@@ -396,7 +396,7 @@ def _render_deseq2(schema: dict) -> str:
         lines.append("| Gene | log2FC | padj |")
         lines.append("|------|--------|------|")
         for row in top_genes[:100]:
-            gene = row.get("gene", "?")
+            gene = row.get("gene") or row.get("Geneid") or row.get("index") or "?"
             lfc = _fmt(row.get("log2FoldChange"))
             padj = _fmt(row.get("padj"))
             lines.append(f"| {gene} | {lfc} | {padj} |")

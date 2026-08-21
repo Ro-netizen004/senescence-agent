@@ -150,7 +150,7 @@ def build(source: Path, output: Path, copy_raw: bool = True) -> dict:
                 shutil.copy2(path, copied)
             manifest.append(
                 {
-                    "file": f"raw/{path.name}" if copy_raw else str(path),
+                    "file": f"raw/{path.name}",
                     "tissue": tissue,
                     "arm": arm,
                     "completed": loaded[arm]["n_perm_completed"],
@@ -354,15 +354,16 @@ def build(source: Path, output: Path, copy_raw: bool = True) -> dict:
         "covariates differ. External many-donor UMI validation is still required.",
     ]
     (output / "PAPER_RESULTS.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
-    checksum_paths = [
-        output / "paired_allocations.csv",
-        output / "tissue_summary.csv",
-        output / "raw_results_manifest.csv",
-        output / "paper_summary.json",
-        output / "PAPER_RESULTS.md",
+    checksum_names = [
+        "PAPER_RESULTS.md", "MANUSCRIPT_RESULTS.md", "paired_allocations.csv",
+        "tissue_summary.csv", "raw_results_manifest.csv", "paper_summary.json",
+        "protocol.json", "REPRODUCIBILITY.json", "figure_overclaim_by_tissue.png",
+        "figure_overclaim_by_tissue.pdf",
     ]
+    checksum_paths = [output / name for name in checksum_names if (output / name).exists()]
+    checksum_paths.extend(sorted((output / "raw").glob("*.json")))
     checksum_lines = [
-        f"{_sha256(path)}  {path.name}" for path in checksum_paths
+        f"{_sha256(path)}  {path.relative_to(output).as_posix()}" for path in checksum_paths
     ]
     (output / "SHA256SUMS.txt").write_text(
         "\n".join(checksum_lines) + "\n", encoding="utf-8"

@@ -123,7 +123,10 @@ identical pseudobulk DESeq2 execution and differ only in the governance stack.
 - [x] Run matched ungoverned allocations for every governed allocation.
 - [x] Generate one aggregate CSV/JSON/Markdown set from the paired raw archive.
 - [x] Generate the manuscript result and tissue-level figure.
-- Add a many-donor UMI dataset such as OneK1K for external generalization.
+- [x] Add a many-donor UMI statistical-calibration pilot: OneK1K classical
+  monocytes, 454 retained donors, 10 fake-label orientations, and 0/10
+  allocations with an FDR discovery. This is not an external governance
+  endpoint because the shared statistical outputs contained no discoveries.
 - Verify final artifact checksums and update each protocol before changing status to
   final candidate.
 
@@ -133,3 +136,39 @@ Each experiment package must retain full numerical results, prompt, dataset
 identifier and checksum, arm, method, statistical unit, contrast, covariates,
 sample counts, diagnostic states, run date, code revision, and artifact hashes.
 PDFs are interface captures; CSV/JSON files are the primary numerical evidence.
+
+## 5. OneK1K external statistical-calibration pilot
+
+**Status: External statistical-calibration candidate.** Ten unique fake-label
+allocations each retained 454 classical-monocyte donors (227 per group) from
+one 524-donor eligible cohort. Donor-level pseudobulk DESeq2 used the design
+`pool + sex + age + null_group`. All 10/10 allocations produced zero discoveries
+at FDR < 0.05; 16,067-16,075 genes were tested per allocation.
+
+This result supports calibration in a well-powered many-donor droplet/UMI
+setting. It does not estimate an external governance effect, because there were
+no discoveries for either arm to communicate or withhold, and the ten label
+orientations are not independent cohorts.
+
+Donor reuse is substantial: 449 donors occur in every allocation, the union is
+457 donors, and pairwise overlap ranges from 451 to 454 of 454 retained donors.
+
+Evidence: [`onek1k_external_validation/pilot_null_monoc_seed3000_n10/PAPER_RESULTS.md`](onek1k_external_validation/pilot_null_monoc_seed3000_n10/PAPER_RESULTS.md),
+[`paper_summary.json`](onek1k_external_validation/pilot_null_monoc_seed3000_n10/paper_summary.json),
+and [`per_seed_summary.csv`](onek1k_external_validation/pilot_null_monoc_seed3000_n10/per_seed_summary.csv).
+
+## 6. Confound-gate functional validation
+
+**Status: Paper candidate functional validation.** The production admissibility
+gate made 150 decisions across five paired synthetic metadata challenges and 30
+unique TMS Spleen B-cell donor allocations. Perfect off-axis confounds were
+blocked 30/30; partial confounds were allowed and warned 30/30; balanced
+covariates were allowed 30/30; registered aliases were allowed and warned
+30/30; and registered aliases plus an off-axis batch were blocked 30/30. There
+were no unrelated blocks. No LLM or DESeq2 calls were made.
+
+The same 30 donor allocations are reused across challenges, so this is a
+deterministic functional validation rather than 150 independent cohorts.
+Evidence: [`confound_gate/PAPER_RESULTS.md`](confound_gate/PAPER_RESULTS.md),
+[`confound_gate/paper_summary.json`](confound_gate/paper_summary.json), and
+[`confound_gate/design_summary.csv`](confound_gate/design_summary.csv).
