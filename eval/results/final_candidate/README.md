@@ -133,6 +133,10 @@ identical pseudobulk DESeq2 execution and differ only in the governance stack.
   monocytes, 454 retained donors, 10 fake-label orientations, and 0/10
   allocations with an FDR discovery. This is not an external governance
   endpoint because the shared statistical outputs contained no discoveries.
+- [x] Freeze a 156-reply, arm-blinded human-annotation template and prespecified
+  rubric for two study-author annotators.
+- [ ] Complete both annotations independently, freeze their hashes, calculate
+  agreement before adjudication, and package consensus-versus-linter results.
 - Verify final artifact checksums and update each protocol before changing status to
   final candidate.
 
@@ -178,3 +182,21 @@ deterministic functional validation rather than 150 independent cohorts.
 Evidence: [`confound_gate/PAPER_RESULTS.md`](confound_gate/PAPER_RESULTS.md),
 [`confound_gate/paper_summary.json`](confound_gate/paper_summary.json), and
 [`confound_gate/design_summary.csv`](confound_gate/design_summary.csv).
+
+## 7. Blinded human validation of reply labels
+
+**Status: In progress; no result is currently paper-usable.** The 156 frozen
+replies from the primary same-method experiment were reproducibly shuffled with
+seed 42 into two identical blank workbooks. The extraction guard verified 78
+governed and 78 ungoverned replies and 156 unique source-arm-allocation records.
+Arm, tissue, seed, and allocation metadata are absent from the workbooks.
+
+Two study authors will annotate the replies independently. The public files are
+the prespecified [`annotation protocol`](../../ablation/annotation/ANNOTATION_PROTOCOL.md),
+blank [`template`](../../ablation/annotation/blinded_annotation_template.xlsx),
+and numbered starting workbooks for
+[`annotator 1`](../../ablation/annotation/blinded_replies_annotator_1.xlsx) and
+[`annotator 2`](../../ablation/annotation/blinded_replies_annotator_2.xlsx).
+The arm key remains local and excluded from Git until both annotations are
+complete and frozen. Do not cite human agreement, linter accuracy, sensitivity,
+or specificity until the finalized annotation package exists.

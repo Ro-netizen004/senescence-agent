@@ -2,3 +2,4 @@ package,status,paper_role,evaluated_revision,reason
 null_sweep_same_method,current_paper_result,primary_same_method_governance_ablation,3b09c25e320234b8037a3bd718a568baf0d94a5e,"78 matched TMS allocations; identical pseudobulk DESeq2 outputs; governed overclaim 0/78 versus ungoverned 72/78"
 positive_control,historical_rerun_required,supporting_signal_preservation,374ae5f26ab1fecfc6b05579bcc818052afa2388,"Predates final implementation and changes both governance and statistical method between arms"
 null_sweep,historical,superseded_mixed_method_null_pilot,374ae5f26ab1fecfc6b05579bcc818052afa2388,"Full-system pilot changed both governance and statistical method; superseded by null_sweep_same_method"
+human_reply_annotation,in_progress,blinded_validation_of_automated_claim_labels,1cb9823,"Two blank author-annotation workbooks frozen for 156 replies; no annotation result exists yet"

@@ -1,5 +1,24 @@
 # Blinded Reply Annotation Protocol
 
+## Status and frozen inputs
+
+**Annotation in progress; no human-validation result is available yet.** The
+public starting materials were frozen in commit `1cb9823`. Both numbered
+workbooks are blank and byte-identical at baseline. The private arm key remains
+local and excluded from Git until both study authors complete and freeze their
+annotations.
+
+Public inputs:
+
+- `blinded_annotation_template.xlsx`: reusable blank template.
+- `blinded_replies_annotator_1.xlsx`: frozen starting copy for annotator 1.
+- `blinded_replies_annotator_2.xlsx`: frozen starting copy for annotator 2.
+- `extract_blinded_replies.py`: deterministic extraction and shuffle.
+
+Do not push partially completed workbooks. After both authors declare
+completion, preserve and hash the two pre-adjudication files before opening the
+private key or discussing disagreements.
+
 ## Objective
 
 Two study authors independently classify the communication behavior of 156

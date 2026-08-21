@@ -2,9 +2,13 @@
 
 A **statistically governed** LLM agent for single-cell RNA-seq analysis of **cellular senescence** and **aging**. Ask questions in plain English; the agent routes to Scanpy tools but is prevented, by design, from reporting conclusions the data cannot support.
 
-[![False discovery: 100%→1%](https://img.shields.io/badge/false%20discovery-100%25%20%E2%86%92%201%25-brightgreen)](eval/results/ablation/null_harness_report.md) [![Benchmarked on GSE226225](https://img.shields.io/badge/benchmarked-GSE226225-blue)](eval/results/validation/gse226225_report.md) [![SenMayo signature](https://img.shields.io/badge/signature-SenMayo-lightgrey)](backend/data/senmayo.json)
+[![Matched null overclaim: 0/78 vs 72/78](https://img.shields.io/badge/matched%20null%20overclaim-0%2F78%20vs%2072%2F78-brightgreen)](eval/results/final_candidate/null_sweep_same_method/PAPER_RESULTS.md) [![OneK1K: 980 donors](https://img.shields.io/badge/OneK1K-980%20donors-blue)](eval/results/final_candidate/onek1k_external_validation/README.md) [![SenMayo signature](https://img.shields.io/badge/signature-SenMayo-lightgrey)](backend/data/senmayo.json)
 
-**Core contribution.** On data with *no real difference*, an ungoverned per-cell LLM agent reports false discoveries on **100% of null splits**; this agent's governance layer drops that to **~1%** by refusing pseudoreplicated and underpowered inferences ([null-harness report](eval/results/ablation/null_harness_report.md)).
+**Core contribution.** Across 78 matched donor-split null allocations with
+identical pseudobulk DESeq2 outputs, the governed system made no reply
+overclaims (0/78), compared with 72/78 for the ungoverned narration ablation.
+This isolates communication governance from the statistical method. See the
+[same-method paper package](eval/results/final_candidate/null_sweep_same_method/PAPER_RESULTS.md).
 
 **Design principle:** Python owns the science; Google Gemini routes tools only. User-facing answers after tool runs are produced by a **deterministic renderer**, not free-form LLM prose. Statistical claims pass through an admissibility pre-check and an A–E inference-state machine before any wording is generated.
 
@@ -220,6 +224,27 @@ Static assets: `/plots/*`, `/reports/*`.
 Large `.h5ad` files are not in git. After upload, copies are stored under `backend/data/uploads/{file_id}.h5ad`.
 
 Tested with Tabula Muris Senis–style metadata (`age`, `cell_ontology_class`, `sample_id` or `mouse.id`).
+
+The many-donor external calibration uses
+`OneK1K_updated_14_celltypes_980_donors.h5ad` from
+[Zenodo record 18870747](https://zenodo.org/records/18870747) (version DOI
+`10.5281/zenodo.18870747`; concept DOI `10.5281/zenodo.18870746`; CC BY 4.0;
+registered MD5 `a16487819c21506b400cd1d36f09c3e1`). The H5AD is not stored in
+Git.
+
+## Evaluation evidence
+
+- The current governance-isolation result is packaged under
+  [`eval/results/final_candidate/null_sweep_same_method/`](eval/results/final_candidate/null_sweep_same_method/).
+- OneK1K external statistical calibration and dataset provenance are under
+  [`eval/results/final_candidate/onek1k_external_validation/`](eval/results/final_candidate/onek1k_external_validation/).
+- Confound-gate functional validation is under
+  [`eval/results/final_candidate/confound_gate/`](eval/results/final_candidate/confound_gate/).
+- Human validation of the automated claim linter is in progress. Two study
+  authors will independently annotate 156 arm-blinded replies using the frozen
+  protocol and workbooks in
+  [`eval/ablation/annotation/`](eval/ablation/annotation/). No human-annotation
+  result is claimed until both workbooks are frozen and agreement is computed.
 
 ---
 
