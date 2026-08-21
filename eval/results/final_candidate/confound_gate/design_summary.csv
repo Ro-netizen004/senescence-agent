@@ -1,0 +1,6 @@
+design,n_allocations,attempts,expected_outcome,metric_name,metric,descriptive_interval_low,descriptive_interval_high,unrelated_blocks,partial_warning_rate,alias_warning_rate
+confounded,30,40,block_perfect_confound,recall,1.0,0.8865,1.0,0,,
+confounded_partial,30,40,allow_with_partial_confounding_warning,allow_rate,1.0,0.8865,1.0,0,1.0,
+covariate_balanced,30,40,allow_balanced_covariate,specificity,1.0,0.8865,1.0,0,,
+contrast_alias,30,40,allow_registered_alias_with_warning,allow_rate,1.0,0.8865,1.0,0,,1.0
+contrast_alias_with_batch,30,40,block_off_axis_confound_despite_alias,recall,1.0,0.8865,1.0,0,,

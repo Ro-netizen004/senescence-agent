@@ -1,0 +1,60 @@
+{
+  "updated_utc": "2026-08-20T16:33:52.334275+00:00",
+  "dataset": "D:\\Downloads\\OneK1K_updated_14_celltypes_980_donors.h5ad",
+  "cell_label": "Mono C",
+  "seed_start": 3000,
+  "n_seeds": 10,
+  "stage": "statistical",
+  "seeds": [
+    {
+      "seed": 3000,
+      "statistical": "reused",
+      "paired": "reused"
+    },
+    {
+      "seed": 3001,
+      "statistical": "completed",
+      "paired": "pending"
+    },
+    {
+      "seed": 3002,
+      "statistical": "completed",
+      "paired": "pending"
+    },
+    {
+      "seed": 3003,
+      "statistical": "completed",
+      "paired": "pending"
+    },
+    {
+      "seed": 3004,
+      "statistical": "completed",
+      "paired": "pending"
+    },
+    {
+      "seed": 3005,
+      "statistical": "completed",
+      "paired": "pending"
+    },
+    {
+      "seed": 3006,
+      "statistical": "completed",
+      "paired": "pending"
+    },
+    {
+      "seed": 3007,
+      "statistical": "completed",
+      "paired": "pending"
+    },
+    {
+      "seed": 3008,
+      "statistical": "completed",
+      "paired": "pending"
+    },
+    {
+      "seed": 3009,
+      "statistical": "completed",
+      "paired": "pending"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+seed,allocation_id,donors_per_group,n_genes_tested,n_discoveries_fdr_0_05,design_full_rank,mean_within_pair_age_difference,max_within_pair_age_difference,full_table_finite,finite_diagnostic_available,worker_warning_capture
+3000,caac95a77ba6cef2f7d6bd5d1a1b71cd7f47cef06ca13c8b7e011294cb097108,227,16071,0,True,7.7885,46.0,,False,not_available
+3001,008da0538b7ae1a7831835773ba231577701b369d4d169669a6ad4c5a0db09fb,227,16072,0,True,7.7885,46.0,True,True,not_available
+3002,685830f7cd03891cb510ec32d37b5714439c7b73308b026088442df140458ae6,227,16075,0,True,7.7885,46.0,True,True,not_available
+3003,555d296b4169cc63a85a11d249bfb39f33b0ac746cbfe5d014433d38f3019693,227,16074,0,True,7.7885,46.0,True,True,not_available
+3004,f64a8207d1c86c637ee8e63ce3d3a6f3fba5e536b76c24221f45ac9b30756069,227,16067,0,True,7.7885,46.0,True,True,not_available
+3005,b29a82731b92bd9804e8bbbc5291da86ad37409146e39a071f6dd6ab9ec8cd5a,227,16073,0,True,7.7885,46.0,True,True,not_available
+3006,a9a705a56ba8525b35ef692eeb56513c5f74eff32fa9567474a747230ded5829,227,16074,0,True,7.7885,46.0,True,True,not_available
+3007,bf39c64c6b2beca88b4ba9374990d79890e62867ad83bdf708287c4771a636da,227,16075,0,True,7.7885,46.0,True,True,not_available
+3008,d25ac58d660972a757c083f1d0fda34bd22e91f17cc9292141e72bec34e4e57e,227,16070,0,True,7.7885,46.0,True,True,not_available
+3009,86ea96342620ca7a5466650854e44b2a5e703cabaa069ca082bf7fab01f54c6d,227,16068,0,True,7.7885,46.0,True,True,not_available

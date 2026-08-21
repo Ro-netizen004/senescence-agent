@@ -203,10 +203,10 @@ def _build_output_schema_inner(
             },
             "population": {
                 "cell_type": args.get("cell_type"),
-                "youngest_group": result.get("youngest_group"),
-                "oldest_group": result.get("oldest_group"),
+                "youngest_group": result.get("youngest_group") or result.get("reference_group"),
+                "oldest_group": result.get("oldest_group") or result.get("comparison_group"),
                 "n_samples": result.get("n_samples"),
-                "samples_per_age": result.get("samples_per_age"),
+                "samples_per_age": result.get("samples_per_age") or result.get("samples_per_group"),
                 "statistical_unit": "pseudobulk_sample",
             },
             "allowed_interpretation_level": inf.get("allowed_interpretation_level"),

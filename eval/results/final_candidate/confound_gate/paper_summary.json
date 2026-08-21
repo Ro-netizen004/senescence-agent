@@ -1,0 +1,88 @@
+{
+  "experiment": "tms_confound_gate_functional_validation",
+  "status": "paper_candidate_functional_validation",
+  "generated_utc": "2026-08-20T18:30:20.418186+00:00",
+  "dataset": {
+    "filename": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "sha256": "ea3ebbb6d68e9c69238eb276eb0f3454fa404e2505bd18daea5d6dac7a69f309",
+    "cell_type": "B cell"
+  },
+  "design": {
+    "n_challenge_types": 5,
+    "n_allocations_per_challenge": 30,
+    "total_gate_decisions": 150,
+    "unique_donor_allocations": 30,
+    "same_allocations_across_challenges": true,
+    "llm_calls": 0,
+    "deseq2_calls": 0
+  },
+  "results": [
+    {
+      "design": "confounded",
+      "n_allocations": 30,
+      "attempts": 40,
+      "expected_outcome": "block_perfect_confound",
+      "metric_name": "recall",
+      "metric": 1.0,
+      "descriptive_interval_low": 0.8865,
+      "descriptive_interval_high": 1.0,
+      "unrelated_blocks": 0,
+      "partial_warning_rate": null,
+      "alias_warning_rate": null
+    },
+    {
+      "design": "confounded_partial",
+      "n_allocations": 30,
+      "attempts": 40,
+      "expected_outcome": "allow_with_partial_confounding_warning",
+      "metric_name": "allow_rate",
+      "metric": 1.0,
+      "descriptive_interval_low": 0.8865,
+      "descriptive_interval_high": 1.0,
+      "unrelated_blocks": 0,
+      "partial_warning_rate": 1.0,
+      "alias_warning_rate": null
+    },
+    {
+      "design": "covariate_balanced",
+      "n_allocations": 30,
+      "attempts": 40,
+      "expected_outcome": "allow_balanced_covariate",
+      "metric_name": "specificity",
+      "metric": 1.0,
+      "descriptive_interval_low": 0.8865,
+      "descriptive_interval_high": 1.0,
+      "unrelated_blocks": 0,
+      "partial_warning_rate": null,
+      "alias_warning_rate": null
+    },
+    {
+      "design": "contrast_alias",
+      "n_allocations": 30,
+      "attempts": 40,
+      "expected_outcome": "allow_registered_alias_with_warning",
+      "metric_name": "allow_rate",
+      "metric": 1.0,
+      "descriptive_interval_low": 0.8865,
+      "descriptive_interval_high": 1.0,
+      "unrelated_blocks": 0,
+      "partial_warning_rate": null,
+      "alias_warning_rate": 1.0
+    },
+    {
+      "design": "contrast_alias_with_batch",
+      "n_allocations": 30,
+      "attempts": 40,
+      "expected_outcome": "block_off_axis_confound_despite_alias",
+      "metric_name": "recall",
+      "metric": 1.0,
+      "descriptive_interval_low": 0.8865,
+      "descriptive_interval_high": 1.0,
+      "unrelated_blocks": 0,
+      "partial_warning_rate": null,
+      "alias_warning_rate": null
+    }
+  ],
+  "primary_conclusion": "All 150 gate decisions matched their registered behavior with no unrelated blocks.",
+  "interpretation_boundary": "This is a deterministic functional validation using synthetic metadata challenges on 30 reused TMS donor allocations, not 150 independent biological cohorts. Intervals are descriptive only and should not be interpreted as population coverage."
+}

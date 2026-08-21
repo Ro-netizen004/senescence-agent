@@ -21,10 +21,6 @@ from claim_linter import audit_reply, has_result_exposure  # noqa: E402
 
 PROTOCOL_DIR = ROOT / "eval/results/final_candidate/null_sweep_same_method"
 PROTOCOL = json.loads((PROTOCOL_DIR / "protocol.json").read_text(encoding="utf-8"))
-SEEDS = tuple(
-    int(line) for line in (PROTOCOL_DIR / PROTOCOL["seed_file"]).read_text(encoding="utf-8").splitlines()
-    if line.strip() and not line.lstrip().startswith("#")
-)
 ARMS = tuple(PROTOCOL["paired_arms"])
 CONFIGS = [
     (
@@ -38,6 +34,12 @@ DESIGN = PROTOCOL["null_construction"]["design"]
 PROMPT_STYLE = PROTOCOL["null_construction"]["prompt_style"]
 SEED_START = PROTOCOL["seed_start"]
 N_REQUESTED = PROTOCOL["n_requested_per_tissue_arm"]
+SEED_SCHEDULE = PROTOCOL["seed_schedule"]
+MAX_ATTEMPTS = max(
+    N_REQUESTED * SEED_SCHEDULE["max_attempt_multiplier"],
+    SEED_SCHEDULE["minimum_max_attempts"],
+)
+SEEDS = tuple(range(SEED_START, SEED_START + MAX_ATTEMPTS))
 
 
 def _sha256(path: Path) -> str:
@@ -94,11 +96,19 @@ def _index_permutations(payload: dict, *, tissue: str, arm: str) -> dict[int, di
         raise ValueError(f"No completed permutations for {tissue} {arm}")
     requested = payload.get("n_perm_requested")
     duplicates = payload.get("n_duplicate_allocations_skipped", 0)
-    if requested != N_REQUESTED or completed + duplicates != requested:
+    attempts = len(rows) + duplicates
+    if requested != N_REQUESTED or completed > requested:
         raise ValueError(
-            f"Attempt-count mismatch for {tissue} {arm}: requested={requested}, "
-            f"completed={completed}, duplicate_allocations={duplicates}"
+            f"Request-count mismatch for {tissue} {arm}: "
+            f"requested={requested}, completed={completed}"
         )
+    if completed < requested and attempts != MAX_ATTEMPTS:
+        raise ValueError(
+            f"Incomplete allocation search for {tissue} {arm}: "
+            f"attempts={attempts}, expected exhaustion at {MAX_ATTEMPTS}"
+        )
+    if completed == requested and attempts > MAX_ATTEMPTS:
+        raise ValueError(f"Too many attempts for {tissue} {arm}: {attempts}")
     preregistered_seeds = set(SEEDS)
     if not set(seeds).issubset(preregistered_seeds):
         raise ValueError(f"Non-preregistered seed for {tissue} {arm}")
@@ -140,7 +150,7 @@ def build(source: Path, output: Path, copy_raw: bool = True) -> dict:
                 shutil.copy2(path, copied)
             manifest.append(
                 {
-                    "file": f"raw/{path.name}" if copy_raw else str(path),
+                    "file": f"raw/{path.name}",
                     "tissue": tissue,
                     "arm": arm,
                     "completed": loaded[arm]["n_perm_completed"],
@@ -254,6 +264,7 @@ def build(source: Path, output: Path, copy_raw: bool = True) -> dict:
             ],
             "seed_start": SEED_START,
             "requested_per_tissue": N_REQUESTED,
+            "max_seed_attempts_per_tissue": MAX_ATTEMPTS,
         },
         "n_paired_allocations": n,
         "derivation": {
@@ -343,15 +354,16 @@ def build(source: Path, output: Path, copy_raw: bool = True) -> dict:
         "covariates differ. External many-donor UMI validation is still required.",
     ]
     (output / "PAPER_RESULTS.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
-    checksum_paths = [
-        output / "paired_allocations.csv",
-        output / "tissue_summary.csv",
-        output / "raw_results_manifest.csv",
-        output / "paper_summary.json",
-        output / "PAPER_RESULTS.md",
+    checksum_names = [
+        "PAPER_RESULTS.md", "MANUSCRIPT_RESULTS.md", "paired_allocations.csv",
+        "tissue_summary.csv", "raw_results_manifest.csv", "paper_summary.json",
+        "protocol.json", "REPRODUCIBILITY.json", "figure_overclaim_by_tissue.png",
+        "figure_overclaim_by_tissue.pdf",
     ]
+    checksum_paths = [output / name for name in checksum_names if (output / name).exists()]
+    checksum_paths.extend(sorted((output / "raw").glob("*.json")))
     checksum_lines = [
-        f"{_sha256(path)}  {path.name}" for path in checksum_paths
+        f"{_sha256(path)}  {path.relative_to(output).as_posix()}" for path in checksum_paths
     ]
     (output / "SHA256SUMS.txt").write_text(
         "\n".join(checksum_lines) + "\n", encoding="utf-8"

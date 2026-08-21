@@ -1,0 +1,47 @@
+# OneK1K External Validation
+
+## Current status
+
+Seed 3000 is the completed direct statistical smoke, not the final multi-seed
+external-validation result. It used 454 independent classical-monocyte donors
+(227 per fake group), tested 16,071 genes, and produced 0 discoveries at
+FDR < 0.05.
+
+## Files
+
+- `smoke_seed3000/summary.json`: compact analysis output and the top 100 rows.
+- `smoke_seed3000/donor_allocation.csv`: complete frozen donor assignment.
+- The 2.9 GB H5AD is intentionally excluded from Git and remains on `D:`.
+
+## Numerical warning record
+
+pyDESeq2 emitted `overflow encountered in exp` and related invalid-value
+warnings during coefficient optimization. The fit nevertheless completed the
+Wald tests and returned no FDR discoveries (minimum saved adjusted p-value
+0.9999897). Because this run used `--summary-only`, a full-table post-hoc
+finite-value audit is unavailable. The runner now records warning text and
+finite/nonfinite counts under `numerical_health` for all subsequent runs.
+
+## Next gate
+
+Run `paired_frozen_smoke.py` once. It performs no DE computation and makes
+exactly one LLM call, for the ungoverned narration. Both arms are keyed to the
+same canonical SHA-256 of the frozen result. This is a communication-layer
+smoke only; the later multi-seed validation must exercise the full agent path.
+
+The seed-3000 paired replay completed with input parity. Its initial linter
+label was a false positive on "No genes are statistically significant"; after
+the negation regression fix, `paired_frozen_smoke.rescored.json` is the
+canonical scored artifact. Both arms have zero claim violations. This is the
+expected outcome when the shared pseudobulk result itself has zero discoveries,
+so it validates plumbing and calibration but does not estimate a governance
+effect.
+
+## Ten-allocation pilot
+
+The completed statistical pilot is packaged at
+`pilot_null_monoc_seed3000_n10/`. It contains validated compact raw checkpoints,
+an aggregate CSV/JSON/Markdown result set, provenance, and recursive checksums.
+All ten allocations returned zero FDR discoveries. No additional LLM narration
+calls were made because a zero-discovery shared result cannot meaningfully test
+the governance-withholding endpoint.

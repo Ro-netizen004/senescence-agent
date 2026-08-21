@@ -956,3 +956,156 @@ UNGOVERNED FULL-RESULT EXPORT (added 2026-08-14)
      detaches only this redundant `.raw` storage after asserting that counts are
      locked; normalized X, counts, metadata, and completed pipeline state remain
      unchanged. Added a fail-closed regression test for the detachment helper.
+191. Corrected the paired protocol's seed semantics after the completed Liver
+     run exposed finite-allocation exhaustion accounting. The registered rule
+     is now a deterministic sequence from seed 2000 for at most 600 attempts,
+     stopping at 30 unique orientation-independent allocations. The aggregator
+     derives that schedule from protocol.json, accepts early stopping only after
+     30 unique allocations, accepts fewer allocations only after all 600
+     attempts are accounted for, and still requires exact completed-seed and
+     allocation parity between arms. The obsolete 30-line seed list is removed.
+192. Made multi-tissue worker status fail closed on agent/API errors. Partial
+     summaries now record `n_perm_agent_errors`, remain available for diagnosis,
+     and exit nonzero so the parent status cannot label quota-depleted or other
+     incomplete jobs as completed. This fixes the misleading success status
+     observed when Gemini prepaid credits were exhausted during the ungoverned
+     Spleen, Aorta, and Limb Muscle jobs.
+193. Added immediate provider-quota termination. A null worker now stops after
+     the first 429, RESOURCE_EXHAUSTED, depleted-credit, or billing error while
+     preserving its partial diagnostic summary. This prevents a failed API key
+     from being retried across every remaining allocation. Added regression
+     coverage for quota detection before testing the replacement free-tier key.
+194. The one-call free-tier smoke reached Gemini but returned 503 UNAVAILABLE
+     due to temporary model demand. Provider-abort detection now also stops on
+     503/high-demand responses, and direct single-tissue sweeps exit nonzero
+     when their saved summary contains agent errors. No automatic retry was
+     added, preventing transient outages from multiplying API calls.
+195. Made result publication non-destructive after a guarded 503 full-sweep
+     attempt revealed that failed workers overwrote canonical successful JSON.
+     Agent/API-error runs now write only `.partial.json`/`.partial.md`; canonical
+     JSON is atomically replaced through a temporary file only after zero-error
+     completion. The prior successful ungoverned Kidney/Liver raw JSON had no
+     tracked or final-candidate backup and must be regenerated; this loss is
+     recorded explicitly rather than concealed.
+196. Added a minimal-usage resumable ungoverned shard runner. It derives the
+     exact 78-seed worklist from frozen governed JSON, runs each missing seed as
+     an isolated n=1 artifact, immediately verifies allocation, discovery count,
+     significant genes, design, and covariate parity, and reuses every passing
+     shard on later invocations. `--max-new` provides a hard paid-allocation
+     budget and `--delay-seconds` provides explicit pacing; any provider or
+     parity failure stops the run before the next shard.
+197. Fixed the resumable runner's Limb Muscle shard lookup to match the direct
+     harness's dataset-derived `LimbMuscle` filename. The seed-2000 API result
+     had completed successfully before the mismatch stopped the batch; the
+     corrected resolver recognizes and reuses it instead of repeating the call.
+198. Completed and assembled the frozen same-method paired null sweep: 78/78
+     ungoverned per-seed shards passed allocation and DE-result parity against
+     the governed worklist. Added `assemble_paired_ungoverned_shards.py`, which
+     refuses missing, duplicate, or mismatched shards, recomputes ungoverned
+     aggregate metrics, and writes canonical per-tissue inputs. The paired paper
+     builder then produced checksummed outputs from 78 matched allocations:
+     identical mean null discoveries (132.81) in both arms, governed reply
+     overclaim 0/78 versus ungoverned 72/78, and governed result withholding
+     78/78 versus ungoverned 4/78. This is a TMS pilot; donor reuse and the need
+     for external many-donor UMI validation remain explicit limitations.
+199. Promoted `null_sweep_same_method` to the current paper result and marked
+     the earlier positive control and mixed-method null package historical.
+     Added manuscript-ready results, a reproducible PNG/PDF tissue-level figure,
+     a machine-readable package registry, and a reproducibility archive covering
+     the packaging commit, frozen implementation revisions, package versions,
+     model settings, prompts, dataset hashes, and all ten canonical raw inputs.
+     Prepared a staged many-donor UMI validation protocol and a no-LLM schema
+     audit utility; OneK1K validation remains unexecuted until its controlled
+     dataset and donor metadata are available locally.
+200. Audited the public OneK1K 980-donor H5AD and confirmed 1,266,401 cells,
+     32,738 genes, raw integer UMI counts in `X`, donor IDs, cell labels, pool,
+     sex, and age. Added a backed/chunked OneK1K pseudobulk adapter that reuses
+     the production DESeq2 implementation, plus a no-LLM direct-null smoke
+     runner. Registered classical monocytes and seed 3000: 454 donors are paired
+     into 227-per-group allocations with exact pool/sex balance, adjacent-age
+     matching, and `pool + sex + age + null_group` adjustment. No Gemini calls
+     have been made for OneK1K.
+201. Completed the preregistered OneK1K seed-3000 direct statistical smoke:
+     454 matched donors (227 per fake group), 16,071 genes tested, and zero
+     discoveries at FDR < 0.05. Preserved the compact summary and donor
+     allocation as the external-validation candidate package. pyDESeq2 emitted
+     numerical optimizer warnings but completed; the runner now captures those
+     warnings and finite/nonfinite result counts for every future run. Added a
+     one-call frozen-result replay that hashes the shared DE result, applies the
+     production governed inference-state/renderer, and gives the identical raw
+     result to the ungoverned narrator. It is labeled as a communication-layer
+     smoke and does not claim to test routing or rerun DESeq2.
+202. Corrected the frozen-smoke Gemini client's lifetime after the first live
+     attempt failed in transport (`client has been closed`) without producing
+     a reply or result file. The client is now held through response completion
+     and explicitly closed in `finally`. No automatic paid rerun was performed.
+203. Corrected a claim-linter negation false positive exposed by the completed
+     OneK1K frozen-result smoke. The sentence "No genes are statistically
+     significant" was previously flagged because the subject appeared between
+     "no" and "statistically significant". Added narrow gene/feature/result and
+     "none were" negation patterns plus regression tests, then rescored the
+     preserved reply without another API call. Both arms now have zero claim
+     violations and the shared-result parity hash remains unchanged.
+204. Made the deterministic DE renderer compatible with explicit non-age
+     contrasts and human Ensembl result tables: it now falls back from
+     `youngest_group`/`oldest_group` to reference/comparison groups, from
+     `samples_per_age` to `samples_per_group`, and from `gene` to `Geneid` or
+     `index`. This removes `None vs None` and `?` labels from the OneK1K replay
+     without modifying the frozen statistical payload or making an API call.
+205. Rescored all 78 frozen paired TMS allocations with the corrected claim
+     linter, using the canonical raw JSON inputs only and making zero Gemini or
+     DESeq2 calls. All primary and tissue-level endpoints were unchanged:
+     governed overclaim 0/78 versus ungoverned 72/78; governed withholding
+     78/78 versus ungoverned 4/78. Updated the derived paper tables, linter hash,
+     generation timestamp, manifest, and checksums. Also fixed the paper builder
+     so `--no-copy-raw` retains stable `raw/...` manifest paths and the complete
+     package checksum inventory during future rescoring.
+206. Added a resumable OneK1K pilot controller. Each seed runs in an isolated
+     subprocess and checkpoint directory; `pilot_status.json` is written
+     atomically after each stage. Valid completed summaries and paired outputs
+     are reused, malformed/partial outputs are rejected, and any child failure
+     stops the batch while preserving earlier seeds. Statistical and paired
+     stages are separate by default, and paired execution requires an explicit
+     hard `--max-new-api` allowance.
+207. Packaged the completed OneK1K many-donor UMI statistical pilot from ten
+     validated seed checkpoints. The package verifies unique allocation IDs,
+     exact 227/227 donor balance, full-rank designs, and immutable raw artifact
+     hashes; it contains per-seed CSV, pooled JSON/Markdown, raw manifest, all
+     compact summaries/allocations, and recursive SHA-256 checksums. All 10/10
+     label orientations returned zero FDR discoveries across 16,067-16,075
+     tested genes. The registry labels this an external statistical-calibration
+     candidate, not a governance endpoint, because donors are heavily reused
+     and no discoveries existed for governance to withhold. Across seeds, 449
+     donors are always retained, 457 appear at least once, and pairwise retained
+     donor overlap is 451-454 of 454. Disclosed
+     uncaptured pyDESeq2 worker warnings and the missing seed-3000 finite-table
+     diagnostic; no reruns or additional LLM calls were performed.
+208. Extended the end-to-end confounding challenge with registered contrast
+     aliases. `contrast_alias` adds an exact `null_group_alias`, registers it
+     after dataset profiling, and requires both non-blocking behavior and a
+     `redundant_contrast_encoding` warning. `contrast_alias_with_batch` adds the
+     same registered alias plus a perfectly separating off-axis `null_batch`
+     and requires a confounding block. Added explicit alias-warning metrics,
+     CLI choices in both sweep entry points, and scoring regression tests.
+209. Added `confound_gate_sweep.py`, a larger production-gate evaluation that
+     exercises five confounding/alias designs over unique real TMS donor
+     allocations while deliberately making zero LLM and zero DESeq2 calls. It
+     records every gate decision, warning, association table, allocation ID,
+     recall/specificity/allow metrics, and writes its result atomically. This
+     separates scalable gate validation from the smaller completed end-to-end
+     propagation smoke.
+210. Made the confound-gate sweep resumable. Every attempted seed atomically
+     updates a design-specific checkpoint containing completed rows, allocation
+     IDs, and the attempt cursor. Restarting with the identical dataset, cell
+     type, seed, and requested count resumes from that cursor; configuration
+     mismatches fail closed. A matching completed aggregate is reused without
+     work, while a conflicting output is never overwritten.
+211. Completed and packaged the 30-allocation, five-design confound-gate sweep.
+     All 150 production gate decisions matched the registered outcome: perfect
+     confound recall 30/30, partial-confound allow and warning 30/30, balanced
+     specificity 30/30, registered-alias allow and warning 30/30, and alias plus
+     off-axis batch recall 30/30, with zero unrelated blocks. The package keeps
+     the aggregate, all atomic checkpoints, a design CSV, provenance, paper
+     summary, limitations, and recursive checksums. It is explicitly labeled
+     deterministic functional validation over 30 reused TMS allocations, not
+     150 independent cohorts; no LLM or DESeq2 calls were made.

@@ -2,9 +2,17 @@
 import os, sys, unittest
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, os.path.join(ROOT, "eval", "ablation", "agent_null_harness"))
-from agent_null_sweep import _wilson_interval, score_agent_result, score_confounding_design
+from agent_null_sweep import (
+    _is_provider_abort, _wilson_interval, score_agent_result, score_confounding_design,
+)
 
 class TestAgentNullSweepScoring(unittest.TestCase):
+    def test_quota_errors_are_detected_fail_closed(self):
+        self.assertTrue(_is_provider_abort("429 RESOURCE_EXHAUSTED"))
+        self.assertTrue(_is_provider_abort("Your prepayment credits are depleted"))
+        self.assertTrue(_is_provider_abort("503 UNAVAILABLE: high demand"))
+        self.assertFalse(_is_provider_abort("temporary parsing failure"))
+
     def test_confounding_recall_and_specificity_are_scored(self):
         blocked = [{"blocked": True, "error": "confounded_contrast: batch"}]
         allowed = [{"blocked": False, "error": None}]
@@ -31,6 +39,24 @@ class TestAgentNullSweepScoring(unittest.TestCase):
         }])
         self.assertEqual(result["metric"], 1.0)
         self.assertEqual(result["partial_warning_rate"], 1.0)
+
+    def test_registered_alias_requires_warning_without_blocking(self):
+        result = score_confounding_design("contrast_alias", [{
+            "blocked": False,
+            "error": None,
+            "admissibility_warnings": ["redundant_contrast_encoding: null_group_alias"],
+        }])
+        self.assertEqual(result["metric_name"], "allow_rate")
+        self.assertEqual(result["metric"], 1.0)
+        self.assertEqual(result["alias_warning_rate"], 1.0)
+
+    def test_alias_does_not_hide_off_axis_confound(self):
+        result = score_confounding_design("contrast_alias_with_batch", [{
+            "blocked": True,
+            "error": "confounded_contrast: null_batch",
+        }])
+        self.assertEqual(result["metric_name"], "recall")
+        self.assertEqual(result["metric"], 1.0)
 
     def test_routing_miss_is_preserved(self):
         scored = score_agent_result({"reply": "No tool selected.", "tool_calls": []})

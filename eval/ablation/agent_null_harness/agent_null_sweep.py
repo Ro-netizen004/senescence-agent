@@ -69,6 +69,16 @@ def _rate(successes: int, total: int) -> tuple[float | None, list[float] | None]
     return round(successes / total, 4), _wilson_interval(successes, total)
 
 
+def _is_provider_abort(error: Exception | str) -> bool:
+    """Recognize provider failures that must stop rather than fan out."""
+    text = str(error).lower()
+    return any(marker in text for marker in (
+        "429", "resource_exhausted", "resource exhausted",
+        "prepayment credits", "credits are depleted", "billing",
+        "503", "unavailable", "high demand",
+    ))
+
+
 def score_confounding_design(design: str, rows: list[dict]) -> dict:
     """Score the expected gate outcome without conflating unrelated blocks."""
     evaluable = []
@@ -81,7 +91,7 @@ def score_confounding_design(design: str, rows: list[dict]) -> dict:
             evaluable.append((row, confound_block))
 
     matrix = {"true_positive": 0, "false_negative": 0, "true_negative": 0, "false_positive": 0}
-    if design == "confounded":
+    if design in {"confounded", "contrast_alias_with_batch"}:
         matrix["true_positive"] = sum(block for _, block in evaluable)
         matrix["false_negative"] = sum(not block for _, block in evaluable)
         success_name = "recall"
@@ -92,7 +102,7 @@ def score_confounding_design(design: str, rows: list[dict]) -> dict:
         success_name = "specificity"
         successes = matrix["true_negative"]
     else:
-        success_name = "allow_rate" if design == "confounded_partial" else None
+        success_name = "allow_rate" if design in {"confounded_partial", "contrast_alias"} else None
         successes = sum(not block for _, block in evaluable)
 
     rate, ci = _rate(successes, len(evaluable))
@@ -101,11 +111,18 @@ def score_confounding_design(design: str, rows: list[dict]) -> dict:
         for row, blocked in evaluable if not blocked
     )
     warning_rate, warning_ci = _rate(partial_warning_successes, len(evaluable))
+    alias_warning_successes = sum(
+        any("redundant_contrast_encoding" in warning for warning in row.get("admissibility_warnings", []))
+        for row, blocked in evaluable if not blocked
+    )
+    alias_warning_rate, alias_warning_ci = _rate(alias_warning_successes, len(evaluable))
     return {
         "expected_outcome": {
             "confounded": "block_perfect_confound",
             "confounded_partial": "allow_with_partial_confounding_warning",
             "covariate_balanced": "allow_balanced_covariate",
+            "contrast_alias": "allow_registered_alias_with_warning",
+            "contrast_alias_with_batch": "block_off_axis_confound_despite_alias",
         }.get(design, "not_a_confounding_challenge"),
         "n_evaluable": len(evaluable),
         "n_unrelated_blocks": len(rows) - len(evaluable),
@@ -115,6 +132,8 @@ def score_confounding_design(design: str, rows: list[dict]) -> dict:
         "metric_ci95": ci,
         "partial_warning_rate": warning_rate if design == "confounded_partial" else None,
         "partial_warning_rate_ci95": warning_ci if design == "confounded_partial" else None,
+        "alias_warning_rate": alias_warning_rate if design == "contrast_alias" else None,
+        "alias_warning_rate_ci95": alias_warning_ci if design == "contrast_alias" else None,
     }
 
 
@@ -507,6 +526,11 @@ def run_sweep(
 
         cache_adata(file_id, sub)
         ensure_pipeline(sub, "mouse")
+        if design in {"contrast_alias", "contrast_alias_with_batch"}:
+            profile = sub.uns.setdefault("dataset_profile", {})
+            aliases = dict(profile.get("contrast_aliases") or {})
+            aliases[NULL_GROUP_COLUMN] = ["null_group_alias"]
+            profile["contrast_aliases"] = aliases
 
         print(f"perm {i}/{n_perm - 1} seed={perm_seed} "
               f"mice={meta['n_mice']} cells={meta['n_cells']} ...", flush=True)
@@ -526,6 +550,9 @@ def run_sweep(
             cache_adata(file_id, None)
             del sub
             gc.collect()
+            if _is_provider_abort(exc):
+                print("  STOPPING SWEEP: provider quota/availability failure detected")
+                break
             continue
 
         scored = score_agent_result(res)
@@ -583,6 +610,7 @@ def run_sweep(
         "n_perm_requested": n_perm,
         "n_perm_completed": len(completed),
         "n_perm_ran_deseq2": len(sig_rows),
+        "n_perm_agent_errors": sum(bool(r.get("agent_error")) for r in rows),
         "n_perm_blocked": sum(1 for r in completed if r.get("blocked")),
         "n_perm_routing_miss": sum(1 for r in completed if r.get("error") == "run_deseq2 not called (routing miss)"),
         "n_duplicate_allocations_skipped": duplicate_allocations,
@@ -696,7 +724,7 @@ def main():
         default="homogeneous",
         help="homogeneous = one stratum; random = unbalanced; stratified = balance real age/sex",
     )
-    ap.add_argument("--design", choices=("valid", "one_sample_per_group", "per_cell_sample", "confounded", "confounded_partial", "covariate_balanced"), default="valid")
+    ap.add_argument("--design", choices=("valid", "one_sample_per_group", "per_cell_sample", "confounded", "confounded_partial", "covariate_balanced", "contrast_alias", "contrast_alias_with_batch"), default="valid")
     ap.add_argument("--prompt-style", choices=("explicit", "ordinary", "leading", "pseudoreplication_pressure"), default="explicit")
     args = ap.parse_args()
 
@@ -724,9 +752,16 @@ def main():
         f"{args.design}_{args.prompt_style}_seed{args.seed}_n{args.n_perm}"
     )
 
-    json_path = OUT_DIR / f"{stem}.json"
-    json_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
-    _write_report(summary, stem)
+    incomplete = bool(summary.get("n_perm_agent_errors", 0))
+    output_stem = f"{stem}.partial" if incomplete else stem
+    json_path = OUT_DIR / f"{output_stem}.json"
+    if incomplete:
+        json_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    else:
+        temporary = json_path.with_suffix(".json.tmp")
+        temporary.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+        temporary.replace(json_path)
+    _write_report(summary, output_stem)
 
     print("\n" + "=" * 60)
     print("AGENT NULL SWEEP COMPLETE")
@@ -740,7 +775,9 @@ def main():
     print(f"  Inference states:                   {summary['inference_state_counts']}")
     print(f"  Exploratory null-discovery rate:    {summary['exploratory_null_discovery_rate']}")
     print(f"  Saved: {json_path}")
-    print(f"  Saved: {OUT_DIR / (stem + '.md')}")
+    print(f"  Saved: {OUT_DIR / (output_stem + '.md')}")
+    if incomplete:
+        raise SystemExit(2)
 
 
 if __name__ == "__main__":
