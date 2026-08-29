@@ -1,0 +1,6 @@
+"seed","allocation_id","donors_per_group","admissible","inference_state","registered_genes","significant_genes","true_positives","false_negatives","false_positives","sensitivity","empirical_fdp","direction_agreement","stability_verdict","stable_gene_fraction","tier_0_25_sensitivity","tier_0_5_sensitivity","tier_1_0_sensitivity","runtime_warning_count"
+"4000","1f99871c7dddf0329f4636b7f8fcada6bd4aa35e3e4abe7888e27abdcbdb5267","227","True","SIGNIFICANT_INFERENTIAL","75","76","71","4","5","0.9467","0.0658","1","stable","1","0.84","1","1","0"
+"4001","6fd0558feed29cae42d0ad9135fa9b06ec92e15931a493e1656decadf928402d","227","True","SIGNIFICANT_INFERENTIAL","75","72","71","4","1","0.9467","0.0139","1","stable","1","0.84","1","1","0"
+"4002","7e7e8f30cb310a8b158f45e745dba46de77eff3edac942b5cec2b6f6464d6e49","227","True","SIGNIFICANT_INFERENTIAL","75","74","74","1","0","0.9867","0","1","stable","1","0.96","1","1","0"
+"4003","63e3d252bd6e26d659f692fc84cc390549177aedca0925135cc59c11e1b21b12","227","True","SIGNIFICANT_INFERENTIAL","75","72","71","4","1","0.9467","0.0139","1","stable","1","0.84","1","1","0"
+"4004","2e454d9489b93dfeb1ac9623a6a1775661af4885abb4b93d62880e3b9e8f4dd1","227","True","SIGNIFICANT_INFERENTIAL","75","75","71","4","4","0.9467","0.0533","1","stable","1","0.88","0.96","1","0"

@@ -167,7 +167,13 @@ Evidence: [`onek1k_external_validation/pilot_null_monoc_seed3000_n10/PAPER_RESUL
 [`paper_summary.json`](onek1k_external_validation/pilot_null_monoc_seed3000_n10/paper_summary.json),
 and [`per_seed_summary.csv`](onek1k_external_validation/pilot_null_monoc_seed3000_n10/per_seed_summary.csv).
 
-## 6. Confound-gate functional validation
+## 6. OneK1K semi-synthetic positive control
+
+**Status: Paper-candidate selectivity validation.** Five many-donor classical-monocyte allocations injected 375 registered donor-level effects. The production firewall admitted and licensed all 5/5 allocations, recovered 358/375 effects (95.47%), preserved 100% direction agreement, and found 11 additional discoveries (pooled empirical FDP 2.98%). All allocations passed donor-stability assessment. This demonstrates that governance can preserve valid signal rather than refusing every analysis. The allocations reuse one donor cohort and are not independent biological cohorts.
+
+Evidence: [`onek1k_external_validation/semisynthetic_positive_monoc_seed4000_n5/PAPER_RESULTS.md`](onek1k_external_validation/semisynthetic_positive_monoc_seed4000_n5/PAPER_RESULTS.md), [`paper_summary.json`](onek1k_external_validation/semisynthetic_positive_monoc_seed4000_n5/paper_summary.json), and [`per_seed_summary.csv`](onek1k_external_validation/semisynthetic_positive_monoc_seed4000_n5/per_seed_summary.csv).
+
+## 7. Confound-gate functional validation
 
 **Status: Paper candidate functional validation.** The production admissibility
 gate made 150 decisions across five paired synthetic metadata challenges and 30
@@ -183,7 +189,7 @@ Evidence: [`confound_gate/PAPER_RESULTS.md`](confound_gate/PAPER_RESULTS.md),
 [`confound_gate/paper_summary.json`](confound_gate/paper_summary.json), and
 [`confound_gate/design_summary.csv`](confound_gate/design_summary.csv).
 
-## 7. Blinded human validation of reply labels
+## 8. Blinded human validation of reply labels
 
 **Status: In progress; no result is currently paper-usable.** The 156 frozen
 replies from the primary same-method experiment were reproducibly shuffled with

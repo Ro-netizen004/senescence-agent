@@ -1,0 +1,3744 @@
+{
+  "status": "complete_no_llm_calls",
+  "scenario": "B",
+  "seed": 4000,
+  "protocol_id": "3b8bc3939e9fb710c1079bde7bafd82a3cbb06d609000760e2fcbbcd7110de02",
+  "protocol_config": {
+    "protocol_version": "onek1k_semisynthetic_v2",
+    "dataset_name": "OneK1K_updated_14_celltypes_980_donors.h5ad",
+    "cell_label": "Mono C",
+    "min_cells_per_donor": 20,
+    "registered_log2fc_tiers": [
+      0.25,
+      0.5,
+      1.0
+    ],
+    "n_genes_per_tier": 25,
+    "covariates": [
+      "pool",
+      "sex"
+    ]
+  },
+  "cell_label": "Mono C",
+  "expected_admissible": true,
+  "admissibility_expectation_met": true,
+  "admissibility": {
+    "admissible": true,
+    "blocked_reasons": [],
+    "warnings": [],
+    "checks": {
+      "tool": "run_deseq2",
+      "sample_column": "sample_id",
+      "count_validation": {
+        "valid": true,
+        "source": "layers[counts]",
+        "n_nonzero": 9080,
+        "max_count": 1.0
+      },
+      "requested_covariates": [
+        "pool",
+        "sex"
+      ],
+      "contrast": {
+        "reference": "inject_A",
+        "comparison": "inject_B",
+        "group_column": "null_group"
+      },
+      "cell_type": "Mono C",
+      "replicates_per_group": {
+        "inject_A": 227,
+        "inject_B": 227
+      },
+      "min_cells_per_sample": 20,
+      "minimum_replicates_per_group": 3,
+      "design_validation": {
+        "n_samples": 454,
+        "rank": 63,
+        "n_columns": 63,
+        "full_rank": true,
+        "factors": [
+          "pool",
+          "sex",
+          "null_group"
+        ],
+        "encoded_columns": [
+          "intercept",
+          "pool_1",
+          "pool_10",
+          "pool_11",
+          "pool_12",
+          "pool_13",
+          "pool_14",
+          "pool_15",
+          "pool_16",
+          "pool_17",
+          "pool_18",
+          "pool_19",
+          "pool_2",
+          "pool_20",
+          "pool_21",
+          "pool_22",
+          "pool_23",
+          "pool_24",
+          "pool_25",
+          "pool_28",
+          "pool_3",
+          "pool_31",
+          "pool_32",
+          "pool_33",
+          "pool_34",
+          "pool_35",
+          "pool_36",
+          "pool_37",
+          "pool_39",
+          "pool_4",
+          "pool_40",
+          "pool_41",
+          "pool_42",
+          "pool_43",
+          "pool_44",
+          "pool_45",
+          "pool_46",
+          "pool_47",
+          "pool_49",
+          "pool_5",
+          "pool_50",
+          "pool_51",
+          "pool_52",
+          "pool_53",
+          "pool_54",
+          "pool_55",
+          "pool_56",
+          "pool_59",
+          "pool_60",
+          "pool_61",
+          "pool_62",
+          "pool_65",
+          "pool_66",
+          "pool_67",
+          "pool_68",
+          "pool_69",
+          "pool_70",
+          "pool_71",
+          "pool_72",
+          "pool_8",
+          "pool_9",
+          "sex_2",
+          "null_group_inject_B"
+        ]
+      },
+      "confounding_associations": {
+        "sex": {
+          "table": {
+            "1": {
+              "inject_A": 101,
+              "inject_B": 101
+            },
+            "2": {
+              "inject_B": 126,
+              "inject_A": 126
+            }
+          },
+          "n_observed_samples": 454,
+          "n_missing_samples": 0,
+          "represented_groups": [
+            "inject_A",
+            "inject_B"
+          ],
+          "purity": 0.5,
+          "perfect_separation": false
+        }
+      }
+    }
+  },
+  "allocation": {
+    "seed": 4000,
+    "allocation_id": "1f99871c7dddf0329f4636b7f8fcada6bd4aa35e3e4abe7888e27abdcbdb5267",
+    "n_per_group": 227,
+    "n_excluded_unpaired": 70,
+    "excluded_donors": [
+      "1002_1003",
+      "1005_1006",
+      "1008_1009",
+      "1026_1027",
+      "102_102",
+      "1037_1038",
+      "1043_1044",
+      "1050_1051",
+      "1054_1055",
+      "122_122",
+      "142_142",
+      "163_163",
+      "169_170",
+      "181_182",
+      "184_185",
+      "186_187",
+      "207_208",
+      "210_211",
+      "233_234",
+      "257_258",
+      "260_261",
+      "271_272",
+      "275_276",
+      "294_295",
+      "295_296",
+      "337_338",
+      "354_355",
+      "356_357",
+      "358_359",
+      "378_379",
+      "434_435",
+      "435_436",
+      "442_443",
+      "443_444",
+      "450_451",
+      "466_467",
+      "498_499",
+      "4_4",
+      "508_509",
+      "519_520",
+      "533_534",
+      "542_543",
+      "547_548",
+      "549_550",
+      "582_583",
+      "594_595",
+      "616_617",
+      "61_61",
+      "639_640",
+      "650_651",
+      "671_672",
+      "694_695",
+      "716_717",
+      "725_726",
+      "754_755",
+      "772_773",
+      "783_784",
+      "809_810",
+      "811_812",
+      "813_814",
+      "814_815",
+      "825_826",
+      "855_856",
+      "870_871",
+      "881_882",
+      "899_900",
+      "902_903",
+      "934_935",
+      "941_942",
+      "981_982"
+    ],
+    "n_pairs": 227,
+    "mean_within_pair_age_difference": 7.7885,
+    "max_within_pair_age_difference": 46.0,
+    "pairs": [
+      {
+        "pool": "0",
+        "sex": "1",
+        "fake_A": "688_689",
+        "fake_B": "689_690",
+        "age_difference": 7.0
+      },
+      {
+        "pool": "0",
+        "sex": "1",
+        "fake_A": "691_692",
+        "fake_B": "690_691",
+        "age_difference": 2.0
+      },
+      {
+        "pool": "0",
+        "sex": "1",
+        "fake_A": "682_683",
+        "fake_B": "686_687",
+        "age_difference": 4.0
+      },
+      {
+        "pool": "0",
+        "sex": "2",
+        "fake_A": "684_685",
+        "fake_B": "692_693",
+        "age_difference": 13.0
+      },
+      {
+        "pool": "0",
+        "sex": "2",
+        "fake_A": "693_694",
+        "fake_B": "685_686",
+        "age_difference": 13.0
+      },
+      {
+        "pool": "1",
+        "sex": "1",
+        "fake_A": "661_662",
+        "fake_B": "662_663",
+        "age_difference": 3.0
+      },
+      {
+        "pool": "1",
+        "sex": "2",
+        "fake_A": "699_700",
+        "fake_B": "664_665",
+        "age_difference": 9.0
+      },
+      {
+        "pool": "1",
+        "sex": "2",
+        "fake_A": "695_696",
+        "fake_B": "700_701",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "1",
+        "sex": "2",
+        "fake_A": "701_702",
+        "fake_B": "696_697",
+        "age_difference": 8.0
+      },
+      {
+        "pool": "1",
+        "sex": "2",
+        "fake_A": "702_703",
+        "fake_B": "697_698",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "1",
+        "sex": "2",
+        "fake_A": "663_664",
+        "fake_B": "704_705",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "10",
+        "sex": "1",
+        "fake_A": "834_835",
+        "fake_B": "845_846",
+        "age_difference": 17.0
+      },
+      {
+        "pool": "10",
+        "sex": "2",
+        "fake_A": "847_848",
+        "fake_B": "849_850",
+        "age_difference": 7.0
+      },
+      {
+        "pool": "11",
+        "sex": "1",
+        "fake_A": "993_994",
+        "fake_B": "986_987",
+        "age_difference": 0.0
+      },
+      {
+        "pool": "11",
+        "sex": "2",
+        "fake_A": "994_995",
+        "fake_B": "991_992",
+        "age_difference": 10.0
+      },
+      {
+        "pool": "12",
+        "sex": "2",
+        "fake_A": "1001_1002",
+        "fake_B": "853_854",
+        "age_difference": 2.0
+      },
+      {
+        "pool": "12",
+        "sex": "2",
+        "fake_A": "857_858",
+        "fake_B": "856_857",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "12",
+        "sex": "2",
+        "fake_A": "1004_1005",
+        "fake_B": "1000_1001",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "12",
+        "sex": "2",
+        "fake_A": "987_988",
+        "fake_B": "988_989",
+        "age_difference": 7.0
+      },
+      {
+        "pool": "13",
+        "sex": "1",
+        "fake_A": "863_864",
+        "fake_B": "802_803",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "13",
+        "sex": "2",
+        "fake_A": "860_861",
+        "fake_B": "862_863",
+        "age_difference": 4.0
+      },
+      {
+        "pool": "13",
+        "sex": "2",
+        "fake_A": "803_804",
+        "fake_B": "891_892",
+        "age_difference": 3.0
+      },
+      {
+        "pool": "13",
+        "sex": "2",
+        "fake_A": "864_865",
+        "fake_B": "890_891",
+        "age_difference": 4.0
+      },
+      {
+        "pool": "13",
+        "sex": "2",
+        "fake_A": "865_866",
+        "fake_B": "861_862",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "14",
+        "sex": "2",
+        "fake_A": "892_893",
+        "fake_B": "893_894",
+        "age_difference": 12.0
+      },
+      {
+        "pool": "15",
+        "sex": "1",
+        "fake_A": "1015_1016",
+        "fake_B": "1016_1017",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "15",
+        "sex": "2",
+        "fake_A": "1018_1019",
+        "fake_B": "896_897",
+        "age_difference": 4.0
+      },
+      {
+        "pool": "15",
+        "sex": "2",
+        "fake_A": "1020_1021",
+        "fake_B": "1021_1022",
+        "age_difference": 5.0
+      },
+      {
+        "pool": "16",
+        "sex": "1",
+        "fake_A": "1030_1031",
+        "fake_B": "1032_1033",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "16",
+        "sex": "2",
+        "fake_A": "905_906",
+        "fake_B": "1025_1026",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "16",
+        "sex": "2",
+        "fake_A": "904_905",
+        "fake_B": "1033_1034",
+        "age_difference": 5.0
+      },
+      {
+        "pool": "16",
+        "sex": "2",
+        "fake_A": "1024_1025",
+        "fake_B": "1027_1028",
+        "age_difference": 0.0
+      },
+      {
+        "pool": "16",
+        "sex": "2",
+        "fake_A": "1028_1029",
+        "fake_B": "1031_1032",
+        "age_difference": 0.0
+      },
+      {
+        "pool": "17",
+        "sex": "1",
+        "fake_A": "906_907",
+        "fake_B": "912_913",
+        "age_difference": 2.0
+      },
+      {
+        "pool": "17",
+        "sex": "2",
+        "fake_A": "908_909",
+        "fake_B": "909_910",
+        "age_difference": 0.0
+      },
+      {
+        "pool": "17",
+        "sex": "2",
+        "fake_A": "1034_1035",
+        "fake_B": "911_912",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "17",
+        "sex": "2",
+        "fake_A": "1035_1036",
+        "fake_B": "1040_1041",
+        "age_difference": 2.0
+      },
+      {
+        "pool": "17",
+        "sex": "2",
+        "fake_A": "1039_1040",
+        "fake_B": "1036_1037",
+        "age_difference": 3.0
+      },
+      {
+        "pool": "18",
+        "sex": "1",
+        "fake_A": "871_872",
+        "fake_B": "917_918",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "18",
+        "sex": "2",
+        "fake_A": "867_868",
+        "fake_B": "1042_1043",
+        "age_difference": 15.0
+      },
+      {
+        "pool": "18",
+        "sex": "2",
+        "fake_A": "916_917",
+        "fake_B": "915_916",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "18",
+        "sex": "2",
+        "fake_A": "869_870",
+        "fake_B": "872_873",
+        "age_difference": 4.0
+      },
+      {
+        "pool": "18",
+        "sex": "2",
+        "fake_A": "868_869",
+        "fake_B": "914_915",
+        "age_difference": 0.0
+      },
+      {
+        "pool": "19",
+        "sex": "1",
+        "fake_A": "879_880",
+        "fake_B": "878_879",
+        "age_difference": 2.0
+      },
+      {
+        "pool": "19",
+        "sex": "2",
+        "fake_A": "877_878",
+        "fake_B": "880_881",
+        "age_difference": 15.0
+      },
+      {
+        "pool": "2",
+        "sex": "1",
+        "fake_A": "669_670",
+        "fake_B": "709_710",
+        "age_difference": 40.0
+      },
+      {
+        "pool": "2",
+        "sex": "1",
+        "fake_A": "707_708",
+        "fake_B": "667_668",
+        "age_difference": 5.0
+      },
+      {
+        "pool": "2",
+        "sex": "2",
+        "fake_A": "666_667",
+        "fake_B": "711_712",
+        "age_difference": 41.0
+      },
+      {
+        "pool": "2",
+        "sex": "2",
+        "fake_A": "708_709",
+        "fake_B": "668_669",
+        "age_difference": 6.0
+      },
+      {
+        "pool": "2",
+        "sex": "2",
+        "fake_A": "706_707",
+        "fake_B": "705_706",
+        "age_difference": 0.0
+      },
+      {
+        "pool": "20",
+        "sex": "1",
+        "fake_A": "887_888",
+        "fake_B": "888_889",
+        "age_difference": 15.0
+      },
+      {
+        "pool": "20",
+        "sex": "2",
+        "fake_A": "371_372",
+        "fake_B": "377_378",
+        "age_difference": 3.0
+      },
+      {
+        "pool": "20",
+        "sex": "2",
+        "fake_A": "379_380",
+        "fake_B": "374_375",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "20",
+        "sex": "2",
+        "fake_A": "889_890",
+        "fake_B": "886_887",
+        "age_difference": 11.0
+      },
+      {
+        "pool": "21",
+        "sex": "1",
+        "fake_A": "297_298",
+        "fake_B": "380_381",
+        "age_difference": 3.0
+      },
+      {
+        "pool": "21",
+        "sex": "2",
+        "fake_A": "296_297",
+        "fake_B": "302_303",
+        "age_difference": 3.0
+      },
+      {
+        "pool": "21",
+        "sex": "2",
+        "fake_A": "299_300",
+        "fake_B": "293_294",
+        "age_difference": 9.0
+      },
+      {
+        "pool": "22",
+        "sex": "1",
+        "fake_A": "315_316",
+        "fake_B": "309_310",
+        "age_difference": 5.0
+      },
+      {
+        "pool": "22",
+        "sex": "2",
+        "fake_A": "317_318",
+        "fake_B": "313_314",
+        "age_difference": 33.0
+      },
+      {
+        "pool": "22",
+        "sex": "2",
+        "fake_A": "292_293",
+        "fake_B": "316_317",
+        "age_difference": 0.0
+      },
+      {
+        "pool": "22",
+        "sex": "2",
+        "fake_A": "308_309",
+        "fake_B": "306_307",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "22",
+        "sex": "2",
+        "fake_A": "314_315",
+        "fake_B": "310_311",
+        "age_difference": 0.0
+      },
+      {
+        "pool": "22",
+        "sex": "2",
+        "fake_A": "311_312",
+        "fake_B": "312_313",
+        "age_difference": 4.0
+      },
+      {
+        "pool": "22",
+        "sex": "2",
+        "fake_A": "307_308",
+        "fake_B": "318_319",
+        "age_difference": 3.0
+      },
+      {
+        "pool": "23",
+        "sex": "2",
+        "fake_A": "1048_1049",
+        "fake_B": "319_320",
+        "age_difference": 20.0
+      },
+      {
+        "pool": "23",
+        "sex": "2",
+        "fake_A": "324_325",
+        "fake_B": "320_321",
+        "age_difference": 8.0
+      },
+      {
+        "pool": "24",
+        "sex": "1",
+        "fake_A": "1052_1053",
+        "fake_B": "1056_1057",
+        "age_difference": 7.0
+      },
+      {
+        "pool": "24",
+        "sex": "2",
+        "fake_A": "1051_1052",
+        "fake_B": "330_331",
+        "age_difference": 0.0
+      },
+      {
+        "pool": "25",
+        "sex": "1",
+        "fake_A": "920_921",
+        "fake_B": "1059_1060",
+        "age_difference": 29.0
+      },
+      {
+        "pool": "25",
+        "sex": "1",
+        "fake_A": "1064_1065",
+        "fake_B": "1063_1064",
+        "age_difference": 7.0
+      },
+      {
+        "pool": "25",
+        "sex": "2",
+        "fake_A": "923_924",
+        "fake_B": "1060_1061",
+        "age_difference": 21.0
+      },
+      {
+        "pool": "25",
+        "sex": "2",
+        "fake_A": "1065_1066",
+        "fake_B": "334_335",
+        "age_difference": 5.0
+      },
+      {
+        "pool": "28",
+        "sex": "1",
+        "fake_A": "791_792",
+        "fake_B": "789_790",
+        "age_difference": 21.0
+      },
+      {
+        "pool": "28",
+        "sex": "1",
+        "fake_A": "788_789",
+        "fake_B": "790_791",
+        "age_difference": 3.0
+      },
+      {
+        "pool": "28",
+        "sex": "2",
+        "fake_A": "786_787",
+        "fake_B": "781_782",
+        "age_difference": 0.0
+      },
+      {
+        "pool": "3",
+        "sex": "1",
+        "fake_A": "678_679",
+        "fake_B": "673_674",
+        "age_difference": 8.0
+      },
+      {
+        "pool": "3",
+        "sex": "2",
+        "fake_A": "675_676",
+        "fake_B": "715_716",
+        "age_difference": 3.0
+      },
+      {
+        "pool": "3",
+        "sex": "2",
+        "fake_A": "676_677",
+        "fake_B": "679_680",
+        "age_difference": 3.0
+      },
+      {
+        "pool": "31",
+        "sex": "2",
+        "fake_A": "361_362",
+        "fake_B": "364_365",
+        "age_difference": 14.0
+      },
+      {
+        "pool": "32",
+        "sex": "1",
+        "fake_A": "423_424",
+        "fake_B": "359_360",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "33",
+        "sex": "1",
+        "fake_A": "1073_1074",
+        "fake_B": "418_419",
+        "age_difference": 8.0
+      },
+      {
+        "pool": "33",
+        "sex": "1",
+        "fake_A": "417_418",
+        "fake_B": "415_416",
+        "age_difference": 2.0
+      },
+      {
+        "pool": "33",
+        "sex": "2",
+        "fake_A": "368_369",
+        "fake_B": "396_397",
+        "age_difference": 21.0
+      },
+      {
+        "pool": "33",
+        "sex": "2",
+        "fake_A": "419_420",
+        "fake_B": "1072_1073",
+        "age_difference": 13.0
+      },
+      {
+        "pool": "34",
+        "sex": "1",
+        "fake_A": "387_388",
+        "fake_B": "410_411",
+        "age_difference": 4.0
+      },
+      {
+        "pool": "34",
+        "sex": "1",
+        "fake_A": "412_413",
+        "fake_B": "402_403",
+        "age_difference": 19.0
+      },
+      {
+        "pool": "34",
+        "sex": "2",
+        "fake_A": "388_389",
+        "fake_B": "403_404",
+        "age_difference": 3.0
+      },
+      {
+        "pool": "35",
+        "sex": "2",
+        "fake_A": "411_412",
+        "fake_B": "497_498",
+        "age_difference": 18.0
+      },
+      {
+        "pool": "35",
+        "sex": "2",
+        "fake_A": "404_405",
+        "fake_B": "1070_1071",
+        "age_difference": 7.0
+      },
+      {
+        "pool": "36",
+        "sex": "1",
+        "fake_A": "489_490",
+        "fake_B": "336_337",
+        "age_difference": 5.0
+      },
+      {
+        "pool": "36",
+        "sex": "1",
+        "fake_A": "487_488",
+        "fake_B": "338_339",
+        "age_difference": 2.0
+      },
+      {
+        "pool": "37",
+        "sex": "1",
+        "fake_A": "752_753",
+        "fake_B": "553_554",
+        "age_difference": 18.0
+      },
+      {
+        "pool": "39",
+        "sex": "1",
+        "fake_A": "482_483",
+        "fake_B": "478_479",
+        "age_difference": 45.0
+      },
+      {
+        "pool": "39",
+        "sex": "1",
+        "fake_A": "483_484",
+        "fake_B": "480_481",
+        "age_difference": 2.0
+      },
+      {
+        "pool": "39",
+        "sex": "1",
+        "fake_A": "479_480",
+        "fake_B": "383_384",
+        "age_difference": 5.0
+      },
+      {
+        "pool": "39",
+        "sex": "2",
+        "fake_A": "382_383",
+        "fake_B": "369_370",
+        "age_difference": 9.0
+      },
+      {
+        "pool": "39",
+        "sex": "2",
+        "fake_A": "481_482",
+        "fake_B": "101_101",
+        "age_difference": 3.0
+      },
+      {
+        "pool": "4",
+        "sex": "1",
+        "fake_A": "968_969",
+        "fake_B": "720_721",
+        "age_difference": 18.0
+      },
+      {
+        "pool": "4",
+        "sex": "1",
+        "fake_A": "739_740",
+        "fake_B": "721_722",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "4",
+        "sex": "2",
+        "fake_A": "743_744",
+        "fake_B": "971_972",
+        "age_difference": 2.0
+      },
+      {
+        "pool": "4",
+        "sex": "2",
+        "fake_A": "717_718",
+        "fake_B": "718_719",
+        "age_difference": 4.0
+      },
+      {
+        "pool": "4",
+        "sex": "2",
+        "fake_A": "740_741",
+        "fake_B": "722_723",
+        "age_difference": 3.0
+      },
+      {
+        "pool": "4",
+        "sex": "2",
+        "fake_A": "737_738",
+        "fake_B": "736_737",
+        "age_difference": 7.0
+      },
+      {
+        "pool": "40",
+        "sex": "1",
+        "fake_A": "505_506",
+        "fake_B": "539_540",
+        "age_difference": 8.0
+      },
+      {
+        "pool": "40",
+        "sex": "2",
+        "fake_A": "105_105",
+        "fake_B": "540_541",
+        "age_difference": 22.0
+      },
+      {
+        "pool": "41",
+        "sex": "1",
+        "fake_A": "536_537",
+        "fake_B": "507_508",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "41",
+        "sex": "1",
+        "fake_A": "534_535",
+        "fake_B": "524_525",
+        "age_difference": 14.0
+      },
+      {
+        "pool": "41",
+        "sex": "2",
+        "fake_A": "521_522",
+        "fake_B": "506_507",
+        "age_difference": 16.0
+      },
+      {
+        "pool": "41",
+        "sex": "2",
+        "fake_A": "546_547",
+        "fake_B": "543_544",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "42",
+        "sex": "1",
+        "fake_A": "513_514",
+        "fake_B": "510_511",
+        "age_difference": 2.0
+      },
+      {
+        "pool": "42",
+        "sex": "1",
+        "fake_A": "511_512",
+        "fake_B": "514_515",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "42",
+        "sex": "2",
+        "fake_A": "1068_1069",
+        "fake_B": "512_513",
+        "age_difference": 7.0
+      },
+      {
+        "pool": "42",
+        "sex": "2",
+        "fake_A": "509_510",
+        "fake_B": "112_112",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "43",
+        "sex": "1",
+        "fake_A": "566_567",
+        "fake_B": "570_571",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "43",
+        "sex": "1",
+        "fake_A": "472_473",
+        "fake_B": "469_470",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "43",
+        "sex": "2",
+        "fake_A": "599_600",
+        "fake_B": "471_472",
+        "age_difference": 6.0
+      },
+      {
+        "pool": "43",
+        "sex": "2",
+        "fake_A": "467_468",
+        "fake_B": "468_469",
+        "age_difference": 2.0
+      },
+      {
+        "pool": "44",
+        "sex": "1",
+        "fake_A": "106_106",
+        "fake_B": "109_109",
+        "age_difference": 4.0
+      },
+      {
+        "pool": "44",
+        "sex": "2",
+        "fake_A": "111_111",
+        "fake_B": "114_114",
+        "age_difference": 3.0
+      },
+      {
+        "pool": "44",
+        "sex": "2",
+        "fake_A": "110_110",
+        "fake_B": "473_474",
+        "age_difference": 12.0
+      },
+      {
+        "pool": "45",
+        "sex": "1",
+        "fake_A": "621_622",
+        "fake_B": "603_604",
+        "age_difference": 4.0
+      },
+      {
+        "pool": "45",
+        "sex": "2",
+        "fake_A": "574_575",
+        "fake_B": "605_606",
+        "age_difference": 17.0
+      },
+      {
+        "pool": "45",
+        "sex": "2",
+        "fake_A": "1075_1076",
+        "fake_B": "604_605",
+        "age_difference": 24.0
+      },
+      {
+        "pool": "46",
+        "sex": "1",
+        "fake_A": "609_610",
+        "fake_B": "610_611",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "46",
+        "sex": "1",
+        "fake_A": "612_613",
+        "fake_B": "608_609",
+        "age_difference": 16.0
+      },
+      {
+        "pool": "46",
+        "sex": "2",
+        "fake_A": "620_621",
+        "fake_B": "618_619",
+        "age_difference": 5.0
+      },
+      {
+        "pool": "46",
+        "sex": "2",
+        "fake_A": "611_612",
+        "fake_B": "614_615",
+        "age_difference": 9.0
+      },
+      {
+        "pool": "46",
+        "sex": "2",
+        "fake_A": "613_614",
+        "fake_B": "607_608",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "47",
+        "sex": "1",
+        "fake_A": "636_637",
+        "fake_B": "577_578",
+        "age_difference": 3.0
+      },
+      {
+        "pool": "47",
+        "sex": "1",
+        "fake_A": "622_623",
+        "fake_B": "637_638",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "47",
+        "sex": "2",
+        "fake_A": "638_639",
+        "fake_B": "578_579",
+        "age_difference": 46.0
+      },
+      {
+        "pool": "47",
+        "sex": "2",
+        "fake_A": "576_577",
+        "fake_B": "623_624",
+        "age_difference": 4.0
+      },
+      {
+        "pool": "47",
+        "sex": "2",
+        "fake_A": "504_505",
+        "fake_B": "499_500",
+        "age_difference": 8.0
+      },
+      {
+        "pool": "49",
+        "sex": "1",
+        "fake_A": "583_584",
+        "fake_B": "580_581",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "49",
+        "sex": "1",
+        "fake_A": "586_587",
+        "fake_B": "624_625",
+        "age_difference": 9.0
+      },
+      {
+        "pool": "49",
+        "sex": "1",
+        "fake_A": "588_589",
+        "fake_B": "590_591",
+        "age_difference": 0.0
+      },
+      {
+        "pool": "49",
+        "sex": "1",
+        "fake_A": "584_585",
+        "fake_B": "585_586",
+        "age_difference": 3.0
+      },
+      {
+        "pool": "49",
+        "sex": "2",
+        "fake_A": "581_582",
+        "fake_B": "644_645",
+        "age_difference": 4.0
+      },
+      {
+        "pool": "49",
+        "sex": "2",
+        "fake_A": "589_590",
+        "fake_B": "587_588",
+        "age_difference": 3.0
+      },
+      {
+        "pool": "5",
+        "sex": "1",
+        "fake_A": "973_974",
+        "fake_B": "974_975",
+        "age_difference": 5.0
+      },
+      {
+        "pool": "5",
+        "sex": "2",
+        "fake_A": "978_979",
+        "fake_B": "726_727",
+        "age_difference": 4.0
+      },
+      {
+        "pool": "50",
+        "sex": "1",
+        "fake_A": "629_630",
+        "fake_B": "634_635",
+        "age_difference": 21.0
+      },
+      {
+        "pool": "50",
+        "sex": "1",
+        "fake_A": "345_346",
+        "fake_B": "344_345",
+        "age_difference": 5.0
+      },
+      {
+        "pool": "50",
+        "sex": "1",
+        "fake_A": "628_629",
+        "fake_B": "592_593",
+        "age_difference": 5.0
+      },
+      {
+        "pool": "50",
+        "sex": "1",
+        "fake_A": "595_596",
+        "fake_B": "591_592",
+        "age_difference": 2.0
+      },
+      {
+        "pool": "50",
+        "sex": "2",
+        "fake_A": "626_627",
+        "fake_B": "630_631",
+        "age_difference": 8.0
+      },
+      {
+        "pool": "50",
+        "sex": "2",
+        "fake_A": "635_636",
+        "fake_B": "627_628",
+        "age_difference": 3.0
+      },
+      {
+        "pool": "51",
+        "sex": "1",
+        "fake_A": "654_655",
+        "fake_B": "655_656",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "51",
+        "sex": "1",
+        "fake_A": "346_347",
+        "fake_B": "657_658",
+        "age_difference": 7.0
+      },
+      {
+        "pool": "51",
+        "sex": "1",
+        "fake_A": "653_654",
+        "fake_B": "386_387",
+        "age_difference": 6.0
+      },
+      {
+        "pool": "51",
+        "sex": "2",
+        "fake_A": "659_660",
+        "fake_B": "658_659",
+        "age_difference": 22.0
+      },
+      {
+        "pool": "51",
+        "sex": "2",
+        "fake_A": "385_386",
+        "fake_B": "350_351",
+        "age_difference": 5.0
+      },
+      {
+        "pool": "51",
+        "sex": "2",
+        "fake_A": "52_52",
+        "fake_B": "353_354",
+        "age_difference": 19.0
+      },
+      {
+        "pool": "52",
+        "sex": "1",
+        "fake_A": "349_350",
+        "fake_B": "597_598",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "52",
+        "sex": "1",
+        "fake_A": "465_466",
+        "fake_B": "113_113",
+        "age_difference": 8.0
+      },
+      {
+        "pool": "52",
+        "sex": "1",
+        "fake_A": "41_41",
+        "fake_B": "632_633",
+        "age_difference": 7.0
+      },
+      {
+        "pool": "52",
+        "sex": "2",
+        "fake_A": "39_39",
+        "fake_B": "660_661",
+        "age_difference": 2.0
+      },
+      {
+        "pool": "52",
+        "sex": "2",
+        "fake_A": "596_597",
+        "fake_B": "43_43",
+        "age_difference": 2.0
+      },
+      {
+        "pool": "52",
+        "sex": "2",
+        "fake_A": "633_634",
+        "fake_B": "352_353",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "52",
+        "sex": "2",
+        "fake_A": "42_42",
+        "fake_B": "40_40",
+        "age_difference": 13.0
+      },
+      {
+        "pool": "53",
+        "sex": "1",
+        "fake_A": "57_57",
+        "fake_B": "58_58",
+        "age_difference": 13.0
+      },
+      {
+        "pool": "53",
+        "sex": "1",
+        "fake_A": "93_93",
+        "fake_B": "91_91",
+        "age_difference": 7.0
+      },
+      {
+        "pool": "53",
+        "sex": "1",
+        "fake_A": "89_89",
+        "fake_B": "50_50",
+        "age_difference": 2.0
+      },
+      {
+        "pool": "53",
+        "sex": "1",
+        "fake_A": "49_49",
+        "fake_B": "92_92",
+        "age_difference": 13.0
+      },
+      {
+        "pool": "53",
+        "sex": "2",
+        "fake_A": "53_53",
+        "fake_B": "47_47",
+        "age_difference": 13.0
+      },
+      {
+        "pool": "53",
+        "sex": "2",
+        "fake_A": "75_75",
+        "fake_B": "51_51",
+        "age_difference": 13.0
+      },
+      {
+        "pool": "53",
+        "sex": "2",
+        "fake_A": "90_90",
+        "fake_B": "48_48",
+        "age_difference": 11.0
+      },
+      {
+        "pool": "54",
+        "sex": "1",
+        "fake_A": "286_287",
+        "fake_B": "64_64",
+        "age_difference": 2.0
+      },
+      {
+        "pool": "54",
+        "sex": "1",
+        "fake_A": "1077_1078",
+        "fake_B": "97_97",
+        "age_difference": 2.0
+      },
+      {
+        "pool": "54",
+        "sex": "1",
+        "fake_A": "96_96",
+        "fake_B": "95_95",
+        "age_difference": 5.0
+      },
+      {
+        "pool": "54",
+        "sex": "2",
+        "fake_A": "56_56",
+        "fake_B": "60_60",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "54",
+        "sex": "2",
+        "fake_A": "63_63",
+        "fake_B": "276_277",
+        "age_difference": 21.0
+      },
+      {
+        "pool": "54",
+        "sex": "2",
+        "fake_A": "55_55",
+        "fake_B": "54_54",
+        "age_difference": 5.0
+      },
+      {
+        "pool": "55",
+        "sex": "1",
+        "fake_A": "70_70",
+        "fake_B": "86_86",
+        "age_difference": 7.0
+      },
+      {
+        "pool": "55",
+        "sex": "1",
+        "fake_A": "87_87",
+        "fake_B": "84_84",
+        "age_difference": 6.0
+      },
+      {
+        "pool": "55",
+        "sex": "1",
+        "fake_A": "1078_1079",
+        "fake_B": "85_85",
+        "age_difference": 5.0
+      },
+      {
+        "pool": "55",
+        "sex": "1",
+        "fake_A": "1081_1082",
+        "fake_B": "72_72",
+        "age_difference": 4.0
+      },
+      {
+        "pool": "55",
+        "sex": "2",
+        "fake_A": "1080_1081",
+        "fake_B": "1079_1080",
+        "age_difference": 6.0
+      },
+      {
+        "pool": "55",
+        "sex": "2",
+        "fake_A": "71_71",
+        "fake_B": "287_288",
+        "age_difference": 7.0
+      },
+      {
+        "pool": "56",
+        "sex": "1",
+        "fake_A": "154_154",
+        "fake_B": "168_169",
+        "age_difference": 12.0
+      },
+      {
+        "pool": "56",
+        "sex": "2",
+        "fake_A": "172_173",
+        "fake_B": "166_167",
+        "age_difference": 11.0
+      },
+      {
+        "pool": "56",
+        "sex": "2",
+        "fake_A": "164_165",
+        "fake_B": "167_168",
+        "age_difference": 17.0
+      },
+      {
+        "pool": "56",
+        "sex": "2",
+        "fake_A": "171_172",
+        "fake_B": "165_166",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "59",
+        "sex": "1",
+        "fake_A": "45_45",
+        "fake_B": "78_78",
+        "age_difference": 33.0
+      },
+      {
+        "pool": "60",
+        "sex": "1",
+        "fake_A": "65_65",
+        "fake_B": "68_68",
+        "age_difference": 15.0
+      },
+      {
+        "pool": "60",
+        "sex": "2",
+        "fake_A": "66_66",
+        "fake_B": "69_69",
+        "age_difference": 0.0
+      },
+      {
+        "pool": "61",
+        "sex": "1",
+        "fake_A": "133_133",
+        "fake_B": "119_119",
+        "age_difference": 24.0
+      },
+      {
+        "pool": "61",
+        "sex": "1",
+        "fake_A": "121_121",
+        "fake_B": "126_126",
+        "age_difference": 6.0
+      },
+      {
+        "pool": "62",
+        "sex": "1",
+        "fake_A": "185_186",
+        "fake_B": "36_36",
+        "age_difference": 4.0
+      },
+      {
+        "pool": "65",
+        "sex": "1",
+        "fake_A": "236_237",
+        "fake_B": "232_233",
+        "age_difference": 27.0
+      },
+      {
+        "pool": "65",
+        "sex": "1",
+        "fake_A": "224_225",
+        "fake_B": "223_224",
+        "age_difference": 14.0
+      },
+      {
+        "pool": "66",
+        "sex": "1",
+        "fake_A": "209_210",
+        "fake_B": "213_214",
+        "age_difference": 7.0
+      },
+      {
+        "pool": "66",
+        "sex": "2",
+        "fake_A": "211_212",
+        "fake_B": "246_247",
+        "age_difference": 25.0
+      },
+      {
+        "pool": "66",
+        "sex": "2",
+        "fake_A": "206_207",
+        "fake_B": "214_215",
+        "age_difference": 6.0
+      },
+      {
+        "pool": "66",
+        "sex": "2",
+        "fake_A": "212_213",
+        "fake_B": "208_209",
+        "age_difference": 21.0
+      },
+      {
+        "pool": "67",
+        "sex": "1",
+        "fake_A": "219_220",
+        "fake_B": "221_222",
+        "age_difference": 17.0
+      },
+      {
+        "pool": "67",
+        "sex": "2",
+        "fake_A": "222_223",
+        "fake_B": "13_13",
+        "age_difference": 2.0
+      },
+      {
+        "pool": "67",
+        "sex": "2",
+        "fake_A": "215_216",
+        "fake_B": "12_12",
+        "age_difference": 8.0
+      },
+      {
+        "pool": "67",
+        "sex": "2",
+        "fake_A": "217_218",
+        "fake_B": "220_221",
+        "age_difference": 7.0
+      },
+      {
+        "pool": "68",
+        "sex": "1",
+        "fake_A": "23_23",
+        "fake_B": "256_257",
+        "age_difference": 10.0
+      },
+      {
+        "pool": "68",
+        "sex": "1",
+        "fake_A": "258_259",
+        "fake_B": "17_17",
+        "age_difference": 2.0
+      },
+      {
+        "pool": "68",
+        "sex": "2",
+        "fake_A": "259_260",
+        "fake_B": "16_16",
+        "age_difference": 0.0
+      },
+      {
+        "pool": "68",
+        "sex": "2",
+        "fake_A": "15_15",
+        "fake_B": "262_263",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "68",
+        "sex": "2",
+        "fake_A": "18_18",
+        "fake_B": "19_19",
+        "age_difference": 6.0
+      },
+      {
+        "pool": "69",
+        "sex": "1",
+        "fake_A": "264_265",
+        "fake_B": "266_267",
+        "age_difference": 10.0
+      },
+      {
+        "pool": "69",
+        "sex": "1",
+        "fake_A": "274_275",
+        "fake_B": "269_270",
+        "age_difference": 10.0
+      },
+      {
+        "pool": "69",
+        "sex": "1",
+        "fake_A": "263_264",
+        "fake_B": "24_24",
+        "age_difference": 0.0
+      },
+      {
+        "pool": "69",
+        "sex": "2",
+        "fake_A": "267_268",
+        "fake_B": "272_273",
+        "age_difference": 7.0
+      },
+      {
+        "pool": "69",
+        "sex": "2",
+        "fake_A": "270_271",
+        "fake_B": "273_274",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "70",
+        "sex": "1",
+        "fake_A": "932_933",
+        "fake_B": "933_934",
+        "age_difference": 16.0
+      },
+      {
+        "pool": "70",
+        "sex": "1",
+        "fake_A": "935_936",
+        "fake_B": "926_927",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "70",
+        "sex": "2",
+        "fake_A": "930_931",
+        "fake_B": "937_938",
+        "age_difference": 5.0
+      },
+      {
+        "pool": "70",
+        "sex": "2",
+        "fake_A": "929_930",
+        "fake_B": "927_928",
+        "age_difference": 7.0
+      },
+      {
+        "pool": "71",
+        "sex": "1",
+        "fake_A": "947_948",
+        "fake_B": "945_946",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "71",
+        "sex": "1",
+        "fake_A": "938_939",
+        "fake_B": "949_950",
+        "age_difference": 31.0
+      },
+      {
+        "pool": "71",
+        "sex": "1",
+        "fake_A": "943_944",
+        "fake_B": "939_940",
+        "age_difference": 5.0
+      },
+      {
+        "pool": "71",
+        "sex": "2",
+        "fake_A": "944_945",
+        "fake_B": "946_947",
+        "age_difference": 2.0
+      },
+      {
+        "pool": "72",
+        "sex": "1",
+        "fake_A": "957_958",
+        "fake_B": "954_955",
+        "age_difference": 4.0
+      },
+      {
+        "pool": "72",
+        "sex": "1",
+        "fake_A": "956_957",
+        "fake_B": "955_956",
+        "age_difference": 1.0
+      },
+      {
+        "pool": "72",
+        "sex": "1",
+        "fake_A": "962_963",
+        "fake_B": "953_954",
+        "age_difference": 8.0
+      },
+      {
+        "pool": "72",
+        "sex": "2",
+        "fake_A": "961_962",
+        "fake_B": "951_952",
+        "age_difference": 42.0
+      },
+      {
+        "pool": "72",
+        "sex": "2",
+        "fake_A": "958_959",
+        "fake_B": "960_961",
+        "age_difference": 5.0
+      },
+      {
+        "pool": "8",
+        "sex": "1",
+        "fake_A": "794_795",
+        "fake_B": "798_799",
+        "age_difference": 21.0
+      },
+      {
+        "pool": "8",
+        "sex": "1",
+        "fake_A": "796_797",
+        "fake_B": "799_800",
+        "age_difference": 6.0
+      },
+      {
+        "pool": "8",
+        "sex": "2",
+        "fake_A": "795_796",
+        "fake_B": "797_798",
+        "age_difference": 2.0
+      },
+      {
+        "pool": "9",
+        "sex": "1",
+        "fake_A": "827_828",
+        "fake_B": "843_844",
+        "age_difference": 9.0
+      },
+      {
+        "pool": "9",
+        "sex": "2",
+        "fake_A": "842_843",
+        "fake_B": "823_824",
+        "age_difference": 0.0
+      }
+    ],
+    "groups": [
+      "inject_A",
+      "inject_B"
+    ],
+    "registered_genes": 75,
+    "direction_counts": {
+      "up_in_B": 38,
+      "down_in_B": 37
+    }
+  },
+  "truth": {
+    "ENSG00000004534": {
+      "injected_log2fc": -0.25,
+      "absolute_log2fc_tier": 0.25,
+      "direction": "down_in_B"
+    },
+    "ENSG00000138757": {
+      "injected_log2fc": 0.25,
+      "absolute_log2fc_tier": 0.25,
+      "direction": "up_in_B"
+    },
+    "ENSG00000170266": {
+      "injected_log2fc": -0.25,
+      "absolute_log2fc_tier": 0.25,
+      "direction": "down_in_B"
+    },
+    "ENSG00000132341": {
+      "injected_log2fc": 0.25,
+      "absolute_log2fc_tier": 0.25,
+      "direction": "up_in_B"
+    },
+    "ENSG00000156639": {
+      "injected_log2fc": -0.25,
+      "absolute_log2fc_tier": 0.25,
+      "direction": "down_in_B"
+    },
+    "ENSG00000083223": {
+      "injected_log2fc": 0.25,
+      "absolute_log2fc_tier": 0.25,
+      "direction": "up_in_B"
+    },
+    "ENSG00000253352": {
+      "injected_log2fc": -0.25,
+      "absolute_log2fc_tier": 0.25,
+      "direction": "down_in_B"
+    },
+    "ENSG00000138430": {
+      "injected_log2fc": 0.25,
+      "absolute_log2fc_tier": 0.25,
+      "direction": "up_in_B"
+    },
+    "ENSG00000013306": {
+      "injected_log2fc": -0.25,
+      "absolute_log2fc_tier": 0.25,
+      "direction": "down_in_B"
+    },
+    "ENSG00000196735": {
+      "injected_log2fc": 0.25,
+      "absolute_log2fc_tier": 0.25,
+      "direction": "up_in_B"
+    },
+    "ENSG00000175756": {
+      "injected_log2fc": -0.25,
+      "absolute_log2fc_tier": 0.25,
+      "direction": "down_in_B"
+    },
+    "ENSG00000204569": {
+      "injected_log2fc": 0.25,
+      "absolute_log2fc_tier": 0.25,
+      "direction": "up_in_B"
+    },
+    "ENSG00000166128": {
+      "injected_log2fc": -0.25,
+      "absolute_log2fc_tier": 0.25,
+      "direction": "down_in_B"
+    },
+    "ENSG00000121966": {
+      "injected_log2fc": 0.25,
+      "absolute_log2fc_tier": 0.25,
+      "direction": "up_in_B"
+    },
+    "ENSG00000185896": {
+      "injected_log2fc": -0.25,
+      "absolute_log2fc_tier": 0.25,
+      "direction": "down_in_B"
+    },
+    "ENSG00000132002": {
+      "injected_log2fc": 0.25,
+      "absolute_log2fc_tier": 0.25,
+      "direction": "up_in_B"
+    },
+    "ENSG00000272009": {
+      "injected_log2fc": -0.25,
+      "absolute_log2fc_tier": 0.25,
+      "direction": "down_in_B"
+    },
+    "ENSG00000131979": {
+      "injected_log2fc": 0.25,
+      "absolute_log2fc_tier": 0.25,
+      "direction": "up_in_B"
+    },
+    "ENSG00000050426": {
+      "injected_log2fc": -0.25,
+      "absolute_log2fc_tier": 0.25,
+      "direction": "down_in_B"
+    },
+    "ENSG00000062716": {
+      "injected_log2fc": 0.25,
+      "absolute_log2fc_tier": 0.25,
+      "direction": "up_in_B"
+    },
+    "ENSG00000117425": {
+      "injected_log2fc": -0.25,
+      "absolute_log2fc_tier": 0.25,
+      "direction": "down_in_B"
+    },
+    "ENSG00000133606": {
+      "injected_log2fc": 0.25,
+      "absolute_log2fc_tier": 0.25,
+      "direction": "up_in_B"
+    },
+    "ENSG00000129351": {
+      "injected_log2fc": -0.25,
+      "absolute_log2fc_tier": 0.25,
+      "direction": "down_in_B"
+    },
+    "ENSG00000130402": {
+      "injected_log2fc": 0.25,
+      "absolute_log2fc_tier": 0.25,
+      "direction": "up_in_B"
+    },
+    "ENSG00000173418": {
+      "injected_log2fc": -0.25,
+      "absolute_log2fc_tier": 0.25,
+      "direction": "down_in_B"
+    },
+    "ENSG00000110324": {
+      "injected_log2fc": 0.5,
+      "absolute_log2fc_tier": 0.5,
+      "direction": "up_in_B"
+    },
+    "ENSG00000171862": {
+      "injected_log2fc": -0.5,
+      "absolute_log2fc_tier": 0.5,
+      "direction": "down_in_B"
+    },
+    "ENSG00000086589": {
+      "injected_log2fc": 0.5,
+      "absolute_log2fc_tier": 0.5,
+      "direction": "up_in_B"
+    },
+    "ENSG00000105677": {
+      "injected_log2fc": -0.5,
+      "absolute_log2fc_tier": 0.5,
+      "direction": "down_in_B"
+    },
+    "ENSG00000115484": {
+      "injected_log2fc": 0.5,
+      "absolute_log2fc_tier": 0.5,
+      "direction": "up_in_B"
+    },
+    "ENSG00000000419": {
+      "injected_log2fc": -0.5,
+      "absolute_log2fc_tier": 0.5,
+      "direction": "down_in_B"
+    },
+    "ENSG00000134107": {
+      "injected_log2fc": 0.5,
+      "absolute_log2fc_tier": 0.5,
+      "direction": "up_in_B"
+    },
+    "ENSG00000173171": {
+      "injected_log2fc": -0.5,
+      "absolute_log2fc_tier": 0.5,
+      "direction": "down_in_B"
+    },
+    "ENSG00000103194": {
+      "injected_log2fc": 0.5,
+      "absolute_log2fc_tier": 0.5,
+      "direction": "up_in_B"
+    },
+    "ENSG00000085491": {
+      "injected_log2fc": -0.5,
+      "absolute_log2fc_tier": 0.5,
+      "direction": "down_in_B"
+    },
+    "ENSG00000180822": {
+      "injected_log2fc": 0.5,
+      "absolute_log2fc_tier": 0.5,
+      "direction": "up_in_B"
+    },
+    "ENSG00000213689": {
+      "injected_log2fc": -0.5,
+      "absolute_log2fc_tier": 0.5,
+      "direction": "down_in_B"
+    },
+    "ENSG00000065911": {
+      "injected_log2fc": 0.5,
+      "absolute_log2fc_tier": 0.5,
+      "direction": "up_in_B"
+    },
+    "ENSG00000198055": {
+      "injected_log2fc": -0.5,
+      "absolute_log2fc_tier": 0.5,
+      "direction": "down_in_B"
+    },
+    "ENSG00000112419": {
+      "injected_log2fc": 0.5,
+      "absolute_log2fc_tier": 0.5,
+      "direction": "up_in_B"
+    },
+    "ENSG00000120008": {
+      "injected_log2fc": -0.5,
+      "absolute_log2fc_tier": 0.5,
+      "direction": "down_in_B"
+    },
+    "ENSG00000172936": {
+      "injected_log2fc": 0.5,
+      "absolute_log2fc_tier": 0.5,
+      "direction": "up_in_B"
+    },
+    "ENSG00000125810": {
+      "injected_log2fc": -0.5,
+      "absolute_log2fc_tier": 0.5,
+      "direction": "down_in_B"
+    },
+    "ENSG00000139168": {
+      "injected_log2fc": 0.5,
+      "absolute_log2fc_tier": 0.5,
+      "direction": "up_in_B"
+    },
+    "ENSG00000204370": {
+      "injected_log2fc": -0.5,
+      "absolute_log2fc_tier": 0.5,
+      "direction": "down_in_B"
+    },
+    "ENSG00000187118": {
+      "injected_log2fc": 0.5,
+      "absolute_log2fc_tier": 0.5,
+      "direction": "up_in_B"
+    },
+    "ENSG00000131042": {
+      "injected_log2fc": -0.5,
+      "absolute_log2fc_tier": 0.5,
+      "direction": "down_in_B"
+    },
+    "ENSG00000135655": {
+      "injected_log2fc": 0.5,
+      "absolute_log2fc_tier": 0.5,
+      "direction": "up_in_B"
+    },
+    "ENSG00000087253": {
+      "injected_log2fc": -0.5,
+      "absolute_log2fc_tier": 0.5,
+      "direction": "down_in_B"
+    },
+    "ENSG00000196954": {
+      "injected_log2fc": 0.5,
+      "absolute_log2fc_tier": 0.5,
+      "direction": "up_in_B"
+    },
+    "ENSG00000168137": {
+      "injected_log2fc": 1.0,
+      "absolute_log2fc_tier": 1.0,
+      "direction": "up_in_B"
+    },
+    "ENSG00000184863": {
+      "injected_log2fc": -1.0,
+      "absolute_log2fc_tier": 1.0,
+      "direction": "down_in_B"
+    },
+    "ENSG00000125651": {
+      "injected_log2fc": 1.0,
+      "absolute_log2fc_tier": 1.0,
+      "direction": "up_in_B"
+    },
+    "ENSG00000104856": {
+      "injected_log2fc": -1.0,
+      "absolute_log2fc_tier": 1.0,
+      "direction": "down_in_B"
+    },
+    "ENSG00000179271": {
+      "injected_log2fc": 1.0,
+      "absolute_log2fc_tier": 1.0,
+      "direction": "up_in_B"
+    },
+    "ENSG00000139725": {
+      "injected_log2fc": -1.0,
+      "absolute_log2fc_tier": 1.0,
+      "direction": "down_in_B"
+    },
+    "ENSG00000150337": {
+      "injected_log2fc": 1.0,
+      "absolute_log2fc_tier": 1.0,
+      "direction": "up_in_B"
+    },
+    "ENSG00000130985": {
+      "injected_log2fc": -1.0,
+      "absolute_log2fc_tier": 1.0,
+      "direction": "down_in_B"
+    },
+    "ENSG00000197329": {
+      "injected_log2fc": 1.0,
+      "absolute_log2fc_tier": 1.0,
+      "direction": "up_in_B"
+    },
+    "ENSG00000173744": {
+      "injected_log2fc": -1.0,
+      "absolute_log2fc_tier": 1.0,
+      "direction": "down_in_B"
+    },
+    "ENSG00000269893": {
+      "injected_log2fc": 1.0,
+      "absolute_log2fc_tier": 1.0,
+      "direction": "up_in_B"
+    },
+    "ENSG00000185122": {
+      "injected_log2fc": -1.0,
+      "absolute_log2fc_tier": 1.0,
+      "direction": "down_in_B"
+    },
+    "ENSG00000136869": {
+      "injected_log2fc": 1.0,
+      "absolute_log2fc_tier": 1.0,
+      "direction": "up_in_B"
+    },
+    "ENSG00000007168": {
+      "injected_log2fc": -1.0,
+      "absolute_log2fc_tier": 1.0,
+      "direction": "down_in_B"
+    },
+    "ENSG00000118579": {
+      "injected_log2fc": 1.0,
+      "absolute_log2fc_tier": 1.0,
+      "direction": "up_in_B"
+    },
+    "ENSG00000205246": {
+      "injected_log2fc": -1.0,
+      "absolute_log2fc_tier": 1.0,
+      "direction": "down_in_B"
+    },
+    "ENSG00000106615": {
+      "injected_log2fc": 1.0,
+      "absolute_log2fc_tier": 1.0,
+      "direction": "up_in_B"
+    },
+    "ENSG00000182512": {
+      "injected_log2fc": -1.0,
+      "absolute_log2fc_tier": 1.0,
+      "direction": "down_in_B"
+    },
+    "ENSG00000128590": {
+      "injected_log2fc": 1.0,
+      "absolute_log2fc_tier": 1.0,
+      "direction": "up_in_B"
+    },
+    "ENSG00000143622": {
+      "injected_log2fc": -1.0,
+      "absolute_log2fc_tier": 1.0,
+      "direction": "down_in_B"
+    },
+    "ENSG00000121858": {
+      "injected_log2fc": 1.0,
+      "absolute_log2fc_tier": 1.0,
+      "direction": "up_in_B"
+    },
+    "ENSG00000183401": {
+      "injected_log2fc": -1.0,
+      "absolute_log2fc_tier": 1.0,
+      "direction": "down_in_B"
+    },
+    "ENSG00000005059": {
+      "injected_log2fc": 1.0,
+      "absolute_log2fc_tier": 1.0,
+      "direction": "up_in_B"
+    },
+    "ENSG00000105669": {
+      "injected_log2fc": -1.0,
+      "absolute_log2fc_tier": 1.0,
+      "direction": "down_in_B"
+    },
+    "ENSG00000188603": {
+      "injected_log2fc": 1.0,
+      "absolute_log2fc_tier": 1.0,
+      "direction": "up_in_B"
+    }
+  },
+  "build": {
+    "dataset": "OneK1K_updated_14_celltypes_980_donors.h5ad",
+    "cell_label": "Mono C",
+    "n_cells": 34361,
+    "n_eligible_donors": 524,
+    "min_cells_per_donor": 20,
+    "cells_per_donor": {
+      "1000_1001": 73,
+      "1001_1002": 38,
+      "1002_1003": 93,
+      "1004_1005": 38,
+      "1005_1006": 40,
+      "1008_1009": 31,
+      "1015_1016": 35,
+      "1016_1017": 45,
+      "1018_1019": 57,
+      "101_101": 35,
+      "1020_1021": 30,
+      "1021_1022": 21,
+      "1024_1025": 86,
+      "1025_1026": 144,
+      "1026_1027": 78,
+      "1027_1028": 143,
+      "1028_1029": 25,
+      "102_102": 86,
+      "1030_1031": 81,
+      "1031_1032": 100,
+      "1032_1033": 146,
+      "1033_1034": 68,
+      "1034_1035": 93,
+      "1035_1036": 102,
+      "1036_1037": 30,
+      "1037_1038": 29,
+      "1039_1040": 43,
+      "1040_1041": 43,
+      "1042_1043": 42,
+      "1043_1044": 32,
+      "1048_1049": 44,
+      "1050_1051": 47,
+      "1051_1052": 37,
+      "1052_1053": 22,
+      "1054_1055": 46,
+      "1056_1057": 40,
+      "1059_1060": 21,
+      "105_105": 45,
+      "1060_1061": 24,
+      "1063_1064": 30,
+      "1064_1065": 42,
+      "1065_1066": 29,
+      "1068_1069": 40,
+      "106_106": 60,
+      "1070_1071": 37,
+      "1072_1073": 77,
+      "1073_1074": 66,
+      "1075_1076": 36,
+      "1077_1078": 176,
+      "1078_1079": 97,
+      "1079_1080": 64,
+      "1080_1081": 118,
+      "1081_1082": 87,
+      "109_109": 44,
+      "110_110": 38,
+      "111_111": 70,
+      "112_112": 127,
+      "113_113": 96,
+      "114_114": 44,
+      "119_119": 30,
+      "121_121": 23,
+      "122_122": 57,
+      "126_126": 38,
+      "12_12": 27,
+      "133_133": 80,
+      "13_13": 52,
+      "142_142": 24,
+      "154_154": 30,
+      "15_15": 78,
+      "163_163": 149,
+      "164_165": 36,
+      "165_166": 76,
+      "166_167": 28,
+      "167_168": 34,
+      "168_169": 88,
+      "169_170": 27,
+      "16_16": 46,
+      "171_172": 26,
+      "172_173": 34,
+      "17_17": 97,
+      "181_182": 24,
+      "184_185": 30,
+      "185_186": 31,
+      "186_187": 28,
+      "18_18": 104,
+      "19_19": 114,
+      "206_207": 36,
+      "207_208": 27,
+      "208_209": 79,
+      "209_210": 58,
+      "210_211": 51,
+      "211_212": 40,
+      "212_213": 32,
+      "213_214": 38,
+      "214_215": 31,
+      "215_216": 30,
+      "217_218": 75,
+      "219_220": 55,
+      "220_221": 61,
+      "221_222": 82,
+      "222_223": 55,
+      "223_224": 49,
+      "224_225": 28,
+      "232_233": 27,
+      "233_234": 30,
+      "236_237": 42,
+      "23_23": 95,
+      "246_247": 25,
+      "24_24": 85,
+      "256_257": 106,
+      "257_258": 78,
+      "258_259": 68,
+      "259_260": 87,
+      "260_261": 85,
+      "262_263": 51,
+      "263_264": 96,
+      "264_265": 89,
+      "266_267": 55,
+      "267_268": 103,
+      "269_270": 181,
+      "270_271": 40,
+      "271_272": 32,
+      "272_273": 98,
+      "273_274": 51,
+      "274_275": 52,
+      "275_276": 39,
+      "276_277": 78,
+      "286_287": 130,
+      "287_288": 47,
+      "292_293": 50,
+      "293_294": 44,
+      "294_295": 31,
+      "295_296": 29,
+      "296_297": 21,
+      "297_298": 23,
+      "299_300": 27,
+      "302_303": 29,
+      "306_307": 91,
+      "307_308": 26,
+      "308_309": 183,
+      "309_310": 137,
+      "310_311": 25,
+      "311_312": 80,
+      "312_313": 77,
+      "313_314": 87,
+      "314_315": 73,
+      "315_316": 27,
+      "316_317": 53,
+      "317_318": 23,
+      "318_319": 49,
+      "319_320": 83,
+      "320_321": 86,
+      "324_325": 29,
+      "330_331": 25,
+      "334_335": 93,
+      "336_337": 60,
+      "337_338": 40,
+      "338_339": 59,
+      "344_345": 51,
+      "345_346": 55,
+      "346_347": 144,
+      "349_350": 124,
+      "350_351": 69,
+      "352_353": 33,
+      "353_354": 72,
+      "354_355": 38,
+      "356_357": 53,
+      "358_359": 34,
+      "359_360": 35,
+      "361_362": 53,
+      "364_365": 95,
+      "368_369": 38,
+      "369_370": 46,
+      "36_36": 45,
+      "371_372": 37,
+      "374_375": 29,
+      "377_378": 25,
+      "378_379": 34,
+      "379_380": 27,
+      "380_381": 53,
+      "382_383": 23,
+      "383_384": 40,
+      "385_386": 50,
+      "386_387": 78,
+      "387_388": 105,
+      "388_389": 22,
+      "396_397": 116,
+      "39_39": 55,
+      "402_403": 41,
+      "403_404": 29,
+      "404_405": 48,
+      "40_40": 151,
+      "410_411": 26,
+      "411_412": 28,
+      "412_413": 166,
+      "415_416": 89,
+      "417_418": 106,
+      "418_419": 20,
+      "419_420": 80,
+      "41_41": 103,
+      "423_424": 23,
+      "42_42": 40,
+      "434_435": 46,
+      "435_436": 20,
+      "43_43": 168,
+      "442_443": 60,
+      "443_444": 21,
+      "450_451": 35,
+      "45_45": 25,
+      "465_466": 69,
+      "466_467": 93,
+      "467_468": 127,
+      "468_469": 94,
+      "469_470": 165,
+      "471_472": 64,
+      "472_473": 71,
+      "473_474": 31,
+      "478_479": 88,
+      "479_480": 99,
+      "47_47": 154,
+      "480_481": 95,
+      "481_482": 104,
+      "482_483": 108,
+      "483_484": 81,
+      "487_488": 53,
+      "489_490": 34,
+      "48_48": 213,
+      "497_498": 31,
+      "498_499": 32,
+      "499_500": 89,
+      "49_49": 262,
+      "4_4": 26,
+      "504_505": 31,
+      "505_506": 38,
+      "506_507": 93,
+      "507_508": 84,
+      "508_509": 27,
+      "509_510": 110,
+      "50_50": 191,
+      "510_511": 33,
+      "511_512": 92,
+      "512_513": 89,
+      "513_514": 33,
+      "514_515": 101,
+      "519_520": 27,
+      "51_51": 145,
+      "521_522": 75,
+      "524_525": 79,
+      "52_52": 71,
+      "533_534": 34,
+      "534_535": 124,
+      "536_537": 77,
+      "539_540": 23,
+      "53_53": 157,
+      "540_541": 20,
+      "542_543": 27,
+      "543_544": 24,
+      "546_547": 85,
+      "547_548": 38,
+      "549_550": 82,
+      "54_54": 63,
+      "553_554": 24,
+      "55_55": 76,
+      "566_567": 21,
+      "56_56": 168,
+      "570_571": 51,
+      "574_575": 39,
+      "576_577": 56,
+      "577_578": 136,
+      "578_579": 21,
+      "57_57": 148,
+      "580_581": 27,
+      "581_582": 38,
+      "582_583": 20,
+      "583_584": 78,
+      "584_585": 20,
+      "585_586": 91,
+      "586_587": 102,
+      "587_588": 59,
+      "588_589": 36,
+      "589_590": 120,
+      "58_58": 239,
+      "590_591": 94,
+      "591_592": 89,
+      "592_593": 80,
+      "594_595": 121,
+      "595_596": 93,
+      "596_597": 104,
+      "597_598": 47,
+      "599_600": 22,
+      "603_604": 64,
+      "604_605": 25,
+      "605_606": 23,
+      "607_608": 132,
+      "608_609": 88,
+      "609_610": 69,
+      "60_60": 141,
+      "610_611": 46,
+      "611_612": 89,
+      "612_613": 63,
+      "613_614": 49,
+      "614_615": 35,
+      "616_617": 29,
+      "618_619": 57,
+      "61_61": 113,
+      "620_621": 26,
+      "621_622": 48,
+      "622_623": 86,
+      "623_624": 106,
+      "624_625": 38,
+      "626_627": 113,
+      "627_628": 102,
+      "628_629": 169,
+      "629_630": 108,
+      "630_631": 52,
+      "632_633": 158,
+      "633_634": 85,
+      "634_635": 149,
+      "635_636": 147,
+      "636_637": 50,
+      "637_638": 156,
+      "638_639": 45,
+      "639_640": 72,
+      "63_63": 213,
+      "644_645": 51,
+      "64_64": 79,
+      "650_651": 48,
+      "653_654": 89,
+      "654_655": 34,
+      "655_656": 73,
+      "657_658": 90,
+      "658_659": 28,
+      "659_660": 68,
+      "65_65": 38,
+      "660_661": 87,
+      "661_662": 24,
+      "662_663": 53,
+      "663_664": 34,
+      "664_665": 32,
+      "666_667": 23,
+      "667_668": 35,
+      "668_669": 22,
+      "669_670": 50,
+      "66_66": 39,
+      "671_672": 50,
+      "673_674": 38,
+      "675_676": 28,
+      "676_677": 38,
+      "678_679": 72,
+      "679_680": 49,
+      "682_683": 46,
+      "684_685": 39,
+      "685_686": 122,
+      "686_687": 62,
+      "688_689": 37,
+      "689_690": 59,
+      "68_68": 25,
+      "690_691": 39,
+      "691_692": 23,
+      "692_693": 20,
+      "693_694": 47,
+      "694_695": 36,
+      "695_696": 54,
+      "696_697": 77,
+      "697_698": 45,
+      "699_700": 40,
+      "69_69": 57,
+      "700_701": 157,
+      "701_702": 31,
+      "702_703": 20,
+      "704_705": 53,
+      "705_706": 60,
+      "706_707": 60,
+      "707_708": 51,
+      "708_709": 67,
+      "709_710": 30,
+      "70_70": 143,
+      "711_712": 44,
+      "715_716": 21,
+      "716_717": 21,
+      "717_718": 62,
+      "718_719": 66,
+      "71_71": 149,
+      "720_721": 131,
+      "721_722": 104,
+      "722_723": 71,
+      "725_726": 30,
+      "726_727": 22,
+      "72_72": 63,
+      "736_737": 29,
+      "737_738": 33,
+      "739_740": 42,
+      "740_741": 50,
+      "743_744": 45,
+      "752_753": 50,
+      "754_755": 77,
+      "75_75": 189,
+      "772_773": 24,
+      "781_782": 80,
+      "783_784": 26,
+      "786_787": 30,
+      "788_789": 22,
+      "789_790": 33,
+      "78_78": 38,
+      "790_791": 62,
+      "791_792": 35,
+      "794_795": 23,
+      "795_796": 52,
+      "796_797": 70,
+      "797_798": 26,
+      "798_799": 32,
+      "799_800": 97,
+      "802_803": 45,
+      "803_804": 29,
+      "809_810": 94,
+      "811_812": 30,
+      "813_814": 23,
+      "814_815": 26,
+      "823_824": 25,
+      "825_826": 28,
+      "827_828": 25,
+      "834_835": 32,
+      "842_843": 47,
+      "843_844": 20,
+      "845_846": 23,
+      "847_848": 27,
+      "849_850": 32,
+      "84_84": 154,
+      "853_854": 78,
+      "855_856": 60,
+      "856_857": 67,
+      "857_858": 32,
+      "85_85": 116,
+      "860_861": 24,
+      "861_862": 32,
+      "862_863": 60,
+      "863_864": 32,
+      "864_865": 25,
+      "865_866": 20,
+      "867_868": 36,
+      "868_869": 39,
+      "869_870": 38,
+      "86_86": 70,
+      "870_871": 35,
+      "871_872": 25,
+      "872_873": 21,
+      "877_878": 26,
+      "878_879": 23,
+      "879_880": 25,
+      "87_87": 150,
+      "880_881": 24,
+      "881_882": 22,
+      "886_887": 76,
+      "887_888": 29,
+      "888_889": 34,
+      "889_890": 63,
+      "890_891": 38,
+      "891_892": 30,
+      "892_893": 41,
+      "893_894": 35,
+      "896_897": 29,
+      "899_900": 106,
+      "89_89": 152,
+      "902_903": 385,
+      "904_905": 82,
+      "905_906": 30,
+      "906_907": 101,
+      "908_909": 93,
+      "909_910": 28,
+      "90_90": 161,
+      "911_912": 72,
+      "912_913": 133,
+      "914_915": 53,
+      "915_916": 29,
+      "916_917": 28,
+      "917_918": 21,
+      "91_91": 199,
+      "920_921": 92,
+      "923_924": 39,
+      "926_927": 198,
+      "927_928": 150,
+      "929_930": 86,
+      "92_92": 129,
+      "930_931": 221,
+      "932_933": 164,
+      "933_934": 178,
+      "934_935": 172,
+      "935_936": 300,
+      "937_938": 144,
+      "938_939": 98,
+      "939_940": 52,
+      "93_93": 238,
+      "941_942": 23,
+      "943_944": 42,
+      "944_945": 35,
+      "945_946": 36,
+      "946_947": 23,
+      "947_948": 48,
+      "949_950": 22,
+      "951_952": 66,
+      "953_954": 23,
+      "954_955": 37,
+      "955_956": 45,
+      "956_957": 48,
+      "957_958": 44,
+      "958_959": 65,
+      "95_95": 199,
+      "960_961": 93,
+      "961_962": 60,
+      "962_963": 53,
+      "968_969": 29,
+      "96_96": 109,
+      "971_972": 35,
+      "973_974": 77,
+      "974_975": 38,
+      "978_979": 36,
+      "97_97": 152,
+      "981_982": 22,
+      "986_987": 32,
+      "987_988": 66,
+      "988_989": 101,
+      "991_992": 27,
+      "993_994": 72,
+      "994_995": 28
+    },
+    "count_source": "X",
+    "shape": [
+      524,
+      32738
+    ]
+  },
+  "deseq2": {
+    "n_genes_tested": 16073,
+    "n_significant_fdr_0_05": 76,
+    "true_positives": 71,
+    "false_negatives": 4,
+    "false_positives": 5,
+    "sensitivity": 0.9467,
+    "empirical_false_discovery_proportion": 0.0658,
+    "direction_agreement_among_recovered": 1.0,
+    "tier_summary": {
+      "0.25": {
+        "registered": 25,
+        "recovered": 21,
+        "sensitivity": 0.84
+      },
+      "0.5": {
+        "registered": 25,
+        "recovered": 25,
+        "sensitivity": 1.0
+      },
+      "1.0": {
+        "registered": 25,
+        "recovered": 25,
+        "sensitivity": 1.0
+      }
+    },
+    "plausibility": {
+      "verdict": "ok",
+      "n_significant": 76,
+      "n_extreme_lfc": 0,
+      "frac_extreme_lfc": 0.0,
+      "pct_up": 52.6,
+      "pct_down": 47.4,
+      "median_abs_log2fc": 0.5,
+      "extreme_lfc_threshold": 8.0,
+      "reasons": []
+    },
+    "replicate_stability": {
+      "method": "leave-one-donor-out log2(CPM+1) effect stability",
+      "n_significant_genes": 76,
+      "samples_per_group": {
+        "inject_A": 227,
+        "inject_B": 227
+      },
+      "thresholds": {
+        "minimum_samples_per_group": 4,
+        "minimum_stable_gene_fraction": 0.8,
+        "minimum_effect_retention": 0.5,
+        "direction_required_in_every_omission": true
+      },
+      "verdict": "stable",
+      "n_stable_genes": 76,
+      "stable_gene_fraction": 1.0,
+      "median_minimum_effect_retention": 0.963,
+      "genes": [
+        {
+          "gene": "ENSG00000105669",
+          "full_log2cpm_effect": -0.999535,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9938,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000179271",
+          "full_log2cpm_effect": 1.046225,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9903,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000005059",
+          "full_log2cpm_effect": 0.988026,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9885,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000106615",
+          "full_log2cpm_effect": 1.040131,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9916,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000118579",
+          "full_log2cpm_effect": 0.967157,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9912,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000205246",
+          "full_log2cpm_effect": -1.003296,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9769,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000269893",
+          "full_log2cpm_effect": 1.001182,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9927,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000125651",
+          "full_log2cpm_effect": 1.086779,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9807,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000130985",
+          "full_log2cpm_effect": -1.180458,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.986,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000197329",
+          "full_log2cpm_effect": 1.070458,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9792,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000182512",
+          "full_log2cpm_effect": -1.016296,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9831,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000196954",
+          "full_log2cpm_effect": 0.518854,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9857,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000121858",
+          "full_log2cpm_effect": 1.108547,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9893,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000150337",
+          "full_log2cpm_effect": 1.017404,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9737,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000185122",
+          "full_log2cpm_effect": -1.013968,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9832,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000139725",
+          "full_log2cpm_effect": -0.99088,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9835,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000136869",
+          "full_log2cpm_effect": 1.080639,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9807,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000184863",
+          "full_log2cpm_effect": -0.902874,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9814,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000188603",
+          "full_log2cpm_effect": 0.942952,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9782,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000183401",
+          "full_log2cpm_effect": -0.983953,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9826,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000104856",
+          "full_log2cpm_effect": -0.866808,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9805,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000007168",
+          "full_log2cpm_effect": -0.936864,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9819,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000105677",
+          "full_log2cpm_effect": -0.479756,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9889,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000143622",
+          "full_log2cpm_effect": -1.093996,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9858,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000173744",
+          "full_log2cpm_effect": -1.193143,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9871,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000168137",
+          "full_log2cpm_effect": 1.111904,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9834,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000131042",
+          "full_log2cpm_effect": -0.502024,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9737,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000128590",
+          "full_log2cpm_effect": 0.806042,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9762,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000110324",
+          "full_log2cpm_effect": 0.48016,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9843,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000171862",
+          "full_log2cpm_effect": -0.501982,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9822,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000115484",
+          "full_log2cpm_effect": 0.468635,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9451,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000135655",
+          "full_log2cpm_effect": 0.45631,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.985,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000172936",
+          "full_log2cpm_effect": 0.419545,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9409,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000198055",
+          "full_log2cpm_effect": -0.548612,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9603,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000204370",
+          "full_log2cpm_effect": -0.48787,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9802,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000139168",
+          "full_log2cpm_effect": 0.482821,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9513,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000125810",
+          "full_log2cpm_effect": -0.441164,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9754,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000175756",
+          "full_log2cpm_effect": -0.268607,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9745,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000213689",
+          "full_log2cpm_effect": -0.414101,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9763,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000180822",
+          "full_log2cpm_effect": 0.527534,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9602,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000132341",
+          "full_log2cpm_effect": 0.310118,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9739,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000173171",
+          "full_log2cpm_effect": -0.523773,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9607,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000087253",
+          "full_log2cpm_effect": -0.509245,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9633,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000000419",
+          "full_log2cpm_effect": -0.426646,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9583,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000086589",
+          "full_log2cpm_effect": 0.3482,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9439,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000065911",
+          "full_log2cpm_effect": 0.437844,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9502,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000130402",
+          "full_log2cpm_effect": 0.31082,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9221,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000133606",
+          "full_log2cpm_effect": 0.257753,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.8926,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000120008",
+          "full_log2cpm_effect": -0.41212,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9557,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000085491",
+          "full_log2cpm_effect": -0.416467,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9563,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000062716",
+          "full_log2cpm_effect": 0.305444,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9755,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000112419",
+          "full_log2cpm_effect": 0.477327,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9602,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000187118",
+          "full_log2cpm_effect": 0.429602,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9455,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000185896",
+          "full_log2cpm_effect": -0.209066,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9627,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000138430",
+          "full_log2cpm_effect": 0.315675,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9233,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000134107",
+          "full_log2cpm_effect": 0.416362,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9491,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000132002",
+          "full_log2cpm_effect": 0.315602,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9269,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000166128",
+          "full_log2cpm_effect": -0.104271,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.7986,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000083223",
+          "full_log2cpm_effect": 0.292094,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9312,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000173418",
+          "full_log2cpm_effect": -0.218783,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.8985,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000163923",
+          "full_log2cpm_effect": -0.145193,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.8123,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000129351",
+          "full_log2cpm_effect": -0.187302,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.8785,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000103194",
+          "full_log2cpm_effect": 0.184931,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.8887,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000121966",
+          "full_log2cpm_effect": 0.241677,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9509,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000204569",
+          "full_log2cpm_effect": 0.212426,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.903,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000050426",
+          "full_log2cpm_effect": -0.112771,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.8287,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000179750",
+          "full_log2cpm_effect": 0.557133,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9428,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000138757",
+          "full_log2cpm_effect": 0.243515,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9056,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000013306",
+          "full_log2cpm_effect": -0.094659,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.7731,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000214941",
+          "full_log2cpm_effect": -0.197282,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9476,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000004534",
+          "full_log2cpm_effect": -0.186879,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.8849,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000170266",
+          "full_log2cpm_effect": -0.221271,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9113,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000135185",
+          "full_log2cpm_effect": -0.214774,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.893,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000131979",
+          "full_log2cpm_effect": 0.261232,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9191,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000196735",
+          "full_log2cpm_effect": 0.345618,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9095,
+          "stable": true
+        },
+        {
+          "gene": "ENSG00000187837",
+          "full_log2cpm_effect": 0.354248,
+          "direction_stable": true,
+          "minimum_effect_retention": 0.9547,
+          "stable": true
+        }
+      ]
+    },
+    "governed_inference_state": {
+      "state": "SIGNIFICANT_INFERENTIAL",
+      "state_id": "D",
+      "tool": "run_deseq2",
+      "allowed_interpretation_level": "INFERENTIAL",
+      "conclusion": "significant",
+      "forbidden_inference_flags": [
+        "no_causality",
+        "no_biological_mechanism"
+      ],
+      "allows_biological_narrative": false,
+      "power_gate_passed": true,
+      "power_gate_reasons": [],
+      "statistical_unit": "pseudobulk_sample",
+      "validity_flags": [],
+      "validity_gate_passed": true
+    },
+    "runtime_warnings": [],
+    "registered_gene_results": {
+      "ENSG00000000419": {
+        "injected_log2fc": -0.5,
+        "observed_log2fc": -0.5571814078586572,
+        "padj": 5.715135629969615E-17
+      },
+      "ENSG00000004534": {
+        "injected_log2fc": -0.25,
+        "observed_log2fc": -0.2048361443715075,
+        "padj": 0.008123024757755544
+      },
+      "ENSG00000005059": {
+        "injected_log2fc": 1.0,
+        "observed_log2fc": 1.024047072348048,
+        "padj": 6.570293787652441E-195
+      },
+      "ENSG00000007168": {
+        "injected_log2fc": -1.0,
+        "observed_log2fc": -0.9720925200094492,
+        "padj": 3.6675652200816175E-57
+      },
+      "ENSG00000013306": {
+        "injected_log2fc": -0.25,
+        "observed_log2fc": -0.21934225030040225,
+        "padj": 0.002426172511601098
+      },
+      "ENSG00000050426": {
+        "injected_log2fc": -0.25,
+        "observed_log2fc": -0.26368923786754683,
+        "padj": 0.0009307670479331838
+      },
+      "ENSG00000062716": {
+        "injected_log2fc": 0.25,
+        "observed_log2fc": 0.31549429585332095,
+        "padj": 3.1262976787167205E-09
+      },
+      "ENSG00000065911": {
+        "injected_log2fc": 0.5,
+        "observed_log2fc": 0.5008651005975044,
+        "padj": 1.84847908695912E-15
+      },
+      "ENSG00000083223": {
+        "injected_log2fc": 0.25,
+        "observed_log2fc": 0.3181881049547627,
+        "padj": 1.389207501685583E-05
+      },
+      "ENSG00000085491": {
+        "injected_log2fc": -0.5,
+        "observed_log2fc": -0.42393388274137067,
+        "padj": 1.401161380181748E-10
+      },
+      "ENSG00000086589": {
+        "injected_log2fc": 0.5,
+        "observed_log2fc": 0.4938960388897511,
+        "padj": 1.1122603867766277E-15
+      },
+      "ENSG00000087253": {
+        "injected_log2fc": -0.5,
+        "observed_log2fc": -0.5552903206491937,
+        "padj": 1.1662513858408474E-19
+      },
+      "ENSG00000103194": {
+        "injected_log2fc": 0.5,
+        "observed_log2fc": 0.30833712979122724,
+        "padj": 0.0002273937283664836
+      },
+      "ENSG00000104856": {
+        "injected_log2fc": -1.0,
+        "observed_log2fc": -1.0064436169415996,
+        "padj": 1.3379850987459475E-57
+      },
+      "ENSG00000105669": {
+        "injected_log2fc": -1.0,
+        "observed_log2fc": -1.0006086241450822,
+        "padj": 1.822022651567043E-261
+      },
+      "ENSG00000105677": {
+        "injected_log2fc": -0.5,
+        "observed_log2fc": -0.5017940447637383,
+        "padj": 5.89265707980908E-56
+      },
+      "ENSG00000106615": {
+        "injected_log2fc": 1.0,
+        "observed_log2fc": 1.030911499714631,
+        "padj": 2.822972792682208E-166
+      },
+      "ENSG00000110324": {
+        "injected_log2fc": 0.5,
+        "observed_log2fc": 0.4846027151313158,
+        "padj": 2.4538015088748496E-35
+      },
+      "ENSG00000112419": {
+        "injected_log2fc": 0.5,
+        "observed_log2fc": 0.44457403008544727,
+        "padj": 3.1262976787167205E-09
+      },
+      "ENSG00000115484": {
+        "injected_log2fc": 0.5,
+        "observed_log2fc": 0.4792779605435246,
+        "padj": 9.42860546391054E-34
+      },
+      "ENSG00000117425": {
+        "injected_log2fc": -0.25,
+        "observed_log2fc": -0.19329684055650206,
+        "padj": 0.5558240735199141
+      },
+      "ENSG00000118579": {
+        "injected_log2fc": 1.0,
+        "observed_log2fc": 0.9785628329396393,
+        "padj": 2.5665135347742875E-130
+      },
+      "ENSG00000120008": {
+        "injected_log2fc": -0.5,
+        "observed_log2fc": -0.46647498602023657,
+        "padj": 1.5124961594571113E-11
+      },
+      "ENSG00000121858": {
+        "injected_log2fc": 1.0,
+        "observed_log2fc": 1.1032054613558782,
+        "padj": 4.189427047486744E-62
+      },
+      "ENSG00000121966": {
+        "injected_log2fc": 0.25,
+        "observed_log2fc": 0.30347225557971347,
+        "padj": 0.00023988362302181554
+      },
+      "ENSG00000125651": {
+        "injected_log2fc": 1.0,
+        "observed_log2fc": 1.068537790097513,
+        "padj": 3.270938720814841E-79
+      },
+      "ENSG00000125810": {
+        "injected_log2fc": -0.5,
+        "observed_log2fc": -0.5005736562670555,
+        "padj": 1.0728723661717387E-23
+      },
+      "ENSG00000128590": {
+        "injected_log2fc": 1.0,
+        "observed_log2fc": 0.9327723744155725,
+        "padj": 6.4723195172997376E-40
+      },
+      "ENSG00000129351": {
+        "injected_log2fc": -0.25,
+        "observed_log2fc": -0.22568360452348943,
+        "padj": 9.842786041684385E-05
+      },
+      "ENSG00000130402": {
+        "injected_log2fc": 0.25,
+        "observed_log2fc": 0.3392947273714064,
+        "padj": 4.922865879508782E-12
+      },
+      "ENSG00000130985": {
+        "injected_log2fc": -1.0,
+        "observed_log2fc": -1.0730630767491005,
+        "padj": 1.847059295091304E-70
+      },
+      "ENSG00000131042": {
+        "injected_log2fc": -0.5,
+        "observed_log2fc": -0.5224906322010276,
+        "padj": 9.00214411983641E-43
+      },
+      "ENSG00000131979": {
+        "injected_log2fc": 0.25,
+        "observed_log2fc": 0.23684971187891712,
+        "padj": 0.025683008116004824
+      },
+      "ENSG00000132002": {
+        "injected_log2fc": 0.25,
+        "observed_log2fc": 0.28258685201048445,
+        "padj": 5.85970789096919E-06
+      },
+      "ENSG00000132341": {
+        "injected_log2fc": 0.25,
+        "observed_log2fc": 0.30201884543506574,
+        "padj": 3.3086986047186815E-22
+      },
+      "ENSG00000133606": {
+        "injected_log2fc": 0.25,
+        "observed_log2fc": 0.2706227502510209,
+        "padj": 1.0026468827389896E-11
+      },
+      "ENSG00000134107": {
+        "injected_log2fc": 0.5,
+        "observed_log2fc": 0.47975064295035685,
+        "padj": 1.0107889703883694E-06
+      },
+      "ENSG00000135655": {
+        "injected_log2fc": 0.5,
+        "observed_log2fc": 0.48235291723709556,
+        "padj": 1.6696778579483245E-33
+      },
+      "ENSG00000136869": {
+        "injected_log2fc": 1.0,
+        "observed_log2fc": 1.0103503622824466,
+        "padj": 4.0383623890335223E-60
+      },
+      "ENSG00000138430": {
+        "injected_log2fc": 0.25,
+        "observed_log2fc": 0.27534091093316354,
+        "padj": 8.114273820154732E-08
+      },
+      "ENSG00000138757": {
+        "injected_log2fc": 0.25,
+        "observed_log2fc": 0.21528710199962847,
+        "padj": 0.001167271305003516
+      },
+      "ENSG00000139168": {
+        "injected_log2fc": 0.5,
+        "observed_log2fc": 0.49505698264868875,
+        "padj": 3.0786845560214454E-24
+      },
+      "ENSG00000139725": {
+        "injected_log2fc": -1.0,
+        "observed_log2fc": -1.0489011555184644,
+        "padj": 3.5625451892781683E-60
+      },
+      "ENSG00000143622": {
+        "injected_log2fc": -1.0,
+        "observed_log2fc": -1.0249067535692,
+        "padj": 9.228733314075286E-52
+      },
+      "ENSG00000150337": {
+        "injected_log2fc": 1.0,
+        "observed_log2fc": 0.9969539641505254,
+        "padj": 1.3102472759268433E-61
+      },
+      "ENSG00000156639": {
+        "injected_log2fc": -0.25,
+        "observed_log2fc": -0.1688676889411857,
+        "padj": 0.6320146168628273
+      },
+      "ENSG00000166128": {
+        "injected_log2fc": -0.25,
+        "observed_log2fc": -0.2872250956566457,
+        "padj": 7.012250483927939E-06
+      },
+      "ENSG00000168137": {
+        "injected_log2fc": 1.0,
+        "observed_log2fc": 0.9983761846681272,
+        "padj": 3.960121108272116E-45
+      },
+      "ENSG00000170266": {
+        "injected_log2fc": -0.25,
+        "observed_log2fc": -0.23811733065271848,
+        "padj": 0.008182615942440852
+      },
+      "ENSG00000171862": {
+        "injected_log2fc": -0.5,
+        "observed_log2fc": -0.5531201302448319,
+        "padj": 2.2153563417416182E-34
+      },
+      "ENSG00000172936": {
+        "injected_log2fc": 0.5,
+        "observed_log2fc": 0.5295151474657207,
+        "padj": 2.5032281810878404E-30
+      },
+      "ENSG00000173171": {
+        "injected_log2fc": -0.5,
+        "observed_log2fc": -0.5064066884405732,
+        "padj": 4.5490926782750005E-21
+      },
+      "ENSG00000173418": {
+        "injected_log2fc": -0.25,
+        "observed_log2fc": -0.25497241623218686,
+        "padj": 1.6944165694517567E-05
+      },
+      "ENSG00000173744": {
+        "injected_log2fc": -1.0,
+        "observed_log2fc": -0.9922648074874018,
+        "padj": 1.223518225820121E-48
+      },
+      "ENSG00000175756": {
+        "injected_log2fc": -0.25,
+        "observed_log2fc": -0.25246937151787024,
+        "padj": 3.24324917331191E-23
+      },
+      "ENSG00000179271": {
+        "injected_log2fc": 1.0,
+        "observed_log2fc": 1.0357096648990045,
+        "padj": 2.2280581212725687E-210
+      },
+      "ENSG00000180822": {
+        "injected_log2fc": 0.5,
+        "observed_log2fc": 0.5293546582128249,
+        "padj": 1.1792201045911949E-22
+      },
+      "ENSG00000182512": {
+        "injected_log2fc": -1.0,
+        "observed_log2fc": -1.0144778029780106,
+        "padj": 7.75218911711592E-64
+      },
+      "ENSG00000183401": {
+        "injected_log2fc": -1.0,
+        "observed_log2fc": -0.9676312430234245,
+        "padj": 1.916255947500863E-58
+      },
+      "ENSG00000184863": {
+        "injected_log2fc": -1.0,
+        "observed_log2fc": -1.016596057009397,
+        "padj": 1.030385862071469E-59
+      },
+      "ENSG00000185122": {
+        "injected_log2fc": -1.0,
+        "observed_log2fc": -1.0028902143003715,
+        "padj": 6.773039054987328E-61
+      },
+      "ENSG00000185896": {
+        "injected_log2fc": -0.25,
+        "observed_log2fc": -0.22740304566949737,
+        "padj": 5.7297268607311975E-08
+      },
+      "ENSG00000187118": {
+        "injected_log2fc": 0.5,
+        "observed_log2fc": 0.4488767244628785,
+        "padj": 3.406657388037547E-09
+      },
+      "ENSG00000188603": {
+        "injected_log2fc": 1.0,
+        "observed_log2fc": 0.9561344355542194,
+        "padj": 5.364937399060666E-59
+      },
+      "ENSG00000196735": {
+        "injected_log2fc": 0.25,
+        "observed_log2fc": 0.31577017866089196,
+        "padj": 0.027497061782503083
+      },
+      "ENSG00000196954": {
+        "injected_log2fc": 0.5,
+        "observed_log2fc": 0.5080103759900848,
+        "padj": 8.61842525367279E-64
+      },
+      "ENSG00000197329": {
+        "injected_log2fc": 1.0,
+        "observed_log2fc": 1.0703022864514382,
+        "padj": 1.672795224313252E-69
+      },
+      "ENSG00000198055": {
+        "injected_log2fc": -0.5,
+        "observed_log2fc": -0.5446355891106341,
+        "padj": 9.45511292239228E-27
+      },
+      "ENSG00000204370": {
+        "injected_log2fc": -0.5,
+        "observed_log2fc": -0.4818058096478847,
+        "padj": 5.406875304402753E-25
+      },
+      "ENSG00000204569": {
+        "injected_log2fc": 0.25,
+        "observed_log2fc": 0.26541517172142143,
+        "padj": 0.0005440216868112211
+      },
+      "ENSG00000205246": {
+        "injected_log2fc": -1.0,
+        "observed_log2fc": -1.0503075709783052,
+        "padj": 5.2515500540884004E-114
+      },
+      "ENSG00000213689": {
+        "injected_log2fc": -0.5,
+        "observed_log2fc": -0.45939030500950984,
+        "padj": 4.2538672894418796E-23
+      },
+      "ENSG00000253352": {
+        "injected_log2fc": -0.25,
+        "observed_log2fc": -0.20095431676704986,
+        "padj": 0.10837405300841106
+      },
+      "ENSG00000269893": {
+        "injected_log2fc": 1.0,
+        "observed_log2fc": 1.0198358819658533,
+        "padj": 1.0277465141325478E-96
+      },
+      "ENSG00000272009": {
+        "injected_log2fc": -0.25,
+        "observed_log2fc": -0.23989316371495975,
+        "padj": 0.3761544524881668
+      }
+    }
+  },
+  "provenance": {
+    "dataset_record": "https://zenodo.org/records/18870747",
+    "dataset_version_doi": "10.5281/zenodo.18870747",
+    "dataset_md5": "a16487819c21506b400cd1d36f09c3e1",
+    "base_git_revision": "ab11f8ffbb037ebf235be85382d96e2d847ae09d",
+    "benchmark_script_sha256": "1e8c7d136cbb1447b7214652eed568c35a530ad80ea0ba5bfe72c20a3a634aea",
+    "packaged_date": "2026-08-29",
+    "llm_api_calls": 0
+  }
+}

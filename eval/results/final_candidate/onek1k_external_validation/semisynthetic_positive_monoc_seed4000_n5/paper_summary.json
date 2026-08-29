@@ -1,0 +1,81 @@
+{
+  "status": "paper_candidate_selectivity_validation",
+  "protocol_id": "3b8bc3939e9fb710c1079bde7bafd82a3cbb06d609000760e2fcbbcd7110de02",
+  "dataset": {
+    "name": "OneK1K_updated_14_celltypes_980_donors.h5ad",
+    "record": "https://zenodo.org/records/18870747",
+    "version_doi": "10.5281/zenodo.18870747",
+    "md5": "a16487819c21506b400cd1d36f09c3e1",
+    "total_donors": 980,
+    "eligible_monocyte_donors": 524,
+    "retained_donors_per_allocation": 454,
+    "cell_label": "Mono C"
+  },
+  "design": {
+    "allocations": 5,
+    "seeds": [
+      4000,
+      4001,
+      4002,
+      4003,
+      4004
+    ],
+    "donors_per_group": 227,
+    "covariates": [
+      "pool",
+      "sex"
+    ],
+    "matching": "exact pool/sex strata with adjacent ages",
+    "genes_per_tier": 25,
+    "absolute_log2fc_tiers": [
+      0.25,
+      0.5,
+      1.0
+    ],
+    "registered_effects_per_allocation": 75,
+    "fdr_threshold": 0.05,
+    "llm_api_calls": 0
+  },
+  "outcomes": {
+    "admissible_allocations": 5,
+    "significant_inferential_allocations": 5,
+    "registered_effects": 375,
+    "recovered_effects": 358,
+    "missed_effects": 17,
+    "additional_discoveries": 11,
+    "total_discoveries": 369,
+    "pooled_sensitivity": 0.9547,
+    "pooled_empirical_fdp": 0.0298,
+    "direction_agreement": 1.0,
+    "stable_allocations": 5,
+    "runtime_warnings": 0,
+    "tier_recovery": {
+      "0.25": {
+        "recovered": 109,
+        "registered": 125,
+        "sensitivity": 0.872
+      },
+      "0.5": {
+        "recovered": 124,
+        "registered": 125,
+        "sensitivity": 0.992
+      },
+      "1.0": {
+        "recovered": 125,
+        "registered": 125,
+        "sensitivity": 1.0
+      }
+    }
+  },
+  "provenance": {
+    "base_git_revision": "ab11f8ffbb037ebf235be85382d96e2d847ae09d",
+    "benchmark_script_sha256": "1e8c7d136cbb1447b7214652eed568c35a530ad80ea0ba5bfe72c20a3a634aea",
+    "packaged_date": "2026-08-29"
+  },
+  "limitations": [
+    "The five allocations reuse one eligible donor cohort and are not independent biological cohorts.",
+    "Registered genes and fake-group orientations vary by seed.",
+    "The empirical false-discovery proportion is descriptive for these injected effects and is not proof of universal FDR calibration.",
+    "This benchmark tests the deterministic statistical-governance path and makes no LLM API calls."
+  ]
+}

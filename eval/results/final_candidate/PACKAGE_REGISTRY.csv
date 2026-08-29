@@ -3,3 +3,4 @@ null_sweep_same_method,current_paper_result,primary_same_method_governance_ablat
 positive_control,historical_rerun_required,supporting_signal_preservation,374ae5f26ab1fecfc6b05579bcc818052afa2388,"Predates final implementation and changes both governance and statistical method between arms"
 null_sweep,historical,superseded_mixed_method_null_pilot,374ae5f26ab1fecfc6b05579bcc818052afa2388,"Full-system pilot changed both governance and statistical method; superseded by null_sweep_same_method"
 human_reply_annotation,in_progress,blinded_validation_of_automated_claim_labels,1cb9823,"Two blank author-annotation workbooks frozen for 156 replies; no annotation result exists yet"
+onek1k_semisynthetic_positive,paper_candidate,external_selectivity_positive_control,ab11f8ffbb037ebf235be85382d96e2d847ae09d,"5 OneK1K donor-level allocations; 358/375 effects recovered; all 5 licensed and donor-stable; exact script hash recorded"

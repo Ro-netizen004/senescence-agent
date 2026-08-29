@@ -54,3 +54,14 @@ an aggregate CSV/JSON/Markdown result set, provenance, and recursive checksums.
 All ten allocations returned zero FDR discoveries. No additional LLM narration
 calls were made because a zero-discovery shared result cannot meaningfully test
 the governance-withholding endpoint.
+
+## Semi-synthetic positive control
+
+The five-allocation positive-control package is at
+`semisynthetic_positive_monoc_seed4000_n5/`. Across 375 registered donor-level
+effects, 358 were recovered (95.47% sensitivity), with 100% effect-direction
+agreement, 11 additional discoveries (pooled empirical FDP 2.98%), donor
+stability in 5/5 allocations, and `SIGNIFICANT_INFERENTIAL` licensing in 5/5.
+This is the selectivity control showing that governance does not merely suppress
+all findings. The allocations reuse the same donor cohort and are not
+independent biological cohorts.

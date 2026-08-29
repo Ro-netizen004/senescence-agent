@@ -22,7 +22,10 @@ repository. Seed 3000 completed without an LLM call: 227 donors per group,
 - Eligible population: 38,218 annotated cells; 524 donors have at least 20
   cells, of which 454 are retained by exact pool/sex pairing at seed 3000
 - Registered smoke seed: 3000
-- DESeq2 design: `pool + sex + age + null_group`
+- Matching variables: exact `pool`/`sex` strata and adjacent donor ages
+- DESeq2 design: `pool + sex + null_group`; age is used for matching rather
+  than entered as a categorical covariate because OneK1K age is numeric and
+  high-cardinality in this wrapper
 - Allocation: pair adjacent ages within each pool/sex stratum and randomize the
   orientation of each pair; exclude one optimally chosen donor from odd strata
 
@@ -100,3 +103,26 @@ an unbalanced off-axis confounder.
 skips complete `summary.json` and paired artifacts. A failed or partial file is
 not accepted as a checkpoint. Run the statistical stage first; paired LLM calls
 require a separate explicit `--max-new-api` budget.
+
+## Semi-synthetic selectivity benchmark
+
+`semisynthetic_benchmark.py` is the zero-API, resumable positive-control
+benchmark. It uses the validated backed/chunked pseudobulk builder and invokes
+the production admissibility, DESeq2, plausibility, donor-stability, and
+inference-state functions.
+
+- **Scenario A, clean null:** paired donor allocation with no injected effect;
+  the gate should permit analysis and calibrated DE should produce few or no
+  discoveries.
+- **Scenario B, registered positive:** inject 25 donor-level effects at each
+  absolute log2FC tier 0.25, 0.50, and 1.00. Effects are balanced up/down and
+  selected reproducibly from genes expressed in at least 90% of donors. The
+  endpoint is tier-specific sensitivity, false discoveries, direction
+  agreement, and whether governance licenses stable signal.
+- **Scenario C, perfect confound:** align the two groups exactly with the two
+  largest pools. The production admissibility gate must block before DESeq2.
+
+Each scenario/allocation is written atomically. Resume accepts a checkpoint
+only when its seed, scenario, and hash of the analysis-defining protocol match;
+`--force` deliberately recomputes it. The source h5ad is never copied into the
+repository and no cell-level temporary matrix is written.
