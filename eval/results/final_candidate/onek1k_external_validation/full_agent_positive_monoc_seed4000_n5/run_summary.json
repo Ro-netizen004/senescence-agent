@@ -1,0 +1,99 @@
+{
+  "status": "complete_full_agent_positive_control",
+  "protocol_id": "aeb963374274e6c41f1e4c4ebae86f6369caaff4f8454d712244bc68a4f8c24a",
+  "protocol_config": {
+    "protocol_version": "onek1k_full_agent_positive_v2",
+    "source_protocol_version": "onek1k_semisynthetic_v2",
+    "dataset_name": "OneK1K_updated_14_celltypes_980_donors.h5ad",
+    "cell_label": "Mono C",
+    "min_cells_per_donor": 20,
+    "n_genes_per_tier": 25,
+    "covariates": [
+      "pool",
+      "sex"
+    ],
+    "prompt": "Run differential expression on Mono C between inject_A and inject_B using null_group as the grouping variable and sample_id as the biological replicate, adjusting for pool and sex.",
+    "model": "gemini-flash-latest",
+    "fixture_rows_per_donor": 20
+  },
+  "dataset": "OneK1K_updated_14_celltypes_980_donors.h5ad",
+  "n_allocations_requested": 5,
+  "n_complete_pairs": 5,
+  "pairs": [
+    {
+      "seed": 4000,
+      "both_routed": true,
+      "statistical_parity": true,
+      "governed_state": "SIGNIFICANT_INFERENTIAL",
+      "governed_communicates_significant_result": true,
+      "ungoverned_communicates_significant_result": true,
+      "governed_null_linter_positive_claim": false,
+      "ungoverned_null_linter_positive_claim": true,
+      "governed_plan_status": "accepted",
+      "governed_matches_registered_count": true,
+      "ungoverned_matches_registered_count": true
+    },
+    {
+      "seed": 4001,
+      "both_routed": true,
+      "statistical_parity": true,
+      "governed_state": "SIGNIFICANT_INFERENTIAL",
+      "governed_communicates_significant_result": true,
+      "ungoverned_communicates_significant_result": true,
+      "governed_null_linter_positive_claim": false,
+      "ungoverned_null_linter_positive_claim": true,
+      "governed_plan_status": "accepted",
+      "governed_matches_registered_count": true,
+      "ungoverned_matches_registered_count": true
+    },
+    {
+      "seed": 4002,
+      "both_routed": true,
+      "statistical_parity": true,
+      "governed_state": "SIGNIFICANT_INFERENTIAL",
+      "governed_communicates_significant_result": true,
+      "ungoverned_communicates_significant_result": true,
+      "governed_null_linter_positive_claim": false,
+      "ungoverned_null_linter_positive_claim": true,
+      "governed_plan_status": "accepted",
+      "governed_matches_registered_count": true,
+      "ungoverned_matches_registered_count": true
+    },
+    {
+      "seed": 4003,
+      "both_routed": true,
+      "statistical_parity": true,
+      "governed_state": "SIGNIFICANT_INFERENTIAL",
+      "governed_communicates_significant_result": true,
+      "ungoverned_communicates_significant_result": true,
+      "governed_null_linter_positive_claim": false,
+      "ungoverned_null_linter_positive_claim": true,
+      "governed_plan_status": "accepted",
+      "governed_matches_registered_count": true,
+      "ungoverned_matches_registered_count": true
+    },
+    {
+      "seed": 4004,
+      "both_routed": true,
+      "statistical_parity": true,
+      "governed_state": "SIGNIFICANT_INFERENTIAL",
+      "governed_communicates_significant_result": true,
+      "ungoverned_communicates_significant_result": true,
+      "governed_null_linter_positive_claim": false,
+      "ungoverned_null_linter_positive_claim": true,
+      "governed_plan_status": "accepted",
+      "governed_matches_registered_count": true,
+      "ungoverned_matches_registered_count": true
+    }
+  ],
+  "aggregate": {
+    "both_arms_routed": 5,
+    "statistical_parity": 5,
+    "governed_significant_inferential": 5,
+    "governed_communicated_significant_result": 5,
+    "ungoverned_communicated_significant_result": 5,
+    "governed_matched_registered_count": 5,
+    "ungoverned_matched_registered_count": 5
+  },
+  "interpretation_boundary": "Full production routing, planning, tool execution, and communication were exercised on a lossless donor-pseudobulk AnnData evaluation fixture. Raw-cell ingestion and upstream pseudobulk construction from the 2.9 GB source were performed once by the registered external-validation builder."
+}

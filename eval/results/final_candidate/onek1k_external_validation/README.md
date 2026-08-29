@@ -64,4 +64,20 @@ agreement, 11 additional discoveries (pooled empirical FDP 2.98%), donor
 stability in 5/5 allocations, and `SIGNIFICANT_INFERENTIAL` licensing in 5/5.
 This is the selectivity control showing that governance does not merely suppress
 all findings. The allocations reuse the same donor cohort and are not
-independent biological cohorts.
+independent biological cohorts. This package is the deterministic statistical-
+governance result; it does not exercise LLM routing or narration.
+
+## Full-agent semi-synthetic positive control
+
+The matched agent-level package is at
+`full_agent_positive_monoc_seed4000_n5/`. The governed production agent and
+ungoverned ablation each independently routed and executed the registered
+DESeq2 analysis for five allocations. Both arms routed correctly in 5/5,
+statistical outputs matched exactly in 5/5, governed LLM plans were accepted in
+5/5, and both arms communicated the supported signal in 5/5. Governance
+licensed all five results as `SIGNIFICANT_INFERENTIAL`.
+
+The agent received a lossless donor-pseudobulk AnnData evaluation adapter, so
+routing, planning, admissibility, DESeq2 execution, inference-state assignment,
+and communication were exercised. Raw-cell upload and the initial OneK1K
+pseudobulk build were not independently repeated in each arm.

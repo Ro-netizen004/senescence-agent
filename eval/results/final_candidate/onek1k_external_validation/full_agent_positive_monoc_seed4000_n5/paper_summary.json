@@ -1,0 +1,36 @@
+{
+  "status": "paper_candidate_full_agent_positive_control",
+  "experiment": "onek1k_matched_full_agent_semisynthetic_positive",
+  "protocol_id": "aeb963374274e6c41f1e4c4ebae86f6369caaff4f8454d712244bc68a4f8c24a",
+  "evaluated_base_git_revision": "c3a6ec01d86e8ab109aa1dac98450aacf9b08a5a",
+  "full_agent_harness_sha256": "799e26daad466fb472497ffc10af7517fd0a8f0e2bb023eb9f02cbfc526f1594",
+  "n_allocations": 5,
+  "n_agent_runs": 10,
+  "n_matched_pairs": 5,
+  "routes_correct": {
+    "governed": 5,
+    "ungoverned": 5
+  },
+  "governed_plans_accepted": 5,
+  "statistical_parity_pairs": 5,
+  "registered_result_count_matches": {
+    "governed": 5,
+    "ungoverned": 5
+  },
+  "discovery_counts": [
+    76,
+    72,
+    74,
+    72,
+    75
+  ],
+  "mean_discoveries": 73.8,
+  "registered_effects_recovered": 358,
+  "registered_effects_total": 375,
+  "registered_effect_recovery_rate": 0.9547,
+  "governed_significant_inferential": 5,
+  "governed_communicated_signal": 5,
+  "ungoverned_communicated_signal": 5,
+  "runtime_diagnostic": "pyDESeq2 emitted overflow/invalid-value RuntimeWarnings during optimization. All completed paired outputs nevertheless matched exactly and reproduced the registered per-seed discovery counts.",
+  "interpretation_boundary": "This tests full production routing, LLM planning where applicable, tool execution, governance, and communication on a lossless donor-pseudobulk AnnData adapter. It does not retest raw-cell upload or upstream count aggregation inside each arm."
+}

@@ -126,3 +126,22 @@ Each scenario/allocation is written atomically. Resume accepts a checkpoint
 only when its seed, scenario, and hash of the analysis-defining protocol match;
 `--force` deliberately recomputes it. The source h5ad is never copied into the
 repository and no cell-level temporary matrix is written.
+
+## Full-agent positive control
+
+`full_agent_positive.py` converts each registered Scenario B donor-count matrix
+to a lossless in-memory AnnData evaluation adapter and calls the production
+`run_agent` entry point for matched governed and ungoverned arms. The production
+pseudobulk builder reconstructs the exact registered donor counts. Each arm then
+independently executes DESeq2; no frozen DE result is supplied to either agent.
+
+The governed arm exercises deterministic validated routing, an LLM-proposed and
+deterministically validated analysis plan, admissibility, DESeq2, inference-state
+assignment, and deterministic communication. The ungoverned arm exercises LLM
+tool selection, the identical DESeq2 implementation, and LLM narration. A pair
+is accepted only if both arms call exactly `run_deseq2`, use the registered
+contrast and covariates, match the registered discovery count, and have an exact
+statistical-signature match. Checkpoints are atomic at the seed/arm level.
+
+This is an agent-level downstream-analysis test, not a repeated raw-upload test:
+the 2.9 GB source is aggregated once by the registered memory-safe builder.

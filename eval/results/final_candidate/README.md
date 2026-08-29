@@ -135,6 +135,9 @@ identical pseudobulk DESeq2 execution and differ only in the governance stack.
   endpoint because the shared statistical outputs contained no discoveries.
 - [x] Freeze a 156-reply, arm-blinded human-annotation template and prespecified
   rubric for two study-author annotators.
+- [x] Run a matched full-agent OneK1K positive control: 5/5 correct routes,
+  5/5 exact statistical parity, 5/5 governed inferential licenses, and 5/5
+  supported-signal communication in both arms.
 - [ ] Complete both annotations independently, freeze their hashes, calculate
   agreement before adjudication, and package consensus-versus-linter results.
 - Verify final artifact checksums and update each protocol before changing status to
@@ -173,7 +176,27 @@ and [`per_seed_summary.csv`](onek1k_external_validation/pilot_null_monoc_seed300
 
 Evidence: [`onek1k_external_validation/semisynthetic_positive_monoc_seed4000_n5/PAPER_RESULTS.md`](onek1k_external_validation/semisynthetic_positive_monoc_seed4000_n5/PAPER_RESULTS.md), [`paper_summary.json`](onek1k_external_validation/semisynthetic_positive_monoc_seed4000_n5/paper_summary.json), and [`per_seed_summary.csv`](onek1k_external_validation/semisynthetic_positive_monoc_seed4000_n5/per_seed_summary.csv).
 
-## 7. Confound-gate functional validation
+## 7. OneK1K full-agent semi-synthetic positive control
+
+**Status: Paper-candidate agent-level selectivity validation.** Five registered
+allocations were each run through the governed production agent and the
+ungoverned ablation. Both arms independently routed to and executed the same
+donor-level pseudobulk DESeq2 analysis. Correct routing, exact between-arm
+statistical parity, and reproduction of the registered discovery count each
+occurred in 5/5 pairs. All five governed LLM analysis plans were accepted, all
+five governed results were licensed as `SIGNIFICANT_INFERENTIAL`, and both arms
+communicated the supported signal in 5/5 allocations. Across allocations,
+358/375 registered effects were recovered (95.47%).
+
+This is the agent-level positive control complementing the TMS agent-level null
+ablation. It uses a lossless donor-pseudobulk AnnData adapter: production
+routing, planning, admissibility, DESeq2 execution, inference-state assignment,
+and communication were exercised, but raw-cell upload and upstream OneK1K
+aggregation were performed once rather than repeated independently per arm.
+
+Evidence: [`onek1k_external_validation/full_agent_positive_monoc_seed4000_n5/PAPER_RESULTS.md`](onek1k_external_validation/full_agent_positive_monoc_seed4000_n5/PAPER_RESULTS.md), [`paper_summary.json`](onek1k_external_validation/full_agent_positive_monoc_seed4000_n5/paper_summary.json), and [`per_seed_summary.csv`](onek1k_external_validation/full_agent_positive_monoc_seed4000_n5/per_seed_summary.csv).
+
+## 8. Confound-gate functional validation
 
 **Status: Paper candidate functional validation.** The production admissibility
 gate made 150 decisions across five paired synthetic metadata challenges and 30
@@ -189,7 +212,7 @@ Evidence: [`confound_gate/PAPER_RESULTS.md`](confound_gate/PAPER_RESULTS.md),
 [`confound_gate/paper_summary.json`](confound_gate/paper_summary.json), and
 [`confound_gate/design_summary.csv`](confound_gate/design_summary.csv).
 
-## 8. Blinded human validation of reply labels
+## 9. Blinded human validation of reply labels
 
 **Status: In progress; no result is currently paper-usable.** The 156 frozen
 replies from the primary same-method experiment were reproducibly shuffled with
