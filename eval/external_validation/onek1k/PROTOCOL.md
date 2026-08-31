@@ -145,3 +145,19 @@ statistical-signature match. Checkpoints are atomic at the seed/arm level.
 
 This is an agent-level downstream-analysis test, not a repeated raw-upload test:
 the 2.9 GB source is aggregated once by the registered memory-safe builder.
+
+## Full-agent null validation
+
+`full_agent_null.py` runs seeds 3000-3009 through matched governed and
+ungoverned production-agent paths. Each arm independently executes DESeq2 on a
+lossless donor-pseudobulk AnnData adapter using the registered contrast and
+`pool + sex + age + null_group` design. A checkpoint is accepted only when the
+seed, arm, protocol hash, route, contrast, covariates, allocation ID, and
+registered discovery count match. The paired endpoint additionally requires an
+exact statistical-signature match.
+
+The completed run had 10/10 routed and parity-matched pairs, 10/10 governed
+`NOT_SIGNIFICANT` states, explicit null communication in both arms for all ten
+allocations, and no positive significance claims. Because every registered
+analysis had zero discoveries, this is an agent-level calibration and
+communication result rather than a governance-withholding contrast.

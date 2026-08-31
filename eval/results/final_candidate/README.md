@@ -229,3 +229,21 @@ and numbered starting workbooks for
 The arm key remains local and excluded from Git until both annotations are
 complete and frozen. Do not cite human agreement, linter accuracy, sensitivity,
 or specificity until the finalized annotation package exists.
+
+## 10. OneK1K full-agent null validation
+
+**Status: Paper-candidate agent-level calibration validation.** Ten registered
+classical-monocyte donor splits were each run through the governed production
+agent and the ungoverned ablation. Both arms independently routed to and
+executed donor-level pseudobulk DESeq2 with the registered design. Correct
+routing, exact statistical parity, and reproduction of the registered
+zero-discovery result occurred in 10/10 pairs. Governed analysis plans were
+accepted and assigned `NOT_SIGNIFICANT` in 10/10; both arms explicitly
+communicated the null in 10/10, and neither arm made a positive significance
+claim in any of 20 replies.
+
+This is an external full-agent calibration and communication result, not an
+external estimate of the governance withholding effect: every underlying
+analysis had zero discoveries. The ten allocations reuse one donor cohort.
+
+Evidence: [`onek1k_external_validation/full_agent_null_monoc_seed3000_n10/PAPER_RESULTS.md`](onek1k_external_validation/full_agent_null_monoc_seed3000_n10/PAPER_RESULTS.md), [`paper_summary.json`](onek1k_external_validation/full_agent_null_monoc_seed3000_n10/paper_summary.json), and [`per_seed_summary.csv`](onek1k_external_validation/full_agent_null_monoc_seed3000_n10/per_seed_summary.csv).

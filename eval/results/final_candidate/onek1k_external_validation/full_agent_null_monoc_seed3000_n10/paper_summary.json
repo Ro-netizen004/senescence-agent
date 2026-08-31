@@ -1,0 +1,35 @@
+{
+  "status": "paper_candidate_full_agent_null_calibration",
+  "experiment": "onek1k_matched_full_agent_null",
+  "protocol_id": "fedea9b531f2af6dc4b51bd2236921c69ca8ddb20cff6662fefce96692999e70",
+  "evaluated_base_git_revision": "e4f5d6055c7a1400e696470b50e7362843c447fc",
+  "full_agent_harness_sha256": "2ec928854f2d3f7b325e9c54b5a82fb41a2a35314177734561e4438a2e28c79f",
+  "n_allocations": 10,
+  "n_agent_runs": 20,
+  "n_matched_pairs": 10,
+  "routes_correct": {
+    "governed": 10,
+    "ungoverned": 10
+  },
+  "governed_plans_accepted": 10,
+  "statistical_parity_pairs": 10,
+  "registered_result_count_matches": {
+    "governed": 10,
+    "ungoverned": 10
+  },
+  "zero_discovery_results": {
+    "governed": 10,
+    "ungoverned": 10
+  },
+  "governed_not_significant": 10,
+  "null_communication": {
+    "governed": 10,
+    "ungoverned": 10
+  },
+  "positive_significance_claims": {
+    "governed": 0,
+    "ungoverned": 0
+  },
+  "runtime_diagnostic": "pyDESeq2 emitted overflow/invalid-value RuntimeWarnings during optimization. All fits completed, paired signatures matched exactly, and every result reproduced the registered zero-discovery count.",
+  "interpretation_boundary": "This validates full-agent routing, planning where applicable, execution, state assignment, and null communication in a many-donor UMI setting. Because every statistical result had zero discoveries, it does not estimate a governance withholding advantage. Allocations reuse one donor cohort."
+}

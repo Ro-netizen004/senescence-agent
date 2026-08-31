@@ -81,3 +81,18 @@ The agent received a lossless donor-pseudobulk AnnData evaluation adapter, so
 routing, planning, admissibility, DESeq2 execution, inference-state assignment,
 and communication were exercised. Raw-cell upload and the initial OneK1K
 pseudobulk build were not independently repeated in each arm.
+
+## Full-agent null validation
+
+The matched agent-level package is at `full_agent_null_monoc_seed3000_n10/`.
+Across ten registered donor splits, both governed and ungoverned agents routed
+and independently executed the same donor-level pseudobulk DESeq2 analysis.
+Routing, exact statistical parity, and reproduction of the registered
+zero-discovery result occurred in 10/10 pairs. Governed plans were accepted and
+assigned `NOT_SIGNIFICANT` in 10/10; both arms explicitly communicated the null
+in 10/10, with no positive significance claim in any of 20 replies.
+
+This upgrades the OneK1K null from method-only calibration to full-agent
+routing, execution, and communication validation. It does not estimate a
+governance withholding advantage because all underlying outputs contained zero
+discoveries. The allocations also reuse one donor cohort.

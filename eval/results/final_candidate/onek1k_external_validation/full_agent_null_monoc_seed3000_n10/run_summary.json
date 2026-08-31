@@ -1,0 +1,157 @@
+{
+  "status": "complete_full_agent_null",
+  "protocol_id": "fedea9b531f2af6dc4b51bd2236921c69ca8ddb20cff6662fefce96692999e70",
+  "protocol_config": {
+    "protocol_version": "onek1k_full_agent_null_v1",
+    "dataset_name": "OneK1K_updated_14_celltypes_980_donors.h5ad",
+    "cell_label": "Mono C",
+    "min_cells_per_donor": 20,
+    "covariates": [
+      "pool",
+      "sex",
+      "age"
+    ],
+    "prompt": "Run differential expression on Mono C between fake_A and fake_B using null_group as the grouping variable and sample_id as the biological replicate, adjusting for pool, sex, and age.",
+    "model": "gemini-flash-latest",
+    "seed_start": 3000,
+    "n_allocations": 10,
+    "fixture_rows_per_donor": 20
+  },
+  "dataset": "OneK1K_updated_14_celltypes_980_donors.h5ad",
+  "n_complete_pairs": 10,
+  "pairs": [
+    {
+      "seed": 3000,
+      "both_routed": true,
+      "statistical_parity": true,
+      "both_match_registered": true,
+      "governed_state": "NOT_SIGNIFICANT",
+      "governed_communicates_null": true,
+      "ungoverned_communicates_null": true,
+      "governed_positive_claim": false,
+      "ungoverned_positive_claim": false,
+      "governed_plan_status": "accepted"
+    },
+    {
+      "seed": 3001,
+      "both_routed": true,
+      "statistical_parity": true,
+      "both_match_registered": true,
+      "governed_state": "NOT_SIGNIFICANT",
+      "governed_communicates_null": true,
+      "ungoverned_communicates_null": true,
+      "governed_positive_claim": false,
+      "ungoverned_positive_claim": false,
+      "governed_plan_status": "accepted"
+    },
+    {
+      "seed": 3002,
+      "both_routed": true,
+      "statistical_parity": true,
+      "both_match_registered": true,
+      "governed_state": "NOT_SIGNIFICANT",
+      "governed_communicates_null": true,
+      "ungoverned_communicates_null": true,
+      "governed_positive_claim": false,
+      "ungoverned_positive_claim": false,
+      "governed_plan_status": "accepted"
+    },
+    {
+      "seed": 3003,
+      "both_routed": true,
+      "statistical_parity": true,
+      "both_match_registered": true,
+      "governed_state": "NOT_SIGNIFICANT",
+      "governed_communicates_null": true,
+      "ungoverned_communicates_null": true,
+      "governed_positive_claim": false,
+      "ungoverned_positive_claim": false,
+      "governed_plan_status": "accepted"
+    },
+    {
+      "seed": 3004,
+      "both_routed": true,
+      "statistical_parity": true,
+      "both_match_registered": true,
+      "governed_state": "NOT_SIGNIFICANT",
+      "governed_communicates_null": true,
+      "ungoverned_communicates_null": true,
+      "governed_positive_claim": false,
+      "ungoverned_positive_claim": false,
+      "governed_plan_status": "accepted"
+    },
+    {
+      "seed": 3005,
+      "both_routed": true,
+      "statistical_parity": true,
+      "both_match_registered": true,
+      "governed_state": "NOT_SIGNIFICANT",
+      "governed_communicates_null": true,
+      "ungoverned_communicates_null": true,
+      "governed_positive_claim": false,
+      "ungoverned_positive_claim": false,
+      "governed_plan_status": "accepted"
+    },
+    {
+      "seed": 3006,
+      "both_routed": true,
+      "statistical_parity": true,
+      "both_match_registered": true,
+      "governed_state": "NOT_SIGNIFICANT",
+      "governed_communicates_null": true,
+      "ungoverned_communicates_null": true,
+      "governed_positive_claim": false,
+      "ungoverned_positive_claim": false,
+      "governed_plan_status": "accepted"
+    },
+    {
+      "seed": 3007,
+      "both_routed": true,
+      "statistical_parity": true,
+      "both_match_registered": true,
+      "governed_state": "NOT_SIGNIFICANT",
+      "governed_communicates_null": true,
+      "ungoverned_communicates_null": true,
+      "governed_positive_claim": false,
+      "ungoverned_positive_claim": false,
+      "governed_plan_status": "accepted"
+    },
+    {
+      "seed": 3008,
+      "both_routed": true,
+      "statistical_parity": true,
+      "both_match_registered": true,
+      "governed_state": "NOT_SIGNIFICANT",
+      "governed_communicates_null": true,
+      "ungoverned_communicates_null": true,
+      "governed_positive_claim": false,
+      "ungoverned_positive_claim": false,
+      "governed_plan_status": "accepted"
+    },
+    {
+      "seed": 3009,
+      "both_routed": true,
+      "statistical_parity": true,
+      "both_match_registered": true,
+      "governed_state": "NOT_SIGNIFICANT",
+      "governed_communicates_null": true,
+      "ungoverned_communicates_null": true,
+      "governed_positive_claim": false,
+      "ungoverned_positive_claim": false,
+      "governed_plan_status": "accepted"
+    }
+  ],
+  "aggregate": {
+    "both_arms_routed": 10,
+    "statistical_parity": 10,
+    "both_matched_registered": 10,
+    "governed_not_significant": 10,
+    "governed_communicated_null": 10,
+    "ungoverned_communicated_null": 10,
+    "governed_positive_claims": 0,
+    "ungoverned_positive_claims": 0,
+    "governed_plans_accepted": 10
+  },
+  "interpretation_boundary": "This is a full-agent routing/execution/communication null validation, but zero discoveries in every registered allocation prevent estimation of a governance withholding effect. The ten allocations reuse one donor cohort.",
+  "scoring_note": "Saved replies were rescored offline after broadening the zero-count matcher; no model or DE calls were repeated."
+}

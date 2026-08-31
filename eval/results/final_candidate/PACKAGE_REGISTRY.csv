@@ -5,3 +5,5 @@ null_sweep,historical,superseded_mixed_method_null_pilot,374ae5f26ab1fecfc6b0557
 human_reply_annotation,in_progress,blinded_validation_of_automated_claim_labels,1cb9823,"Two blank author-annotation workbooks frozen for 156 replies; no annotation result exists yet"
 onek1k_semisynthetic_positive,paper_candidate,external_selectivity_positive_control,ab11f8ffbb037ebf235be85382d96e2d847ae09d,"5 OneK1K donor-level allocations; 358/375 effects recovered; all 5 licensed and donor-stable; exact script hash recorded"
 onek1k_full_agent_positive,paper_candidate,agent_level_selectivity_positive_control,c3a6ec0,"5 matched OneK1K allocations; both arms routed and independently executed DESeq2; 5/5 parity; governed licensed and communicated signal in 5/5; exact harness hash recorded"
+
+onek1k_full_agent_null,paper_candidate,agent_level_external_null_calibration,e4f5d60,"10 matched OneK1K donor splits; 10/10 routing and parity; both arms communicated zero discoveries in 10/10; no positive claims; cannot estimate governance withholding effect"
