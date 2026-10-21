@@ -1,0 +1,1250 @@
+[
+  {
+    "blinded_id": "R0000",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2023,
+    "allocation_index": 21,
+    "source_file": "agent_null_Spleen_b_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0001",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2032,
+    "allocation_index": 29,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0002",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2019,
+    "allocation_index": 18,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0003",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Kidney.h5ad",
+    "seed": 2004,
+    "allocation_index": 4,
+    "source_file": "agent_null_Kidney_epithelial_cell_of_proximal_tubule_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0004",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2024,
+    "allocation_index": 22,
+    "source_file": "agent_null_Spleen_b_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0005",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2015,
+    "allocation_index": 14,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0006",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Liver.h5ad",
+    "seed": 2006,
+    "allocation_index": 6,
+    "source_file": "agent_null_Liver_hepatocyte_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0007",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2000,
+    "allocation_index": 0,
+    "source_file": "agent_null_Spleen_b_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0008",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2008,
+    "allocation_index": 7,
+    "source_file": "agent_null_Spleen_b_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0009",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2011,
+    "allocation_index": 10,
+    "source_file": "agent_null_Spleen_b_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0010",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2014,
+    "allocation_index": 12,
+    "source_file": "agent_null_Spleen_b_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0011",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2010,
+    "allocation_index": 10,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0012",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Liver.h5ad",
+    "seed": 2002,
+    "allocation_index": 2,
+    "source_file": "agent_null_Liver_hepatocyte_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0013",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Kidney.h5ad",
+    "seed": 2003,
+    "allocation_index": 3,
+    "source_file": "agent_null_Kidney_epithelial_cell_of_proximal_tubule_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0014",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2018,
+    "allocation_index": 16,
+    "source_file": "agent_null_Spleen_b_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0015",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2029,
+    "allocation_index": 25,
+    "source_file": "agent_null_Spleen_b_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0016",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Aorta.h5ad",
+    "seed": 2000,
+    "allocation_index": 0,
+    "source_file": "agent_null_Aorta_aortic_endothelial_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0017",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2027,
+    "allocation_index": 24,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0018",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2036,
+    "allocation_index": 28,
+    "source_file": "agent_null_Spleen_b_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0019",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2016,
+    "allocation_index": 15,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0020",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2004,
+    "allocation_index": 4,
+    "source_file": "agent_null_Spleen_b_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0021",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2023,
+    "allocation_index": 21,
+    "source_file": "agent_null_Spleen_b_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0022",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Liver.h5ad",
+    "seed": 2003,
+    "allocation_index": 3,
+    "source_file": "agent_null_Liver_hepatocyte_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0023",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Aorta.h5ad",
+    "seed": 2003,
+    "allocation_index": 2,
+    "source_file": "agent_null_Aorta_aortic_endothelial_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0024",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Kidney.h5ad",
+    "seed": 2012,
+    "allocation_index": 5,
+    "source_file": "agent_null_Kidney_epithelial_cell_of_proximal_tubule_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0025",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2001,
+    "allocation_index": 1,
+    "source_file": "agent_null_Spleen_b_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0026",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2031,
+    "allocation_index": 28,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0027",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2002,
+    "allocation_index": 2,
+    "source_file": "agent_null_Spleen_b_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0028",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2021,
+    "allocation_index": 19,
+    "source_file": "agent_null_Spleen_b_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0029",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2010,
+    "allocation_index": 10,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0030",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2031,
+    "allocation_index": 26,
+    "source_file": "agent_null_Spleen_b_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0031",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2010,
+    "allocation_index": 9,
+    "source_file": "agent_null_Spleen_b_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0032",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Aorta.h5ad",
+    "seed": 2004,
+    "allocation_index": 3,
+    "source_file": "agent_null_Aorta_aortic_endothelial_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0033",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2037,
+    "allocation_index": 29,
+    "source_file": "agent_null_Spleen_b_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0034",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2003,
+    "allocation_index": 3,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0035",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2012,
+    "allocation_index": 12,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0036",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2000,
+    "allocation_index": 0,
+    "source_file": "agent_null_Spleen_b_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0037",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Kidney.h5ad",
+    "seed": 2000,
+    "allocation_index": 0,
+    "source_file": "agent_null_Kidney_epithelial_cell_of_proximal_tubule_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0038",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2019,
+    "allocation_index": 17,
+    "source_file": "agent_null_Spleen_b_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0039",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2002,
+    "allocation_index": 2,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0040",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2024,
+    "allocation_index": 22,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0041",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2007,
+    "allocation_index": 7,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0042",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Liver.h5ad",
+    "seed": 2006,
+    "allocation_index": 6,
+    "source_file": "agent_null_Liver_hepatocyte_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0043",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2005,
+    "allocation_index": 5,
+    "source_file": "agent_null_Spleen_b_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0044",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2013,
+    "allocation_index": 13,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0045",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Liver.h5ad",
+    "seed": 2001,
+    "allocation_index": 1,
+    "source_file": "agent_null_Liver_hepatocyte_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0046",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2015,
+    "allocation_index": 13,
+    "source_file": "agent_null_Spleen_b_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0047",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2002,
+    "allocation_index": 2,
+    "source_file": "agent_null_Spleen_b_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0048",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Kidney.h5ad",
+    "seed": 2002,
+    "allocation_index": 2,
+    "source_file": "agent_null_Kidney_epithelial_cell_of_proximal_tubule_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0049",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2009,
+    "allocation_index": 8,
+    "source_file": "agent_null_Spleen_b_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0050",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2018,
+    "allocation_index": 17,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0051",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2004,
+    "allocation_index": 4,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0052",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2005,
+    "allocation_index": 5,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0053",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2029,
+    "allocation_index": 26,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0054",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2021,
+    "allocation_index": 19,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0055",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2011,
+    "allocation_index": 11,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0056",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2028,
+    "allocation_index": 25,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0057",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Liver.h5ad",
+    "seed": 2003,
+    "allocation_index": 3,
+    "source_file": "agent_null_Liver_hepatocyte_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0058",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2011,
+    "allocation_index": 10,
+    "source_file": "agent_null_Spleen_b_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0059",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2017,
+    "allocation_index": 16,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0060",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Liver.h5ad",
+    "seed": 2000,
+    "allocation_index": 0,
+    "source_file": "agent_null_Liver_hepatocyte_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0061",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2033,
+    "allocation_index": 27,
+    "source_file": "agent_null_Spleen_b_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0062",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2017,
+    "allocation_index": 16,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0063",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2024,
+    "allocation_index": 22,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0064",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2001,
+    "allocation_index": 1,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0065",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2006,
+    "allocation_index": 6,
+    "source_file": "agent_null_Spleen_b_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0066",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Aorta.h5ad",
+    "seed": 2000,
+    "allocation_index": 0,
+    "source_file": "agent_null_Aorta_aortic_endothelial_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0067",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Liver.h5ad",
+    "seed": 2004,
+    "allocation_index": 4,
+    "source_file": "agent_null_Liver_hepatocyte_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0068",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2020,
+    "allocation_index": 18,
+    "source_file": "agent_null_Spleen_b_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0069",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2023,
+    "allocation_index": 21,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0070",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2037,
+    "allocation_index": 29,
+    "source_file": "agent_null_Spleen_b_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0071",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2016,
+    "allocation_index": 14,
+    "source_file": "agent_null_Spleen_b_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0072",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2004,
+    "allocation_index": 4,
+    "source_file": "agent_null_Spleen_b_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0073",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2003,
+    "allocation_index": 3,
+    "source_file": "agent_null_Spleen_b_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0074",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2017,
+    "allocation_index": 15,
+    "source_file": "agent_null_Spleen_b_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0075",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Liver.h5ad",
+    "seed": 2005,
+    "allocation_index": 5,
+    "source_file": "agent_null_Liver_hepatocyte_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0076",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2011,
+    "allocation_index": 11,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0077",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2016,
+    "allocation_index": 14,
+    "source_file": "agent_null_Spleen_b_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0078",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2001,
+    "allocation_index": 1,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0079",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2022,
+    "allocation_index": 20,
+    "source_file": "agent_null_Spleen_b_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0080",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Kidney.h5ad",
+    "seed": 2001,
+    "allocation_index": 1,
+    "source_file": "agent_null_Kidney_epithelial_cell_of_proximal_tubule_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0081",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2015,
+    "allocation_index": 14,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0082",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2025,
+    "allocation_index": 23,
+    "source_file": "agent_null_Spleen_b_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0083",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2025,
+    "allocation_index": 23,
+    "source_file": "agent_null_Spleen_b_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0084",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2030,
+    "allocation_index": 27,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0085",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2000,
+    "allocation_index": 0,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0086",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2006,
+    "allocation_index": 6,
+    "source_file": "agent_null_Spleen_b_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0087",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Liver.h5ad",
+    "seed": 2001,
+    "allocation_index": 1,
+    "source_file": "agent_null_Liver_hepatocyte_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0088",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2017,
+    "allocation_index": 15,
+    "source_file": "agent_null_Spleen_b_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0089",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2028,
+    "allocation_index": 24,
+    "source_file": "agent_null_Spleen_b_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0090",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2024,
+    "allocation_index": 22,
+    "source_file": "agent_null_Spleen_b_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0091",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2028,
+    "allocation_index": 24,
+    "source_file": "agent_null_Spleen_b_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0092",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Liver.h5ad",
+    "seed": 2007,
+    "allocation_index": 7,
+    "source_file": "agent_null_Liver_hepatocyte_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0093",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2012,
+    "allocation_index": 11,
+    "source_file": "agent_null_Spleen_b_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0094",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2010,
+    "allocation_index": 9,
+    "source_file": "agent_null_Spleen_b_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0095",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2009,
+    "allocation_index": 9,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0096",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Liver.h5ad",
+    "seed": 2004,
+    "allocation_index": 4,
+    "source_file": "agent_null_Liver_hepatocyte_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0097",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2019,
+    "allocation_index": 17,
+    "source_file": "agent_null_Spleen_b_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0098",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2021,
+    "allocation_index": 19,
+    "source_file": "agent_null_Spleen_b_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0099",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Liver.h5ad",
+    "seed": 2002,
+    "allocation_index": 2,
+    "source_file": "agent_null_Liver_hepatocyte_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0100",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2004,
+    "allocation_index": 4,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0101",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2026,
+    "allocation_index": 23,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0102",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2029,
+    "allocation_index": 26,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0103",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2032,
+    "allocation_index": 29,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0104",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Liver.h5ad",
+    "seed": 2000,
+    "allocation_index": 0,
+    "source_file": "agent_null_Liver_hepatocyte_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0105",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2018,
+    "allocation_index": 17,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0106",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2033,
+    "allocation_index": 27,
+    "source_file": "agent_null_Spleen_b_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0107",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Kidney.h5ad",
+    "seed": 2002,
+    "allocation_index": 2,
+    "source_file": "agent_null_Kidney_epithelial_cell_of_proximal_tubule_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0108",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2029,
+    "allocation_index": 25,
+    "source_file": "agent_null_Spleen_b_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0109",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Kidney.h5ad",
+    "seed": 2001,
+    "allocation_index": 1,
+    "source_file": "agent_null_Kidney_epithelial_cell_of_proximal_tubule_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0110",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2019,
+    "allocation_index": 18,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0111",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2008,
+    "allocation_index": 8,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0112",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Liver.h5ad",
+    "seed": 2005,
+    "allocation_index": 5,
+    "source_file": "agent_null_Liver_hepatocyte_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0113",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Aorta.h5ad",
+    "seed": 2001,
+    "allocation_index": 1,
+    "source_file": "agent_null_Aorta_aortic_endothelial_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0114",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2008,
+    "allocation_index": 7,
+    "source_file": "agent_null_Spleen_b_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0115",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2013,
+    "allocation_index": 13,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0116",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2030,
+    "allocation_index": 27,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0117",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2027,
+    "allocation_index": 24,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0118",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2005,
+    "allocation_index": 5,
+    "source_file": "agent_null_Spleen_b_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0119",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2028,
+    "allocation_index": 25,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0120",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Kidney.h5ad",
+    "seed": 2004,
+    "allocation_index": 4,
+    "source_file": "agent_null_Kidney_epithelial_cell_of_proximal_tubule_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0121",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2031,
+    "allocation_index": 28,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0122",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Kidney.h5ad",
+    "seed": 2003,
+    "allocation_index": 3,
+    "source_file": "agent_null_Kidney_epithelial_cell_of_proximal_tubule_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0123",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Kidney.h5ad",
+    "seed": 2012,
+    "allocation_index": 5,
+    "source_file": "agent_null_Kidney_epithelial_cell_of_proximal_tubule_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0124",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2026,
+    "allocation_index": 23,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0125",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2001,
+    "allocation_index": 1,
+    "source_file": "agent_null_Spleen_b_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0126",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2031,
+    "allocation_index": 26,
+    "source_file": "agent_null_Spleen_b_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0127",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2018,
+    "allocation_index": 16,
+    "source_file": "agent_null_Spleen_b_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0128",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2021,
+    "allocation_index": 19,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0129",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2009,
+    "allocation_index": 8,
+    "source_file": "agent_null_Spleen_b_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0130",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Liver.h5ad",
+    "seed": 2007,
+    "allocation_index": 7,
+    "source_file": "agent_null_Liver_hepatocyte_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0131",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2022,
+    "allocation_index": 20,
+    "source_file": "agent_null_Spleen_b_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0132",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2022,
+    "allocation_index": 20,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0133",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Aorta.h5ad",
+    "seed": 2001,
+    "allocation_index": 1,
+    "source_file": "agent_null_Aorta_aortic_endothelial_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0134",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2023,
+    "allocation_index": 21,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0135",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2020,
+    "allocation_index": 18,
+    "source_file": "agent_null_Spleen_b_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0136",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2006,
+    "allocation_index": 6,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0137",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2012,
+    "allocation_index": 11,
+    "source_file": "agent_null_Spleen_b_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0138",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2000,
+    "allocation_index": 0,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0139",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2036,
+    "allocation_index": 28,
+    "source_file": "agent_null_Spleen_b_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0140",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2003,
+    "allocation_index": 3,
+    "source_file": "agent_null_Spleen_b_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0141",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2009,
+    "allocation_index": 9,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0142",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2005,
+    "allocation_index": 5,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0143",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2003,
+    "allocation_index": 3,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0144",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Aorta.h5ad",
+    "seed": 2004,
+    "allocation_index": 3,
+    "source_file": "agent_null_Aorta_aortic_endothelial_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0145",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Kidney.h5ad",
+    "seed": 2000,
+    "allocation_index": 0,
+    "source_file": "agent_null_Kidney_epithelial_cell_of_proximal_tubule_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0146",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2014,
+    "allocation_index": 12,
+    "source_file": "agent_null_Spleen_b_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0147",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2002,
+    "allocation_index": 2,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0148",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Spleen.h5ad",
+    "seed": 2015,
+    "allocation_index": 13,
+    "source_file": "agent_null_Spleen_b_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0149",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2006,
+    "allocation_index": 6,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0150",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2016,
+    "allocation_index": 15,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0151",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2007,
+    "allocation_index": 7,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0152",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2012,
+    "allocation_index": 12,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0153",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2022,
+    "allocation_index": 20,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0154",
+    "arm": "ungoverned",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Aorta.h5ad",
+    "seed": 2003,
+    "allocation_index": 2,
+    "source_file": "agent_null_Aorta_aortic_endothelial_cell_ungoverned_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  },
+  {
+    "blinded_id": "R0155",
+    "arm": "governed",
+    "tissue": "tabula-muris-senis-facs-processed-official-annotations-Limb_Muscle.h5ad",
+    "seed": 2008,
+    "allocation_index": 8,
+    "source_file": "agent_null_Limb_Muscle_skeletal_muscle_satellite_cell_governed_same_method_stratified_valid_ordinary_seed2000_n30.json"
+  }
+]
