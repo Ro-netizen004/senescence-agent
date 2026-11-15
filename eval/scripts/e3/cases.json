@@ -1,0 +1,30 @@
+{
+  "case_count": 24,
+  "reference_classes": {"valid_positive": 8, "valid_nonsignificant": 4, "invalid_design": 6, "invalid_result": 6},
+  "cases": [
+    {"id":"V01","class":"valid_positive","design":"valid","result":"positive_stable","claim":"qualified_expression_association"},
+    {"id":"V02","class":"valid_positive","design":"valid","result":"positive_stable","claim":"qualified_expression_association"},
+    {"id":"V03","class":"valid_positive","design":"valid","result":"positive_stable","claim":"qualified_expression_association"},
+    {"id":"V04","class":"valid_positive","design":"valid","result":"positive_stable","claim":"qualified_expression_association"},
+    {"id":"V05","class":"valid_positive","design":"valid","result":"positive_stable","claim":"qualified_expression_association"},
+    {"id":"V06","class":"valid_positive","design":"valid","result":"positive_stable","claim":"qualified_expression_association"},
+    {"id":"V07","class":"valid_positive","design":"valid","result":"positive_stable","claim":"qualified_expression_association"},
+    {"id":"V08","class":"valid_positive","design":"valid","result":"positive_stable","claim":"qualified_expression_association"},
+    {"id":"V09","class":"valid_nonsignificant","design":"valid","result":"nonsignificant","claim":"qualified_nonsignificance"},
+    {"id":"V10","class":"valid_nonsignificant","design":"valid","result":"nonsignificant","claim":"qualified_nonsignificance"},
+    {"id":"V11","class":"valid_nonsignificant","design":"valid","result":"nonsignificant","claim":"qualified_nonsignificance"},
+    {"id":"V12","class":"valid_nonsignificant","design":"valid","result":"nonsignificant","claim":"qualified_nonsignificance"},
+    {"id":"D01","class":"invalid_design","design":"invalid_counts","result":"positive_stable","claim":"unsupported"},
+    {"id":"D02","class":"invalid_design","design":"invalid_counts","result":"positive_stable","claim":"unsupported"},
+    {"id":"D03","class":"invalid_design","design":"no_replicate_unit","result":"positive_stable","claim":"unsupported"},
+    {"id":"D04","class":"invalid_design","design":"no_replicate_unit","result":"positive_stable","claim":"unsupported"},
+    {"id":"D05","class":"invalid_design","design":"two_replicates","result":"positive_stable","claim":"unsupported"},
+    {"id":"D06","class":"invalid_design","design":"perfect_confounding","result":"positive_stable","claim":"unsupported"},
+    {"id":"R01","class":"invalid_result","design":"valid","result":"artifact_suspect","claim":"unsupported"},
+    {"id":"R02","class":"invalid_result","design":"valid","result":"artifact_suspect","claim":"unsupported"},
+    {"id":"R03","class":"invalid_result","design":"valid","result":"unstable","claim":"unsupported"},
+    {"id":"R04","class":"invalid_result","design":"valid","result":"unstable","claim":"unsupported"},
+    {"id":"R05","class":"invalid_result","design":"valid","result":"stability_unestablished","claim":"unsupported"},
+    {"id":"R06","class":"invalid_result","design":"valid","result":"stability_unestablished","claim":"unsupported"}
+  ]
+}
