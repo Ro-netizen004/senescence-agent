@@ -1,264 +1,73 @@
 # Senescence Agent
 
-A **statistically governed** LLM agent for single-cell RNA-seq analysis of **cellular senescence** and **aging**. Ask questions in plain English; the agent routes to Scanpy tools but is prevented, by design, from reporting conclusions the data cannot support.
+Senescence Agent is a Python system for single-cell RNA-seq analysis with controlled statistical reporting. A language model can interpret a request and choose an analysis tool. Python checks whether the proposed comparison is admissible, runs the statistical method, assigns an inference state, and renders the user-facing result from a constrained schema.
 
-[![Matched null overclaim: 0/78 vs 72/78](https://img.shields.io/badge/matched%20null%20overclaim-0%2F78%20vs%2072%2F78-brightgreen)](eval/results/final_candidate/null_sweep_same_method/PAPER_RESULTS.md) [![OneK1K: 980 donors](https://img.shields.io/badge/OneK1K-980%20donors-blue)](eval/results/final_candidate/onek1k_external_validation/README.md) [![SenMayo signature](https://img.shields.io/badge/signature-SenMayo-lightgrey)](backend/data/senmayo.json)
+We built it to study a practical failure mode: a plausible scientific answer can overstate a result when cells are treated as independent replicates, the design is confounded, numerical fitting is unreliable, or a report drops qualifications that were present in the analysis. The project is an audit of those boundaries, not a new senescence classifier.
 
-**Core contribution.** Across 78 matched donor-split null allocations with
-identical pseudobulk DESeq2 outputs, the governed system made no reply
-overclaims (0/78), compared with 72/78 for the ungoverned narration ablation.
-This isolates communication governance from the statistical method. See the
-[same-method paper package](eval/results/final_candidate/null_sweep_same_method/PAPER_RESULTS.md).
+## Implementation
 
-**Design principle:** Python owns the science; Google Gemini routes tools only. User-facing answers after tool runs are produced by a **deterministic renderer**, not free-form LLM prose. Statistical claims pass through an admissibility pre-check and an A–E inference-state machine before any wording is generated.
+The API in `backend/main.py` accepts AnnData uploads and chat requests. `backend/agent/` handles intent, planning, tool routing, Gate 1 admissibility, Gate 2 inference state, and final output schema and rendering. `backend/tools/` contains Scanpy processing, sample-level comparisons, raw-count pseudobulk construction, PyDESeq2 differential expression, and senescence scoring with the included SenMayo gene list. The React client in `frontend/` is an optional interface.
 
----
+Gate 1 checks the requested biological unit, available replicates, group and covariate structure, count validity, and design before inferential tools run. Gate 2 evaluates the returned statistical result and its reliability signals before licensing significance language or gene-level output. The renderer uses that license to construct the final report. These are separate checks: passing Gate 1 does not imply that a fitted result supports an inferential claim.
 
-## What it does
+## Experiments represented in the code
 
-- **Governs inference:** blocks pseudoreplicated/underpowered tests up front and gates every result into an A–E state (see below) so significance is never overclaimed
-- Runs **sample-level** statistical tests (Mann–Whitney on per-mouse medians, not pooled cells) and **pseudobulk DESeq2** for gene-level aging contrasts
-- Scores cells with the **SenMayo** gene signature (mouse/human orthologs) as the demonstrated senescence readout
-- Compares senescence across age groups and cell types
-- Preprocesses data once per upload (QC, normalization, Leiden clustering)
-- Generates UMAP and distribution plots served at `/plots`
-- Builds Markdown/PDF reports from the **tool execution log** (not chat hallucination)
+| Family | What was tested | Code |
+| --- | --- | --- |
+| Task 3A and 3D | Governance-runner source and a human-annotation analysis pipeline | `eval/task2/`, `eval/scripts/task3d/` |
+| E1 | Nine CRISPRi targets, original statistical pipeline and reporting interface | `eval/scripts/e1/` |
+| E1-S | Saved-result donor stability and numerical sensitivity checks; the R DESeq2 reference script is a separate, prospective specification | `eval/scripts/e1s/` |
+| E2 | Four reporting arms over 102 evidence contexts, including the metadata adapter, frozen scorer, Gemini 3.6 execution path, and controlled continuation | `eval/scripts/e2/`, `eval/scripts/e2_model36_v1/`, `eval/scripts/e2_continuation_v1/` |
+| E3 | Offline, synthetic architecture ablation of Gate 1 and Gate 2 | `eval/scripts/e3/` |
+| R1–R3 | Post hoc field-transfer, numerical-parser, and fixed-wording sensitivity analyses of saved artifacts | `eval/scripts/retrospective/` |
 
-> **On detection accuracy (be precise):** SenMayo is the senescence signature this agent demonstrates, not a claim of best-in-class detection. On the external GSE226225 benchmark SenMayo scores AUROC ≈ 0.56, and a single marker (MKI67 absence) does better — signature performance is dataset-dependent. The contribution here is *statistical governance*, not a new classifier. See [`gse226225_report.md`](eval/results/validation/gse226225_report.md).
+The E2 execution produced 398 complete reports out of 408 planned slots; eight were truncated and two API calls timed out. The original strict numerical-retention score for engineered-positive cases was 0/50 opportunities in each generated-text arm. A later, explicitly post hoc parser found correctly matched numeric values in saved LaTeX-formatted rows that the strict parser missed. That finding concerns measurement of report content, not biological correctness. The E3 fixture tests the behavior of the existing gates on synthetic designs; it is not external biological validation. Independent E4 scientific-claim annotation has not been completed, so the machine screens and claim linter should not be treated as scientific ground truth.
 
----
+## Install
 
-## Architecture
-
-```text
-Upload (.h5ad) → FastAPI → run_agent
-                              │
-                    ensure_pipeline (QC, norm, cluster)
-                              │
-                    Gemini: tool selection only
-                              │
-                    Scanpy tools (facts-only JSON)
-                              │
-                    inference_state (A–E state machine)
-                              │
-                    output_schema → output_renderer → chat reply
-```
-
-### Inference states (system-enforced)
-
-| State | Meaning |
-|--------|---------|
-| `DESCRIPTIVE_ONLY` | Medians/ranks only; no p-values from this tool |
-| `LOW_POWER` | Too few mice/cells; **no statistical conclusion** |
-| `NOT_SIGNIFICANT` | Test ran; p ≥ 0.05 — numeric trend only |
-| `SIGNIFICANT_INFERENTIAL` | Sample- or gene-level significance allowed (cautious wording) |
-| `BLOCKED` | Tool error; no inference |
-
-Key modules:
-
-| Path | Role |
-|------|------|
-| `backend/agent/agent.py` | Orchestration, tool execution |
-| `backend/agent/inference_state.py` | State machine + power gating |
-| `backend/agent/output_schema.py` | Strict JSON slots (`interpretation: "not permitted"`) |
-| `backend/agent/output_renderer.py` | Template-based user text (no LLM) |
-| `backend/tools/` | Scanpy analysis (numbers/metadata only) |
-
-Deep dive: [docs/senescence_agent_architecture.md](docs/senescence_agent_architecture.md) (PDF: `docs/senescence_agent_architecture.pdf`).
-
-Regenerate PDF:
+The supported backend runtime is Python 3.11.x; the local evaluation environment used Python 3.11.9. `backend/requirements.txt` pins the Python analysis and API dependencies. The locally verified environment had Scanpy 1.11.5, PyDESeq2 0.5.4, and `google-genai` 2.18.1, and passed `pip check`. R 4.6.1 was present locally, but the required R package DESeq2 1.52.0 was not installed; the R reference script has not been verified in this environment. Task 3B's official scBench path additionally requires the separately frozen `latch==2.77.1` and `latch-eval-tools==0.3.10` toolchain, which is not installed in the current Python environment.
 
 ```bash
-backend\venv\Scripts\python.exe scripts\generate_architecture_pdf.py
+python3.11 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r backend/requirements.txt
+python -m pip check
 ```
 
----
+Copy `.env.example` to `.env` and set a private `GEMINI_API_KEY` only if running model-backed requests. Never commit `.env`. The ordinary agent's default model is `gemini-flash-latest`; registered experiments pin their own model and generation settings and must not be silently redirected.
 
-## Analysis tools (Gemini can invoke)
-
-| Tool | Level | Output |
-|------|--------|--------|
-| `find_senescence_markers` | Cell | SenMayo gene coverage |
-| `senescence_score` | Cell | Per-cell/cluster SenMayo scores + UMAP |
-| `generate_umap` | Cell | Cluster UMAP |
-| `get_cluster_annotations` | Cell | Cluster → cell type mapping |
-| `compare_across_age` | Descriptive | Median scores by age (no p-value) |
-| `test_senescence_difference` | Inferential | Mann–Whitney on **per-sample** medians |
-| `run_deseq2` | Gene | Pseudobulk DESeq2 (FDR, log2FC) |
-
-For a **score p-value**, use `test_senescence_difference` (e.g. T cell, `3m` vs `24m`).  
-For **gene-level** significance, use `run_deseq2` on a specific cell type.
-
----
-
-## Project structure
-
-```text
-senescence-agent/
-├── backend/
-│   ├── main.py              # FastAPI app
-│   ├── agent/               # Agent, pipeline, inference, renderer
-│   ├── tools/               # Scanpy analysis
-│   ├── data/uploads/        # Persisted .h5ad (gitignored)
-│   └── outputs/             # Plots + reports
-├── frontend/                # React + TypeScript (Vite)
-├── docs/                    # Architecture guide, narratives
-├── scripts/                 # e.g. architecture PDF generator
-├── .env                     # GEMINI_API_KEY (not committed)
-└── README.md
-```
-
----
-
-## Requirements
-
-- Python 3.10+
-- Node.js 18+ (frontend)
-- `GEMINI_API_KEY` in `.env` at repo root
-
-```env
-GEMINI_API_KEY=your_key_here
-# optional:
-GEMINI_MODEL=gemini-2.5-flash
-VITE_API_URL=http://127.0.0.1:8000
-```
-
----
-
-## Local development
-
-### Backend
+To start the API from the repository root:
 
 ```bash
 cd backend
-python -m venv venv
-venv\Scripts\activate          # Windows
-# source venv/bin/activate     # macOS/Linux
-pip install -r requirements.txt
-python main.py
+python -m uvicorn main:app --host 127.0.0.1 --port 8000
 ```
 
-Server: `http://127.0.0.1:8000`  
-Health: `GET /health`
+The `/health` endpoint is a local check. Upload an `.h5ad` through `/upload`, then use `/chat` for analysis and `/report` for a report from accumulated tool runs. Statistical analyses are invoked through those API/tool paths; `backend/tools/run_deseq2.py` is a library module, not a standalone command. The frontend can be started separately with `npm ci` and `npm run dev` from `frontend/`.
 
-### Frontend
+## Deterministic checks and reproduction
+
+These commands do not call a model or rerun a biological experiment:
 
 ```bash
-cd frontend
-npm install
-cp .env.example .env           # set VITE_API_URL if needed
-npm run dev
+python -m unittest discover -s backend/tests -p 'test_output_firewall.py'
+python -m unittest discover -s eval/scripts/e1s -p 'test_e1s.py'
+PYTHONPATH=backend:eval/scripts/e2:eval/scripts/e2_model36_v1:eval/scripts/e2_privacy_v1:eval/scripts/e2_launch_v1 python -m unittest discover -s eval/scripts/e2_launch_v1 -p 'test_orchestrator.py'
+python -m unittest discover -s eval/scripts/retrospective -p 'test_retrospective.py'
 ```
 
-App: `http://localhost:5173`
+`eval/scripts/e3/run_ablation.py` reads its checked-in synthetic `cases.json`, calls the production Gate 1 and Gate 2 functions, and writes to a new ignored `eval/results/v2/e3/code_reproduction/` directory. It refuses to reuse that directory. Run it only when you intend to generate a new deterministic evaluation record:
 
----
-
-## API
-
-### `POST /upload`
-
-Multipart: `file` (`.h5ad`), `species` (`mouse` | `human`).
-
-```json
-{ "file_id": "uuid", "species": "mouse" }
+```bash
+python eval/scripts/e3/run_ablation.py
 ```
 
-### `POST /chat`
+The original E1 and E2 scripts require their frozen evidence packets, result manifests, and external source datasets; these large or potentially sensitive artifacts are not in this code repository. E1 analysis is staged with `python eval/scripts/e1/execute_e1.py analyze` after its registered preparation, and its report stage uses `python eval/scripts/e1/execute_e1.py report`. E2's generated arms require the registered paid Gemini model and an authorized, privacy-minimized evidence export; do not run `eval/scripts/e2/execute.py` as a smoke test. The R1–R3 source copies require the separately archived E1/E2 records and baseline analysis files. Set `SENESCENCE_RETRO_OUTPUT` to a fresh copy of the archived analysis directory for replay; the code defaults to a new ignored reproduction path, not the sealed archive. `eval/scripts/e1s/independent_deseq2.R` additionally requires DESeq2 1.52.0 and prepared paired count matrices.
 
-```json
-{
-  "session_id": "string",
-  "message": "What is the p-value for senescence in T cells, 3m vs 24m?",
-  "file_id": "uuid",
-  "species": "mouse",
-  "session_history": [
-    { "role": "user", "content": "..." },
-    { "role": "assistant", "content": "..." }
-  ]
-}
-```
+The Task 3 case registry and the safe V1.2 and metrics specifications are included for source review. The original V1/V1.1 protocols and Task 3B/3C runners contain hard-coded personal paths and are withheld from this public code branch, along with files that depend on those runners. Full Task 3A–3C reproduction therefore requires the separately preserved private originals, external datasets, API access and frozen result archives. Do not rerun a registered scientific case to replace a failure.
 
-Response:
+## Limits
 
-```json
-{
-  "reply": "Deterministic rendered text from tool results",
-  "plots": [{ "url": "/plots/senescence_score.png", "caption": "..." }],
-  "tool_calls": [
-    {
-      "name": "test_senescence_difference",
-      "args": { "cell_type": "T cell", "reference_age": "3m", "comparison_age": "24m" },
-      "result": { "...": "...", "inference_state": { "state": "LOW_POWER", ... } }
-    }
-  ]
-}
-```
+A deterministic gate can enforce its programmed statistical and reporting rules, but that does not by itself prove that a biological interpretation is correct. The E1 reporting interface lost some upstream design and warning information; the later E2 adapter is a distinct evaluation interface. E2 compares generated reports with local deterministic templates under different output mechanisms, and its incomplete slots remain failures. E3 uses constructed fixtures. The retrospective R1–R3 analyses were performed after observing original outcomes. The repository does not contain completed independent E4 annotations, restricted or raw donor data, or the large original result dumps.
 
-### `POST /report`
-
-Uses accumulated `tool_runs` from the frontend (authoritative). Optional `session_history` (user messages only for context).
-
-```json
-{
-  "session_id": "string",
-  "file_id": "uuid",
-  "species": "mouse",
-  "tool_runs": [],
-  "plots": [{ "url": "/plots/umap.png" }]
-}
-```
-
-Returns `report`, `report_url`, `pdf_url`.
-
-### `GET /dataset/{file_id}/info?species=mouse`
-
-Dataset summary (cell counts, ages, SenMayo coverage, metadata flags).
-
-Static assets: `/plots/*`, `/reports/*`.
-
----
-
-## Datasets
-
-Large `.h5ad` files are not in git. After upload, copies are stored under `backend/data/uploads/{file_id}.h5ad`.
-
-Tested with Tabula Muris Senis–style metadata (`age`, `cell_ontology_class`, `sample_id` or `mouse.id`).
-
-The many-donor external calibration uses
-`OneK1K_updated_14_celltypes_980_donors.h5ad` from
-[Zenodo record 18870747](https://zenodo.org/records/18870747) (version DOI
-`10.5281/zenodo.18870747`; concept DOI `10.5281/zenodo.18870746`; CC BY 4.0;
-registered MD5 `a16487819c21506b400cd1d36f09c3e1`). The H5AD is not stored in
-Git.
-
-## Evaluation evidence
-
-- The current governance-isolation result is packaged under
-  [`eval/results/final_candidate/null_sweep_same_method/`](eval/results/final_candidate/null_sweep_same_method/).
-- OneK1K external statistical calibration and dataset provenance are under
-  [`eval/results/final_candidate/onek1k_external_validation/`](eval/results/final_candidate/onek1k_external_validation/).
-- Confound-gate functional validation is under
-  [`eval/results/final_candidate/confound_gate/`](eval/results/final_candidate/confound_gate/).
-- Human validation of the automated claim linter is in progress. Two study
-  authors will independently annotate 156 arm-blinded replies using the frozen
-  protocol and workbooks in
-  [`eval/ablation/annotation/`](eval/ablation/annotation/). No human-annotation
-  result is claimed until both workbooks are frozen and agreement is computed.
-
----
-
-## Tech stack
-
-| Layer | Stack |
-|--------|--------|
-| API | FastAPI, Uvicorn |
-| Analysis | Scanpy, AnnData, PyDESeq2, SciPy |
-| Agent routing | Google Generative AI (`google-generativeai`) |
-| Frontend | React, TypeScript, Vite, Tailwind |
-
----
-
-## License
-
-See [LICENSE](LICENSE).
+The project is distributed under [LICENSE](LICENSE).
