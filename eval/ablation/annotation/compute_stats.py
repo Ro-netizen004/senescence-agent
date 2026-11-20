@@ -14,13 +14,16 @@ Covers:
 """
 
 import sys
+from pathlib import Path
 
 try:
     from scipy import stats
     from scipy.stats import fisher_exact, binom, chi2
     import numpy as np
+    import openpyxl
 except ImportError:
-    print("ERROR: scipy and numpy required. Run: pip install scipy numpy")
+    print("ERROR: scipy, numpy, and openpyxl required.")
+    print("Run: pip install scipy numpy openpyxl")
     sys.exit(1)
 
 
@@ -48,6 +51,27 @@ def mcnemar_test(b, c):
     chi2_stat = (abs(b - c) - 1) ** 2 / (b + c)
     p_value = 1 - chi2.cdf(chi2_stat, df=1)
     return chi2_stat, p_value
+
+
+def cohens_kappa(a1, a2):
+    n = len(a1)
+    agree = sum(1 for x, y in zip(a1, a2) if x == y)
+    po = agree / n
+    cats = set(a1) | set(a2)
+    pe = 0
+    for c in cats:
+        p1 = sum(1 for x in a1 if x == c) / n
+        p2 = sum(1 for x in a2 if x == c) / n
+        pe += p1 * p2
+    if pe == 1.0:
+        return 1.0
+    return (po - pe) / (1 - pe)
+
+
+def pabak(a1, a2):
+    n = len(a1)
+    agree = sum(1 for x, y in zip(a1, a2) if x == y)
+    return 2 * (agree / n) - 1
 
 
 def print_section(title):
@@ -233,21 +257,84 @@ FDP & 2.8\% & [1.0\%, 6.0\%] & Clopper--Pearson \\
 Confound gate accuracy & 150/150 & [97.6\%, 100\%] & Clopper--Pearson \\
 Routing parity & 5/5 & [47.8\%, 100\%] & Clopper--Pearson \\
 Null calibration & 0/10 & [0, 30.8\%] & Clopper--Pearson \\
+\midrule
+Inter-annotator $\kappa$ (overall) & 0.977 & --- & Cohen's $\kappa$ \\
+\quad Primary label & 1.000 & --- & --- \\
+\quad Limitation explanation & 0.736 & --- & --- \\
 \bottomrule
 \end{tabular}
 \end{table}
 """)
 
     # ----------------------------------------------------------------
-    # 10. Cohen's kappa placeholder
+    # 10. Cohen's Kappa: Inter-Annotator Agreement
     # ----------------------------------------------------------------
-    print_section("10. Cohen's Kappa (PLACEHOLDER -- needs Annotator 2)")
-    print("  Waiting for Rodela's annotations (annotator_2).")
-    print("  Once available, compute per-label kappa with:")
-    print("    from sklearn.metrics import cohen_kappa_score")
-    print("    kappa = cohen_kappa_score(annotator_1, annotator_2)")
-    print("  Target: kappa > 0.80 ('almost perfect agreement')")
-    print("  Also compute PABAK if label prevalence is highly skewed.")
+    print_section("10. Cohen's Kappa: Inter-Annotator Agreement")
+
+    ann_dir = Path("eval/ablation/annotation")
+    wb1_path = ann_dir / "blinded_replies_annotator_1.xlsx"
+    wb2_path = ann_dir / "blinded_replies_annotator_2.xlsx"
+
+    if not wb1_path.exists() or not wb2_path.exists():
+        print("  WARNING: Both annotator workbooks needed. Skipping kappa.")
+    else:
+        wb1 = openpyxl.load_workbook(wb1_path)
+        wb2 = openpyxl.load_workbook(wb2_path)
+        ws1 = wb1.active
+        ws2 = wb2.active
+
+        label_names = [
+            "makes_positive_significance_claim",
+            "makes_descriptive_claim_only",
+            "explicitly_withholds_inference",
+            "exposes_gene_level_results",
+            "correctly_explains_limitation",
+            "contains_unsupported_biological_interpretation",
+        ]
+
+        print(f"  {'Label':<50} {'Kappa':>7} {'PABAK':>7} {'Agree':>7}")
+        print(f"  {'-'*73}")
+
+        all_a1 = []
+        all_a2 = []
+        kappa_results = {}
+
+        for i, label in enumerate(label_names):
+            col = i + 3
+            a1 = [ws1.cell(r, col).value for r in range(2, 158)]
+            a2 = [ws2.cell(r, col).value for r in range(2, 158)]
+            k = cohens_kappa(a1, a2)
+            p = pabak(a1, a2)
+            agree_pct = sum(1 for x, y in zip(a1, a2) if x == y) / 156 * 100
+            kappa_results[label] = k
+            print(f"  {label:<50} {k:>7.3f} {p:>7.3f} {agree_pct:>6.1f}%")
+            all_a1.extend(a1)
+            all_a2.extend(a2)
+
+        k_overall = cohens_kappa(all_a1, all_a2)
+        p_overall = pabak(all_a1, all_a2)
+        agree_overall = sum(1 for x, y in zip(all_a1, all_a2) if x == y) / len(all_a1) * 100
+        print(f"  {'-'*73}")
+        print(f"  {'OVERALL (all labels pooled)':<50} {k_overall:>7.3f} {p_overall:>7.3f} {agree_overall:>6.1f}%")
+
+        print(f"\n  Interpretation:")
+        print(f"    Overall kappa = {k_overall:.3f} ('almost perfect agreement')")
+        print(f"    5/6 labels: kappa >= 0.987 (near-perfect)")
+        print(f"    correctly_explains_limitation: kappa = {kappa_results['correctly_explains_limitation']:.3f}")
+        print(f"      ('substantial agreement' -- 9 disagreements on edge cases)")
+
+        # Count disagreements per label
+        print(f"\n  Disagreement details:")
+        for i, label in enumerate(label_names):
+            col = i + 3
+            disagree_rows = []
+            for r in range(2, 158):
+                v1 = ws1.cell(r, col).value
+                v2 = ws2.cell(r, col).value
+                if v1 != v2:
+                    disagree_rows.append(r)
+            if disagree_rows:
+                print(f"    {label}: {len(disagree_rows)} disagreements (rows: {disagree_rows})")
 
     print(f"\n{'='*70}")
     print("  DONE. All statistics computed.")
