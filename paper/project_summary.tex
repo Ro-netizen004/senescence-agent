@@ -1,0 +1,176 @@
+% 2--3 page project summary for Professor AK
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{natbib}
+\usepackage{hyperref}
+\bibliographystyle{plainnat}
+
+\title{Faithful but Invalid: A Statistical-Validity Firewall for a Governed
+Single-Cell Senescence Analysis Agent}
+\author{Rodela Cenaj \and Aviral Gupta\\
+University of South Florida}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Abstract}
+
+Large language model (LLM) agents increasingly automate single-cell RNA-seq
+analysis, yet no existing system checks whether the statistical inferences it
+produces are \textit{valid}. We show this gap has real consequences. Per-cell
+differential-expression testing---the default in most agents---treats thousands
+of cells from a single biological replicate (mouse or donor) as independent
+observations, a well-known error called \textit{pseudoreplication}. Under
+constructed-null experiments where no true difference exists, this error
+produces hundreds to thousands of false gene discoveries on every null split.
+An ungoverned LLM agent overclaims even when it receives statistically correct
+(pseudobulk) results, because nothing in its architecture prevents it from
+narrating a non-inferential result as a significant finding.
+
+We introduce a two-gate validity firewall: a deterministic
+\textit{admissibility} gate that blocks inadmissible inferences before
+execution (e.g., pseudoreplication, insufficient replicates, confounded
+contrasts), and a \textit{justification} gate that withholds conclusions
+unsupported by the data. The firewall is deterministic and LLM-free: the LLM
+proposes an intent, but the gates decide whether the inference is valid. We
+show that the governed system prevents all overclaiming on null data while
+preserving sensitivity to real biological signal on positive-control contrasts.
+
+\section{Dataset}
+
+We use two publicly available datasets:
+
+\begin{enumerate}
+  \item \textbf{Tabula Muris Senis (TMS)} \citep{tabulamuris2020}: A mouse
+  aging atlas profiled with Smart-seq2 FACS across multiple tissues. Biological
+  replicates are individual mice (typically 4--13 per tissue). We use five
+  tissues---kidney, liver, spleen, aorta, and limb muscle---spanning 13
+  cell types. TMS serves both the constructed-null experiments (where mice are
+  randomly assigned to synthetic groups so truth = 0 DE genes) and the
+  positive-control analysis (spleen B cells, 24-month vs.\ 3-month aging
+  contrast, 10 mice).
+
+  \item \textbf{GSE226225}: WI-38 human fibroblasts with etoposide-induced
+  senescence (3 treated vs.\ 2 control samples). Used as secondary biological
+  validation to confirm the governed path recovers canonical senescence markers
+  (CDKN1A/p21, CDKN2A/p16, IL6, GDF15, MKI67, LMNB1).
+\end{enumerate}
+
+No new data is collected; both datasets are publicly available and
+de-identified.
+
+\section{Method}
+
+\subsection{Problem}
+
+When an LLM agent runs differential expression on single-cell data, it
+typically calls a per-cell test (e.g., Wilcoxon rank-sum via
+\texttt{scanpy.tl.rank\_genes\_groups}). This treats each cell as an
+independent observation, but cells from the same mouse or donor share
+biological and technical variation---they are pseudoreplicates. The correct
+approach is to aggregate cells to per-replicate ``pseudobulk'' profiles and
+test across biological replicates. No existing single-cell agent enforces this
+distinction.
+
+\subsection{Governed Agent Architecture}
+
+We build a single-LLM agent for senescence analysis. The LLM is confined to
+intent extraction (proposing which tool to call and with what parameters). Two
+deterministic gates govern the inference:
+
+\begin{itemize}
+  \item \textbf{Gate 1 (Admissibility):} Before any inferential tool executes,
+  a deterministic check inspects the data design. It verifies that a
+  biological-replicate column exists, that there are enough replicates per
+  group ($\geq$3 for DESeq2, $\geq$2 for score tests), and that the contrast
+  is not perfectly confounded with a nuisance variable. If the design is
+  inadmissible, the tool never runs and the agent returns the reason.
+
+  \item \textbf{Gate 2 (Justification):} After the tool runs, every result
+  carries an inference state and validity flags. A validity flag (e.g.,
+  \texttt{cell\_unit\_not\_inferential}) overrides the significance axis: the
+  result is forced to descriptive-only regardless of its p-value. The
+  user-facing reply is produced by a deterministic renderer, not by the LLM.
+\end{itemize}
+
+\subsection{Evaluation Design}
+
+We evaluate at two levels:
+
+\textbf{Method-level:} Using the constructed-null protocol of
+\citet{squair2021}, we randomly assign whole mice to two synthetic groups
+within each cell type. By construction, no true difference exists. We run
+per-cell Wilcoxon and pseudobulk testing on 200 permutations per cell type and
+count false positives.
+
+\textbf{Agent-level:} We run the governed system and an ungoverned ablation on
+78 matched donor-split allocations across five tissues. Both arms receive
+\textit{identical} pseudobulk DESeq2 results---the only difference is the
+governance stack. The primary endpoint is the overclaim rate: does the agent's
+reply make an inferential claim when the result is not licensed?
+
+\section{Results}
+
+\subsection{Method-Level: Pseudoreplication Produces Mass False Discovery}
+
+Across 13 cell types and 200 permutations each, per-cell testing produces a
+false discovery on every single null split. The mean number of false genes at
+FDR$<$0.05 is 1,425 (range: 63--5,748). Pseudobulk testing averages 0.47
+false genes with a 2.5\% false-discovery incidence---below the nominal 5\%.
+FDR correction does not rescue the per-cell path: the problem is the
+statistical \textit{unit}, not the correction procedure.
+
+\subsection{Agent-Level: Governance Prevents Overclaiming}
+
+Across 78 matched allocations where both arms received identical DESeq2
+outputs:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Tissue} & \textbf{Alloc.} & \textbf{Shared disc.} & \textbf{Gov.\ overcl.} & \textbf{Ungov.\ overcl.} \\
+\midrule
+Kidney      & 6  & 458.7 & 0/6  & 6/6  \\
+Liver       & 8  & 30.1  & 0/8  & 5/8  \\
+Spleen      & 30 & 53.7  & 0/30 & 27/30 \\
+Aorta       & 4  & 190.5 & 0/4  & 4/4  \\
+Limb muscle & 30 & 166.5 & 0/30 & 30/30 \\
+\midrule
+\textbf{Pooled} & \textbf{78} & \textbf{132.8} & \textbf{0/78} & \textbf{72/78} \\
+\bottomrule
+\end{tabular}
+\caption{Same-method governance ablation. Both arms receive identical results;
+the governed system overclaims in 0\% of allocations, the ungoverned in
+92.3\%.}
+\end{table}
+
+The governed system classified every null result as
+\texttt{DESCRIPTIVE\_ONLY}, licensed no inferential claims, and withheld all
+gene-level results. The ungoverned ablation overclaimed in 72 of 78
+allocations (92.3\%).
+
+\subsection{Governance Preserves Biological Signal}
+
+On a real aging contrast (TMS spleen B cells, 24-month vs.\ 3-month), the
+governed path recovers 2,246 differentially expressed genes at FDR$<$0.05, of
+which 88.8\% are donor-stable. Among 1,167 genes significant in both arms,
+effect-direction agreement is 100\%. On GSE226225 (etoposide-induced
+senescence), the governed path recovers canonical senescence markers in the
+expected directions (CDKN1A/p21 up, MKI67 down). The firewall is selective:
+it blocks unsupported claims on null data while releasing supported results on
+valid contrasts.
+
+\subsection{An Independent Agent Selects the Invalid Path}
+
+CellAgent, an independently published single-cell agent, was given the same
+constructed-null dataset with a \texttt{sample\_id} column present. It
+autonomously selected a per-cell Wilcoxon test, reasoning about cell counts as
+the statistical unit and ignoring the replicate column. Our admissibility gate
+would refuse the same input.
+
+\bibliography{custom}
+
+\end{document}
