@@ -31,9 +31,20 @@ data/gse226225/
 
 # Generated outputs
 backend/outputs/
+eval/results/
+task2_data/
+AAIBD2026_FINAL_RESEARCH_HANDOFF/
+AAIBD2026_FINAL_RESEARCH_HANDOFF.zip
+AAIBD2026_RETROSPECTIVE_ANALYSES/
+AAIBD2026_RETROSPECTIVE_ANALYSES.zip
+manuscripts/
+.task3_mplconfig/
+.task3_numba_cache/
+RESEARCH_WORK_LOG.md
+*.h5ad
+*.rds
 
-# Raw evaluation runs stay local or in a versioned research archive. Keep
-# protocols, seed lists, manifests, and aggregate summaries in Git.
+# Historical evaluation outputs stay in local research archives.
 eval/results/ablation/*seed*.json
 eval/results/ablation/*seed*.log
 eval/results/**/raw/
