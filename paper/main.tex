@@ -758,9 +758,9 @@ yielded 150/150 correct admissibility decisions.
   Confound gate & 150/150 & [97.6, 100] & CP \\
   Null calibration & 0/10 & [0, 30.8\%] & CP \\
   \midrule
-  Annotator $\kappa$ (overall) & 0.977 & --- & Cohen \\
+  Annotator $\kappa$ (overall) & 0.996 & --- & Cohen \\
   \quad Primary label & 1.000 & --- & --- \\
-  \quad Limitation expl. & 0.736 & --- & --- \\
+  \quad Limitation expl. & 0.987 & --- & --- \\
   \bottomrule
   \end{tabular}}
 \end{table}
@@ -906,7 +906,7 @@ tissues, disease cohorts, and non-monocyte cell types remains future work.
   \textbf{Threat} & \textbf{Mitigation} & \textbf{Remaining} \\
   \midrule
   Method confound & Identical DESeq2 outputs in both arms & Controlled ablation \\
-  Linter bias & Blinded human annotation ($\kappa{=}0.977$) & Limited language coverage \\
+  Linter bias & Blinded human annotation ($\kappa{=}0.996$) & Limited language coverage \\
   Donor reuse & Allocation-level framing & Not population inference \\
   Dataset specificity & TMS + OneK1K + GSE226225 & Limited disease diversity \\
   Protocol specificity & Smart-seq2 + 10x Chromium & Two protocols, not all \\

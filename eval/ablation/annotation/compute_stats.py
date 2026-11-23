@@ -258,9 +258,9 @@ Confound gate accuracy & 150/150 & [97.6\%, 100\%] & Clopper--Pearson \\
 Routing parity & 5/5 & [47.8\%, 100\%] & Clopper--Pearson \\
 Null calibration & 0/10 & [0, 30.8\%] & Clopper--Pearson \\
 \midrule
-Inter-annotator $\kappa$ (overall) & 0.977 & --- & Cohen's $\kappa$ \\
+Inter-annotator $\kappa$ (overall) & 0.996 & --- & Cohen's $\kappa$ \\
 \quad Primary label & 1.000 & --- & --- \\
-\quad Limitation explanation & 0.736 & --- & --- \\
+\quad Limitation explanation & 0.987 & --- & --- \\
 \bottomrule
 \end{tabular}
 \end{table}
